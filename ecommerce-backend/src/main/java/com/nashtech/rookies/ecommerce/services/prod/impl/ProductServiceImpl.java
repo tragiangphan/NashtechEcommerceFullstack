@@ -41,6 +41,10 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
     }
     product.setProductName(productRequestDTO.productName());
     product.setProductDesc(productRequestDTO.productDesc());
+    product.setUnit(productRequestDTO.unit());
+    product.setPrice(productRequestDTO.price());
+    product.setQuantity(productRequestDTO.quantity());
+    product.setFeatured(productRequestDTO.isFeatured());
     product.setSuppliers(suppliers);
     product.setCategory(category);
     prodRepository.saveAndFlush(product);

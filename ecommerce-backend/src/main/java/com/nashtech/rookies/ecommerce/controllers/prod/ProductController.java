@@ -1,6 +1,5 @@
 package com.nashtech.rookies.ecommerce.controllers.prod;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nashtech.rookies.ecommerce.controllers.RestVersion;
@@ -49,14 +48,14 @@ public class ProductController extends RestVersion {
   }
 
   @GetMapping("/products/{id}")
-  public ResponseEntity<ProductResponseDTO> getProductById(@RequestParam("id") @PathVariable("id") Long id) {
+  public ResponseEntity<ProductResponseDTO> getProductById(@PathVariable("id") Long id) {
     Product product = productService.findOne(id).orElseThrow(IllegalArgumentException::new);
     ProductResponseDTO productDTO = productMapper.toResponseDTO(product);
     return ResponseEntity.ok(productDTO);
   }
 
   @PutMapping("/products/{id}")
-  public ResponseEntity<ProductResponseDTO> updateProductById(@RequestParam("id") @PathVariable Long id,
+  public ResponseEntity<ProductResponseDTO> updateProductById(@PathVariable("id") Long id,
       @RequestBody ProductRequestDTO productRequestDTO) {
     Product product = productService.findOne(id).orElseThrow(IllegalArgumentException::new);
     product = productService.updateProductManual(product, productRequestDTO);
