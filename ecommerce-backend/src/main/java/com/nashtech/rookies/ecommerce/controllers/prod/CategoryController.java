@@ -45,9 +45,7 @@ public class CategoryController extends RestVersion {
     var categoryResponseDTO = new LinkedList<CategoryResponseDTO>();
     for (var category : categories) {
       CategoryResponseDTO categoryDTO = categoryMapper.toResponseDTO(category);
-      categoryResponseDTO
-          .add(new CategoryResponseDTO(categoryDTO.id(), categoryDTO.categoryName(), categoryDTO.categoryDesc(),
-              categoryDTO.isActive()));
+      categoryResponseDTO.add(categoryDTO);
     }
     return ResponseEntity.ok(categoryResponseDTO);
   }
@@ -65,6 +63,7 @@ public class CategoryController extends RestVersion {
     Category category = categoryService.findOne(id).orElseThrow(IllegalArgumentException::new);
     category.setCategoryName(categoryRequestDTO.categoryName());
     category.setCategoryDesc(categoryRequestDTO.categoryDesc());
+    category.setActive(categoryRequestDTO.isActive());
     category = categoryService.save(category);
     return ResponseEntity.ok(categoryMapper.toResponseDTO(category));
   }
