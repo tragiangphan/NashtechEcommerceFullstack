@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.nashtech.rookies.ecommerce.models.key.IdEntity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -19,8 +20,10 @@ import lombok.Setter;
 @Entity
 @Table(name = "CATEGORIES")
 public class Category extends IdEntity<Long> {
+  @Column(nullable = false)
   private String categoryName;
   private String categoryDesc;
+  @Column(nullable = false)
   private boolean isActive;
 
   @OneToMany(mappedBy = "category")
