@@ -39,17 +39,12 @@ public class SupplierController extends RestVersion {
   }
 
   @GetMapping("/suppliers")
-  public ResponseEntity<List<SupplierResponseDTO>> getAllCategories() {
+  public ResponseEntity<List<SupplierResponseDTO>> getAllSuppliers() {
     var suppliers = supplierService.findAll();
     var supplierResponseDTO = new LinkedList<SupplierResponseDTO>();
     for (var supplier : suppliers) {
       SupplierResponseDTO supplierDTO = supplierMapper.toResponseDTO(supplier);
-      supplierResponseDTO
-          .add(new SupplierResponseDTO(
-              supplierDTO.id(), supplierDTO.supplierName(), supplierDTO.phoneNo(),
-              supplierDTO.email(), supplierDTO.address(), supplierDTO.street(), supplierDTO.ward(), supplierDTO.city(),
-              supplierDTO.country(), supplierDTO.postalCode(),
-              supplierDTO.isActive(), supplierDTO.listProduct()));
+      supplierResponseDTO.add(supplierDTO);
     }
     return ResponseEntity.ok(supplierResponseDTO);
   }
