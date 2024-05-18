@@ -2,6 +2,7 @@ package com.nashtech.rookies.ecommerce.models.prod;
 
 import java.util.Set;
 
+import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
 import com.nashtech.rookies.ecommerce.models.key.IdEntity;
 
 import jakarta.persistence.Column;
@@ -24,7 +25,7 @@ public class Category extends IdEntity<Long> {
   private String categoryName;
   private String categoryDesc;
   @Column(nullable = false)
-  private boolean isActive;
+  private ActiveModeEnum activeMode = ActiveModeEnum.ACTIVE;
 
   @OneToMany(mappedBy = "category")
   private Set<Product> products;

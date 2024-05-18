@@ -1,4 +1,6 @@
 package com.nashtech.rookies.ecommerce.dto.prod.requests;
 
-public record CategoryRequestDTO(String categoryName, String categoryDesc, boolean isActive) {
+import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
+
+public record CategoryRequestDTO(String categoryName, String categoryDesc, ActiveModeEnum activeMode) {
 }
