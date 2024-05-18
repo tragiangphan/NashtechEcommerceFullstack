@@ -9,6 +9,7 @@ import com.nashtech.rookies.ecommerce.models.prod.Image;
 
 @Mapper(componentModel = "spring")
 public interface ImageMapper {
+  @Mapping(target = "productId", source = "image.product.id")
   ImageRequestDTO toRequestDTO(Image image);
 
   @Mapping(target = "productId", source = "image.product.id")

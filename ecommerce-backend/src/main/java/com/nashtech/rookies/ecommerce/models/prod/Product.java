@@ -2,6 +2,8 @@ package com.nashtech.rookies.ecommerce.models.prod;
 
 import java.util.Set;
 
+import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
+import com.nashtech.rookies.ecommerce.models.enums.FeatureModeEnum;
 import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
 
 import jakarta.persistence.CascadeType;
@@ -33,7 +35,7 @@ public class Product extends AuditEntity<Long> {
   private int price;
   private long quantity;
   @Column(nullable = false)
-  private boolean isFeatured;
+  private FeatureModeEnum featureMode = FeatureModeEnum.FEATURED;
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude

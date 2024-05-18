@@ -2,6 +2,7 @@ package com.nashtech.rookies.ecommerce.models.prod;
 
 import java.util.Set;
 
+import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
 import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
 
 import jakarta.persistence.Column;
@@ -29,7 +30,7 @@ public class Supplier extends AuditEntity<Long> {
   private String country;
   private String postalCode;
   @Column(nullable = false)
-  private boolean isActive;
+  private ActiveModeEnum activeMode = ActiveModeEnum.ACTIVE;
 
   @ManyToMany(mappedBy = "suppliers")
   Set<Product> products;
