@@ -1,12 +1,16 @@
 package com.nashtech.rookies.ecommerce.services.prod.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
-import com.nashtech.rookies.ecommerce.exceptions.NotFoundException;
+import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
+import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.mappers.prod.ProductMapper;
 import com.nashtech.rookies.ecommerce.models.prod.Category;
 import com.nashtech.rookies.ecommerce.models.prod.Product;
 import com.nashtech.rookies.ecommerce.models.prod.Supplier;
@@ -19,54 +23,75 @@ import com.nashtech.rookies.ecommerce.services.prod.ProductService;
 @Service
 @Transactional(readOnly = true)
 public class ProductServiceImpl extends CommonServiceImpl<Product, Long> implements ProductService {
+  private final ProductMapper productMapper;
+  private final ProductRepository productRepository;
 
-  private final ProductRepository prodRepository;
   private final CategoryRepository categoryRepository;
   private final SupplierRepository supplierRepository;
 
-  ProductServiceImpl(ProductRepository prodRepository, CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
-    super(prodRepository);
-    this.prodRepository = prodRepository;
+  public ProductServiceImpl(ProductMapper productMapper, ProductRepository productRepository, CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
+    super(productRepository);
+    this.productMapper = productMapper;
+    this.productRepository = productRepository;
     this.categoryRepository = categoryRepository;
     this.supplierRepository = supplierRepository;
   }
 
   @Transactional
-  public Product createProductManual(ProductRequestDTO productRequestDTO) {
+  public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
     Product product = new Product();
-    Category category = categoryRepository.findById(productRequestDTO.categoryId()).orElseThrow(NotFoundException::new);
+    Category category = categoryRepository.findById(productRequestDTO.categoryId())
+        .orElseThrow(ResourceNotFoundException::new);
     Set<Supplier> suppliers = new HashSet<>();
     for (Long supplierID : productRequestDTO.suppliers()) {
-      suppliers.add(supplierRepository.findById(supplierID).orElseThrow(NotFoundException::new));
+      suppliers.add(supplierRepository.findById(supplierID).orElseThrow(ResourceNotFoundException::new));
     }
     product.setProductName(productRequestDTO.productName());
     product.setProductDesc(productRequestDTO.productDesc());
     product.setUnit(productRequestDTO.unit());
     product.setPrice(productRequestDTO.price());
     product.setQuantity(productRequestDTO.quantity());
-    product.setFeatured(productRequestDTO.isFeatured());
+    product.setFeatureMode(productRequestDTO.featureMode());
     product.setSuppliers(suppliers);
     product.setCategory(category);
-    prodRepository.saveAndFlush(product);
-    return product;
+    product = productRepository.saveAndFlush(product);
+    return productMapper.toResponseDTO(product);
+  }
+
+  @Override
+  public List<ProductResponseDTO> getProducts() {
+    var products = productRepository.findAll();
+    List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
+    products.forEach(product -> productResponseDTOs.add(productMapper.toResponseDTO(product)));
+    return productResponseDTOs;
+  }
+
+  @Override
+  public List<ProductResponseDTO> getProducts(Long id) {
+    List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
+    Product product = productRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    productResponseDTOs.add(productMapper.toResponseDTO(product));
+    return productResponseDTOs;
   }
 
   @Transactional
-  public Product updateProductManual(Product product, ProductRequestDTO productRequestDTO) {
-    Category category = categoryRepository.findById(productRequestDTO.categoryId()).orElseThrow(NotFoundException::new);
+  public ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO) {
+    Product product = productRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    Category category = categoryRepository.findById(productRequestDTO.categoryId())
+        .orElseThrow(ResourceNotFoundException::new);
     Set<Supplier> suppliers = new HashSet<>();
     for (Long supplierID : productRequestDTO.suppliers()) {
-      suppliers.add(supplierRepository.findById(supplierID).orElseThrow(NotFoundException::new));
+      suppliers.add(supplierRepository.findById(supplierID).orElseThrow(ResourceNotFoundException::new));
     }
     product.setProductName(productRequestDTO.productName());
     product.setProductDesc(productRequestDTO.productDesc());
     product.setUnit(productRequestDTO.unit());
     product.setPrice(productRequestDTO.price());
     product.setQuantity(productRequestDTO.quantity());
-    product.setFeatured(productRequestDTO.isFeatured());
+    product.setFeatureMode(productRequestDTO.featureMode());
     product.setSuppliers(suppliers);
     product.setCategory(category);
-    prodRepository.saveAndFlush(product);
-    return product;
+    product = productRepository.saveAndFlush(product);
+    return productMapper.toResponseDTO(product);
   }
 }
