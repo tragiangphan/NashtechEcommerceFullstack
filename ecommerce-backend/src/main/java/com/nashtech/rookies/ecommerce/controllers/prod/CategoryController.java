@@ -13,14 +13,11 @@ import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
 import com.nashtech.rookies.ecommerce.services.prod.CategoryService;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
-@Slf4j
 public class CategoryController extends RestVersion {
   private CategoryService categoryService;
 
@@ -31,7 +28,6 @@ public class CategoryController extends RestVersion {
   @PostMapping("/categories")
   public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody @Valid CategoryRequestDTO categoryDTO) {
     return ResponseEntity.ok(categoryService.createCategory(categoryDTO));
-
   }
 
   @GetMapping("/categories")
@@ -51,6 +47,5 @@ public class CategoryController extends RestVersion {
   public ResponseEntity<CategoryResponseDTO> updateCategoryById(@RequestParam(name = "id", required = true) Long id,
       @RequestBody CategoryRequestDTO categoryRequestDTO) {
     return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequestDTO));
-
   }
 }

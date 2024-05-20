@@ -45,7 +45,8 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
   @Override
   public List<SupplierResponseDTO> getSuppliers(Long id) {
     List<SupplierResponseDTO> supplierResponseDTOs = new ArrayList<>();
-    Supplier supplier = supplierRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    Supplier supplier = supplierRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Supplier with an id: " + id));
     supplierResponseDTOs.add(supplierMapper.toResponseDTO(supplier));
     return supplierResponseDTOs;
   }
@@ -53,7 +54,8 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
   @Override
   @Transactional
   public SupplierResponseDTO updateSupplier(Long id, SupplierRequestDTO supplierRequestDTO) {
-    Supplier supplier = supplierRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    Supplier supplier = supplierRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Supplier with an id: " + id));
     supplier.setSupplierName(supplierRequestDTO.supplierName());
     supplier.setPhoneNo(supplierRequestDTO.phoneNo());
     supplier.setEmail(supplierRequestDTO.email());

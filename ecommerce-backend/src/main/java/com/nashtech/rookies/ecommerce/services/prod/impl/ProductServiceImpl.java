@@ -29,7 +29,8 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
   private final CategoryRepository categoryRepository;
   private final SupplierRepository supplierRepository;
 
-  public ProductServiceImpl(ProductMapper productMapper, ProductRepository productRepository, CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
+  public ProductServiceImpl(ProductMapper productMapper, ProductRepository productRepository,
+      CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
     super(productRepository);
     this.productMapper = productMapper;
     this.productRepository = productRepository;
@@ -41,10 +42,12 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
   public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
     Product product = new Product();
     Category category = categoryRepository.findById(productRequestDTO.categoryId())
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(
+            () -> new ResourceNotFoundException("Not found Category with an id: " + productRequestDTO.categoryId()));
     Set<Supplier> suppliers = new HashSet<>();
     for (Long supplierID : productRequestDTO.suppliers()) {
-      suppliers.add(supplierRepository.findById(supplierID).orElseThrow(ResourceNotFoundException::new));
+      suppliers.add(supplierRepository.findById(supplierID)
+          .orElseThrow(() -> new ResourceNotFoundException("Not found Supplier with an id: " + supplierID)));
     }
     product.setProductName(productRequestDTO.productName());
     product.setProductDesc(productRequestDTO.productDesc());
@@ -69,19 +72,23 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
   @Override
   public List<ProductResponseDTO> getProducts(Long id) {
     List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
-    Product product = productRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    Product product = productRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + id));
     productResponseDTOs.add(productMapper.toResponseDTO(product));
     return productResponseDTOs;
   }
 
   @Transactional
   public ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO) {
-    Product product = productRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    Product product = productRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + id));
     Category category = categoryRepository.findById(productRequestDTO.categoryId())
-        .orElseThrow(ResourceNotFoundException::new);
+        .orElseThrow(
+            () -> new ResourceNotFoundException("Not found Category with an id: " + productRequestDTO.categoryId()));
     Set<Supplier> suppliers = new HashSet<>();
     for (Long supplierID : productRequestDTO.suppliers()) {
-      suppliers.add(supplierRepository.findById(supplierID).orElseThrow(ResourceNotFoundException::new));
+      suppliers.add(supplierRepository.findById(supplierID)
+          .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + supplierID)));
     }
     product.setProductName(productRequestDTO.productName());
     product.setProductDesc(productRequestDTO.productDesc());

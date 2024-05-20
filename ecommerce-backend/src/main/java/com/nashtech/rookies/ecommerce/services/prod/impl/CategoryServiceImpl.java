@@ -45,7 +45,8 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
 
   @Override
   public List<CategoryResponseDTO> getCategories(Long id) {
-    var category = categoryRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    var category = categoryRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Category with an id: " + id));
     List<CategoryResponseDTO> categoryResponseDTOs = new ArrayList<>();
     categoryResponseDTOs.add(categoryMapper.toResponseDTO(category));
     return categoryResponseDTOs;
@@ -54,7 +55,8 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
   @Override
   @Transactional
   public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryRequestDTO) {
-    Category category = categoryRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    Category category = categoryRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Category with an id: " + id));
     category.setCategoryName(categoryRequestDTO.categoryName());
     category.setCategoryDesc(categoryRequestDTO.categoryDesc());
     category.setActiveMode(categoryRequestDTO.activeMode());

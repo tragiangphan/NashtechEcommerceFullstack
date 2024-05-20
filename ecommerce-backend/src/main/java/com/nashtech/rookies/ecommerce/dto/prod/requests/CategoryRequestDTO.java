@@ -2,5 +2,13 @@ package com.nashtech.rookies.ecommerce.dto.prod.requests;
 
 import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
 
-public record CategoryRequestDTO(String categoryName, String categoryDesc, ActiveModeEnum activeMode) {
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record CategoryRequestDTO(
+    @NotNull(message = "Category Name is required") 
+    @NotBlank(message = "Category Name is required") 
+    String categoryName,
+    String categoryDesc,
+    @NotNull(message = "Active Mode is required") ActiveModeEnum activeMode) {
 }

@@ -34,7 +34,8 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
   @Transactional
   public ImageResponseDTO createImage(ImageRequestDTO imgRequestDTO) {
     Image image = new Image();
-    Product product = productRepository.findById(imgRequestDTO.productId()).orElseThrow(ResourceNotFoundException::new);
+    Product product = productRepository.findById(imgRequestDTO.productId())
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + imgRequestDTO.productId()));
     image.setImageLink(imgRequestDTO.imageLink());
     image.setImageDesc(imgRequestDTO.imageDesc());
     image.setProduct(product);
@@ -52,7 +53,8 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
 
   @Override
   public List<ImageResponseDTO> getImages(Long id) {
-    var image = imageRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+    var image = imageRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + id));
     List<ImageResponseDTO> imageResponseDTOs = new ArrayList<>();
     imageResponseDTOs.add(imageMapper.toResponseDTO(image));
     return imageResponseDTOs;
@@ -60,8 +62,10 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
 
   @Transactional
   public ImageResponseDTO updateImage(Long id, ImageRequestDTO imgRequestDTO) {
-    Image image = imageRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
-    Product product = productRepository.findById(imgRequestDTO.productId()).orElseThrow(ResourceNotFoundException::new);
+    Image image = imageRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + id));
+    Product product = productRepository.findById(imgRequestDTO.productId())
+        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + imgRequestDTO.productId()));
     image.setImageLink(imgRequestDTO.imageLink());
     image.setImageDesc(imgRequestDTO.imageDesc());
     image.setProduct(product);

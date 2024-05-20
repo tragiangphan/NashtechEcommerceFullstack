@@ -2,7 +2,6 @@ package com.nashtech.rookies.ecommerce.models.prod;
 
 import java.util.Set;
 
-import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
 import com.nashtech.rookies.ecommerce.models.enums.FeatureModeEnum;
 import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
 
