@@ -9,6 +9,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +23,7 @@ import lombok.NoArgsConstructor;
 public abstract class AuditEntity<P extends Serializable> extends IdEntity<P> {
 
     @CreatedDate
-    LocalDateTime createOn;
+    LocalDateTime createdOn;
 
     @LastModifiedDate
     LocalDateTime lastUpdatedOn;
@@ -30,5 +32,16 @@ public abstract class AuditEntity<P extends Serializable> extends IdEntity<P> {
     @Override
     public boolean isNew () {
         return null == getId();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        createdOn = LocalDateTime.now();
+        lastUpdatedOn = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        lastUpdatedOn = LocalDateTime.now();
     }
 }
