@@ -5,9 +5,10 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nashtech.rookies.ecommerce.controllers.RestVersion;
+import com.nashtech.rookies.ecommerce.configs.RestVersionConfig;
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
 import com.nashtech.rookies.ecommerce.services.prod.CategoryService;
@@ -18,19 +19,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
-public class CategoryController extends RestVersion {
+@RequestMapping(RestVersionConfig.API_VERSION + "/categories")
+public class CategoryController {
   private CategoryService categoryService;
 
   public CategoryController(CategoryService categoryService) {
     this.categoryService = categoryService;
   }
 
-  @PostMapping("/categories")
-  public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody @Valid CategoryRequestDTO categoryDTO) {
+  @PostMapping()
+  public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryDTO) {
     return ResponseEntity.ok(categoryService.createCategory(categoryDTO));
   }
 
-  @GetMapping("/categories")
+  @GetMapping()
   public ResponseEntity<List<CategoryResponseDTO>> getCategoryMethod(
       @RequestParam(name = "id", required = false) Long id) {
     List<CategoryResponseDTO> categoryResponseDTO;
@@ -43,7 +45,7 @@ public class CategoryController extends RestVersion {
     return ResponseEntity.ok(categoryResponseDTO);
   }
 
-  @PutMapping("/categories")
+  @PutMapping()
   public ResponseEntity<CategoryResponseDTO> updateCategoryById(@RequestParam(name = "id", required = true) Long id,
       @RequestBody CategoryRequestDTO categoryRequestDTO) {
     return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequestDTO));

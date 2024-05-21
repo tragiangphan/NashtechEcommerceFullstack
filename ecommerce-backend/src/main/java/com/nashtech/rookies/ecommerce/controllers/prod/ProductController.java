@@ -2,7 +2,7 @@ package com.nashtech.rookies.ecommerce.controllers.prod;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nashtech.rookies.ecommerce.controllers.RestVersion;
+import com.nashtech.rookies.ecommerce.configs.RestVersionConfig;
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.services.prod.ProductService;
@@ -14,22 +14,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController()
-public class ProductController extends RestVersion {
+@RequestMapping(RestVersionConfig.API_VERSION + "/products")
+public class ProductController {
   private final ProductService productService;
 
   public ProductController(ProductService productService) {
     this.productService = productService;
   }
 
-  @PostMapping("/products")
+  @PostMapping()
   public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO productDTO) {
     return ResponseEntity.ok(productService.createProduct(productDTO));
   }
 
-  @GetMapping("/products")
+  @GetMapping()
   public ResponseEntity<List<ProductResponseDTO>> getProduct(@RequestParam(name = "id", required = false) Long id) {
     List<ProductResponseDTO> productResponseDTO;
 
@@ -41,7 +43,7 @@ public class ProductController extends RestVersion {
     return ResponseEntity.ok(productResponseDTO);
   }
 
-  @PutMapping("/products")
+  @PutMapping()
   public ResponseEntity<ProductResponseDTO> updateProduct(@RequestParam(name = "id", required = true) Long id,
       @RequestBody ProductRequestDTO productRequestDTO) {
     return ResponseEntity.ok(productService.updateProduct(id, productRequestDTO));

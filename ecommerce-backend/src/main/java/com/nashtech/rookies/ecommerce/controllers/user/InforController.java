@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nashtech.rookies.ecommerce.controllers.RestVersion;
 import com.nashtech.rookies.ecommerce.dto.user.responses.InforResponseDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.InforRequestDTO;
 import com.nashtech.rookies.ecommerce.services.user.InforService;
@@ -18,19 +18,20 @@ import com.nashtech.rookies.ecommerce.services.user.InforService;
 import jakarta.validation.Valid;
 
 @RestController
-public class InforController extends RestVersion {
+@RequestMapping("/infors")
+public class InforController {
   private final InforService inforService;
 
   public InforController(InforService inforService) {
     this.inforService = inforService;
   }
 
-  @PostMapping("/infors")
+  @PostMapping()
   public ResponseEntity<InforResponseDTO> createInfor(@Valid @RequestBody InforRequestDTO inforRequestDTO) {
     return ResponseEntity.ok(inforService.createInfor(inforRequestDTO));
   }
 
-  @GetMapping("/infors")
+  @GetMapping()
   public ResponseEntity<List<InforResponseDTO>> getInfors(@Valid @RequestParam(name = "id", required = false) Long id) {
     List<InforResponseDTO> inforResponseDTO;
     if (id != null) {
@@ -41,7 +42,7 @@ public class InforController extends RestVersion {
     return ResponseEntity.ok(inforResponseDTO);
   }
 
-  @PutMapping("/infors")
+  @PutMapping()
   public ResponseEntity<InforResponseDTO> updateInfor(@Valid @RequestParam(name = "id", required = true) Long id,
       @RequestBody InforRequestDTO inforRequestDTO) {
     return ResponseEntity.ok(inforService.updateInfor(id, inforRequestDTO));

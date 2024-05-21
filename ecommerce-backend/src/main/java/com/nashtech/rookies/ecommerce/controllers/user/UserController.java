@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nashtech.rookies.ecommerce.controllers.RestVersion;
 import com.nashtech.rookies.ecommerce.dto.user.requests.UserRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserResponseDTO;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
@@ -20,21 +20,22 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-public class UserController extends RestVersion {
+@RequestMapping("/users")
+public class UserController {
   private UserService userService;
 
   public UserController(UserService userService) {
     this.userService = userService;
   }
 
-  @PostMapping("/users")
+  @PostMapping()
   public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
     log.info("Create user request: {}", userRequestDTO);
     return ResponseEntity.ok(userService.createUser(userRequestDTO));
   }
 
-  @GetMapping("/users")
-  public ResponseEntity<List<UserResponseDTO>> getAllUsers(
+  @GetMapping()
+  public ResponseEntity<List<UserResponseDTO>> getUsers(
       @Valid @RequestParam(name = "id", required = false) Long id) {
     List<UserResponseDTO> userResponseDTO;
     if (id != null) {
@@ -45,7 +46,7 @@ public class UserController extends RestVersion {
     return ResponseEntity.ok(userResponseDTO);
   }
 
-  @PutMapping("/users")
+  @PutMapping()
   public ResponseEntity<UserResponseDTO> updateUserById(@RequestParam(name = "id", required = true) Long id,
       @RequestBody UserRequestDTO userRequestDTO) {
     return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
