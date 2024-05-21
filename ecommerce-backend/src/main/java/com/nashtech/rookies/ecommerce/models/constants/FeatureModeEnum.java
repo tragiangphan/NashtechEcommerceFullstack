@@ -1,4 +1,4 @@
-package com.nashtech.rookies.ecommerce.models.enums;
+package com.nashtech.rookies.ecommerce.models.constants;
 
 public enum FeatureModeEnum {
   FEATURED,
