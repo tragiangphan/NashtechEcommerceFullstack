@@ -7,5 +7,5 @@ import com.nashtech.rookies.ecommerce.models.prod.Product;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-
+  boolean existsById(Long id);
 }

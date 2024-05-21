@@ -7,4 +7,5 @@ import com.nashtech.rookies.ecommerce.models.prod.Supplier;
 
 @Repository
 public interface SupplierRepository extends JpaRepository<Supplier, Long> {
+  boolean existsById(Long id);
 }
