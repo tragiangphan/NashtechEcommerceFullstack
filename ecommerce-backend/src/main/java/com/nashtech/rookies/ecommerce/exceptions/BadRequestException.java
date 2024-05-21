@@ -1,9 +1,9 @@
 package com.nashtech.rookies.ecommerce.exceptions;
 
-public class ResourceNotFoundException extends RuntimeException {
+public class BadRequestException extends RuntimeException {
   private String message;
 
-  public ResourceNotFoundException(String errorCode, Object... var2) {
+  public BadRequestException(String errorCode, Object... var2) {
     this.message = MessageUtils.getMessage(errorCode, var2);
   }
 
