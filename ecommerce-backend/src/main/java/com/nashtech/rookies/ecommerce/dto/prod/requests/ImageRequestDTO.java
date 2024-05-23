@@ -1,4 +1,9 @@
 package com.nashtech.rookies.ecommerce.dto.prod.requests;
 
-public record ImageRequestDTO(String imageLink, String imageDesc, Long productId) {
+import jakarta.validation.constraints.NotBlank;
+
+public record ImageRequestDTO(
+  @NotBlank(message = "is required") String imageLink, 
+  String imageDesc, 
+  @NotBlank(message = "is required") Long productId) {
 } 
