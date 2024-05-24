@@ -2,7 +2,7 @@ package com.nashtech.rookies.ecommerce.models.prod;
 
 import java.util.Set;
 
-import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
+import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
 import com.nashtech.rookies.ecommerce.models.key.IdEntity;
 
 import jakarta.persistence.Column;
@@ -19,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "CATEGORIES")
+@Table(name = "categories")
 public class Category extends IdEntity<Long> {
   @Column(nullable = false)
   private String categoryName;

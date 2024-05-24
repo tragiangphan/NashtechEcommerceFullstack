@@ -16,8 +16,6 @@ import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
 import com.nashtech.rookies.ecommerce.services.prod.SupplierService;
 
-import jakarta.validation.Valid;
-
 @RestController
 @RequestMapping(RestVersionConfig.API_VERSION + "/suppliers")
 public class SupplierController {
@@ -28,7 +26,7 @@ public class SupplierController {
   }
 
   @PostMapping()
-  public ResponseEntity<SupplierResponseDTO> createSupplier(@RequestBody @Valid SupplierRequestDTO supplierRequestDTO) {
+  public ResponseEntity<SupplierResponseDTO> createSupplier(@RequestBody SupplierRequestDTO supplierRequestDTO) {
     return ResponseEntity.ok(supplierService.createSupplier(supplierRequestDTO));
   }
 

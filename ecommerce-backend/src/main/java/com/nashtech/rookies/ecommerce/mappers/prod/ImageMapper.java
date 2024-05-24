@@ -15,7 +15,7 @@ public interface ImageMapper {
   @Mapping(target = "productId", source = "image.product.id")
   ImageResponseDTO toResponseDTO(Image image);
 
-  Image toRequestEntity(ImageRequestDTO dto);
+  // Image toRequestEntity(ImageRequestDTO dto);
 
-  Image toResponseEntity(ImageResponseDTO dto);
+  // Image toResponseEntity(ImageResponseDTO dto);
 }
