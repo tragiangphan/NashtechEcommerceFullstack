@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prod.Image;
+import com.nashtech.rookies.ecommerce.models.prods.Image;
 
 @Mapper(componentModel = "spring")
 public interface ImageMapper {

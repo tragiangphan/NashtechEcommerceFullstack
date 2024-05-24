@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prod.Category;
+import com.nashtech.rookies.ecommerce.models.prods.Category;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {

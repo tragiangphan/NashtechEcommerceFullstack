@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nashtech.rookies.ecommerce.configs.RestVersionConfig;
 import com.nashtech.rookies.ecommerce.dto.user.requests.UserRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserResponseDTO;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
@@ -20,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping("/users")
+@RequestMapping(RestVersionConfig.API_VERSION + "/users")
 public class UserController {
   private UserService userService;
 

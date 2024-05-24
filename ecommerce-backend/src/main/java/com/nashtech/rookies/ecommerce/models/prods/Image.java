@@ -1,4 +1,4 @@
-package com.nashtech.rookies.ecommerce.models.prod;
+package com.nashtech.rookies.ecommerce.models.prods;
 
 import com.nashtech.rookies.ecommerce.models.key.IdEntity;
 

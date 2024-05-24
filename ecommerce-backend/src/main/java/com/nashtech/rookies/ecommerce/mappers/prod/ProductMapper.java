@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prods.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {

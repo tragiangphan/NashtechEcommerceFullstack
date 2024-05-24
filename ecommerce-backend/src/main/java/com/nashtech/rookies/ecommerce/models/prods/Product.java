@@ -1,4 +1,4 @@
-package com.nashtech.rookies.ecommerce.models.prod;
+package com.nashtech.rookies.ecommerce.models.prods;
 
 import java.util.Set;
 
@@ -44,8 +44,8 @@ public class Product extends AuditEntity<Long> {
   @JoinTable(name = "products_suppliers", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "supplier_id"))
   Set<Supplier> suppliers;
 
-  @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
-  private CartItem cartItem;
+  @OneToMany(mappedBy = "product")
+  private Set<CartItem> cartItem;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "category_id", nullable = false)

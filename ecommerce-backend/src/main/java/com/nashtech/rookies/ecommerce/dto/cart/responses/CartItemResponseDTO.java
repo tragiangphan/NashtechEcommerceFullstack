@@ -4,6 +4,6 @@ import java.time.LocalDateTime;
 
 public record CartItemResponseDTO(Long id,
     LocalDateTime createdOn, LocalDateTime lastUpdatedOn,
-    Long quantity, Long cartId, Long orderId, Long productId) {
+    Long quantity, Long cartId, Long productId) {
 
 }

@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prod.Supplier;
+import com.nashtech.rookies.ecommerce.models.prods.Supplier;
 
 @Mapper(componentModel = "spring")
 public interface SupplierMapper {

@@ -1,5 +1,6 @@
 package com.nashtech.rookies.ecommerce.dto.cart.responses;
 
-public record CartResponseDTO(Long id, Long quantity, Long userId) {
+import java.util.Set;
 
+public record CartResponseDTO(Long id, Long quantity, Long userId, Set<Long> cartItems) {
 }

@@ -11,7 +11,6 @@ import com.nashtech.rookies.ecommerce.dto.user.responses.InforResponseDTO;
 import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
 import com.nashtech.rookies.ecommerce.mappers.user.InforMapper;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
-import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.repositories.user.InforRepository;
 import com.nashtech.rookies.ecommerce.repositories.user.UserRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
@@ -34,7 +33,6 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
   @Transactional
   public InforResponseDTO createInfor(InforRequestDTO inforRequestDTO) {
     if (userRepository.existsById(inforRequestDTO.userId())) {
-      User user = userRepository.findById(inforRequestDTO.userId()).get();
       Infor infor = new Infor();
       infor.setAddress(inforRequestDTO.address());
       infor.setStreet(inforRequestDTO.street());
@@ -42,7 +40,7 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
       infor.setCity(inforRequestDTO.city());
       infor.setCountry(inforRequestDTO.country());
       infor.setPostalCode(inforRequestDTO.postalCode());
-      infor.setUser(user);
+      infor.setUser(userRepository.findById(inforRequestDTO.userId()).get());
       infor = inforRepository.saveAndFlush(infor);
       return inforMapper.toResponseDTO(infor);
     } else {
@@ -60,29 +58,32 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
 
   @Override
   public List<InforResponseDTO> getInfors(Long id) {
-    var infor = inforRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Not found Infor with an id: " + id));
-    List<InforResponseDTO> inforResponseDTO = new ArrayList<>();
-    inforResponseDTO.add(inforMapper.toResponseDTO(infor));
-    return inforResponseDTO;
+    if (inforRepository.existsById(id)) {
+      List<InforResponseDTO> inforResponseDTO = new ArrayList<>();
+      inforResponseDTO.add(inforMapper.toResponseDTO(inforRepository.findById(id).get()));
+      return inforResponseDTO;
+    } else {
+      throw new ResourceNotFoundException("Not found Infor with an id: " + id);
+    }
   }
 
   @Transactional
   public InforResponseDTO updateInfor(Long id, InforRequestDTO inforRequestDTO) {
-    if (inforRepository.existsById(id) && userRepository.existsById(inforRequestDTO.userId())) {
-      User user = userRepository.findById(inforRequestDTO.userId()).get();
-      Infor infor = inforRepository.findById(id).get();
-      infor.setAddress(inforRequestDTO.address());
-      infor.setStreet(inforRequestDTO.street());
-      infor.setWard(inforRequestDTO.ward());
-      infor.setCity(inforRequestDTO.city());
-      infor.setCountry(inforRequestDTO.country());
-      infor.setPostalCode(inforRequestDTO.postalCode());
-      infor.setUser(user);
-      infor = inforRepository.saveAndFlush(infor);
-      return inforMapper.toResponseDTO(infor);
-    } else if (inforRepository.existsById(id)) {
-      throw new ResourceNotFoundException("Not found User with an id: " + inforRequestDTO.userId());
+    if (inforRepository.existsById(id)) {
+      if (userRepository.existsById(inforRequestDTO.userId())) {
+        Infor infor = inforRepository.findById(id).get();
+        infor.setUser(userRepository.findById(inforRequestDTO.userId()).get());
+        infor.setAddress(inforRequestDTO.address());
+        infor.setStreet(inforRequestDTO.street());
+        infor.setWard(inforRequestDTO.ward());
+        infor.setCity(inforRequestDTO.city());
+        infor.setCountry(inforRequestDTO.country());
+        infor.setPostalCode(inforRequestDTO.postalCode());
+        infor = inforRepository.saveAndFlush(infor);
+        return inforMapper.toResponseDTO(infor);
+      } else {
+        throw new ResourceNotFoundException("Not found User with an id: " + inforRequestDTO.userId());
+      }
     } else {
       throw new ResourceNotFoundException("Not found Infor with an id: " + id);
     }

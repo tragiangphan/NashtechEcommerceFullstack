@@ -15,9 +15,9 @@ public interface InforMapper {
   @Mapping(target = "userId", source = "infor.user.id")
   InforResponseDTO toResponseDTO(Infor infor);
 
-  // @Mapping(target = "user", ignore = true)
+  @Mapping(target = "user", ignore = true)
   Infor toRequestEntity(InforRequestDTO inforDTO);
 
-  // @Mapping(target = "user", ignore = true)
+  @Mapping(target = "user", ignore = true)
   Infor toResponseEntity(InforResponseDTO inforDTO);
 }

@@ -1,6 +1,7 @@
 package com.nashtech.rookies.ecommerce.dto.user.requests;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record InforRequestDTO(
     String address, 
@@ -9,5 +10,5 @@ public record InforRequestDTO(
     @NotBlank(message = "is required") String city,
     @NotBlank(message = "is required") String country, 
     String postalCode,
-    @NotBlank(message = "is required") Long userId) {
+    @NotNull(message = "must not be null") Long userId) {
 }
