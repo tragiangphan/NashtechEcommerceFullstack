@@ -3,6 +3,7 @@ package com.nashtech.rookies.ecommerce.services.cart.impl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.nashtech.rookies.ecommerce.repositories.cart.CartItemRepository;
@@ -28,7 +29,8 @@ public class OrderServiceImpl extends CommonServiceImpl<Order, Long> implements 
     private final OrderMapper orderMapper;
     private final CartItemRepository cartItemRepository;
 
-    public OrderServiceImpl(UserRepository userRepository, OrderRepository orderRepository, OrderMapper orderMapper, CartItemRepository cartItemRepository) {
+    public OrderServiceImpl(UserRepository userRepository, OrderRepository orderRepository, OrderMapper orderMapper,
+                            CartItemRepository cartItemRepository) {
         super(orderRepository);
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
@@ -42,13 +44,24 @@ public class OrderServiceImpl extends CommonServiceImpl<Order, Long> implements 
         if (userRepository.existsById(orderRequestDTO.userId())) {
             Order order = new Order();
             order.setUser(userRepository.findById(orderRequestDTO.userId()).get());
-            order.setCartItems(orderRequestDTO.cartItems().stream()
-                    .map(cartItem -> cartItemRepository.findById(cartItem).get())
-                    .collect(Collectors.toSet()));
-            order = orderRepository.saveAndFlush(order);
-            return new OrderResponseDTO(order.getId(), order.getCreatedOn(), order.getLastUpdatedOn(),
-                    order.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()),
-                    order.getUser().getId());
+            Set<Long> cartItems = order.getUser().getCart().getCartItems()
+                    .stream()
+                    .map(Persistable::getId)
+                    .collect(Collectors.toSet());
+            if (cartItems.contains(orderRequestDTO.cartItems())) {
+                order.setCartItems(orderRequestDTO.cartItems().stream()
+                        .map(cartItem -> cartItemRepository.findById(cartItem).get())
+                        .collect(Collectors.toSet()));
+                order = orderRepository.saveAndFlush(order);
+                return new OrderResponseDTO(order.getId(), order.getCreatedOn(), order.getLastUpdatedOn(),
+                        order.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()),
+                        order.getUser().getId());
+            } else {
+                Set<Long> orderItems = new HashSet<>(orderRequestDTO.cartItems());
+                orderItems.removeAll(cartItems);
+                throw new ResourceNotFoundException("Not found these Cart Item id in Cart: " +
+                        orderItems);
+            }
         } else {
             throw new ResourceNotFoundException("Not found user with an id: " + orderRequestDTO.userId());
         }
