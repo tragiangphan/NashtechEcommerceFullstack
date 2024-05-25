@@ -1,6 +1,8 @@
 package com.nashtech.rookies.ecommerce.exceptions;
 
 import java.util.List;
+
+import com.nashtech.rookies.ecommerce.exceptions.utils.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

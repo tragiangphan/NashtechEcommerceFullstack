@@ -1,5 +1,7 @@
 package com.nashtech.rookies.ecommerce.exceptions;
 
+import com.nashtech.rookies.ecommerce.exceptions.utils.MessageUtils;
+
 public class ResourceNotFoundException extends RuntimeException {
   private String message;
 

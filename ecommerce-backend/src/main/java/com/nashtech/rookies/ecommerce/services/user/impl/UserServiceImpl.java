@@ -1,14 +1,18 @@
 package com.nashtech.rookies.ecommerce.services.user.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
+import com.nashtech.rookies.ecommerce.exceptions.UserExistException;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
 import org.springframework.data.domain.Persistable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,19 +29,21 @@ import com.nashtech.rookies.ecommerce.services.user.UserService;
 
 @Service
 @Transactional(readOnly = true)
-public class UserServiceImpl extends CommonServiceImpl<User, Long> implements UserService {
+public class UserServiceImpl extends CommonServiceImpl<User, Long> implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     private String userNotFoundMessage = "Not found User with an id: ";
     private String roleNotFoundMessage = "Not found Role with an id: ";
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         super(userRepository);
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -140,6 +146,49 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
             }
         } else {
             throw new ResourceNotFoundException(userNotFoundMessage + id);
+        }
+    }
+
+    @Override
+    public boolean existsUserByEmail(String email) {
+        return userRepository.existsUserByEmail(email);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    @Override
+    @Transactional
+    public UserDetails signUp(SignUpRequestDTO signUpRequestDTO) throws UserExistException {
+        var user = userRepository.findOneByEmail(signUpRequestDTO.email());
+        if (user.isPresent()) {
+            throw new UserExistException("Already exists an user with email: " + signUpRequestDTO.email());
+        } else {
+            User newUser = new User();
+            String encryptedPassword = passwordEncoder.encode(signUpRequestDTO.password());
+            newUser.setPassword(encryptedPassword);
+            newUser.setEmail(signUpRequestDTO.email());
+            if (!signUpRequestDTO.role().isEmpty()) {
+                var userRole = roleRepository.findByRoleName(signUpRequestDTO.role());
+                if (userRole == null) {
+                    throw new UserExistException("Not found any role with name: " + signUpRequestDTO.role());
+                }
+                newUser.setRole(userRole);
+            }
+            return userRepository.saveAndFlush(newUser);
+        }
+    }
+
+    @Override
+    public UserDetails signIn(SignInRequestDTO signInRequestDTO) throws ResourceNotFoundException {
+        var user = userRepository.findOneByEmail(signInRequestDTO.email());
+        if (user.isEmpty()) {
+            throw new UserExistException("Not exists an user with email: " + signInRequestDTO.email());
+        } else {
+            return user.get();
         }
     }
 }

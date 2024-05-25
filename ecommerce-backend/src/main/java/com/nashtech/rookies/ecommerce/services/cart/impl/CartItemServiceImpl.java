@@ -3,7 +3,6 @@ package com.nashtech.rookies.ecommerce.services.cart.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nashtech.rookies.ecommerce.repositories.cart.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

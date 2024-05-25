@@ -1,4 +1,4 @@
-package com.nashtech.rookies.ecommerce.exceptions;
+package com.nashtech.rookies.ecommerce.exceptions.utils;
 
 import java.util.ArrayList;
 import java.util.List;

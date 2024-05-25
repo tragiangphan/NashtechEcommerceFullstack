@@ -2,6 +2,8 @@ package com.nashtech.rookies.ecommerce.controllers.user;
 
 import java.util.List;
 
+import jakarta.annotation.security.RolesAllowed;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +32,7 @@ public class UserController {
   }
 
   @PostMapping()
+  @RolesAllowed("ROLE_ADMIN")
   public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
     log.info("Create user request: {}", userRequestDTO);
     return ResponseEntity.ok(userService.createUser(userRequestDTO));

@@ -2,10 +2,10 @@ package com.nashtech.rookies.ecommerce.exceptions;
 
 import com.nashtech.rookies.ecommerce.exceptions.utils.MessageUtils;
 
-public class RequirementNotFoundException extends RuntimeException {
+public class UserExistException extends RuntimeException {
     private String message;
 
-    public RequirementNotFoundException(String errorCode, Object... var2) {
+    public UserExistException(String errorCode, Object... var2) {
         this.message = MessageUtils.getMessage(errorCode, var2);
     }
 
