@@ -5,10 +5,12 @@ import java.util.stream.Collectors;
 
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
 import com.nashtech.rookies.ecommerce.exceptions.UserExistException;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
+import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
-import org.springframework.data.domain.Persistable;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -76,8 +78,10 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
-    public List<UserResponseDTO> getUsers() {
-        var users = userRepository.findAll();
+    public UserPaginationDTO getUsers(Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(0, 10, sort);
+        Page<User> users = userRepository.findAll(pageable);
         List<UserResponseDTO> userResponseDTOs = new ArrayList<>();
         users.forEach(user -> {
             Set<Long> orders = user.getOrders() != null ?
@@ -91,11 +95,15 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                     user.getInfor().getId(), user.getCart().getId(),
                     orders, ratings));
         });
-        return userResponseDTOs;
+        return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
+                users.getNumber() + 1, userResponseDTOs);
     }
 
     @Override
-    public List<UserResponseDTO> getUsers(Long id) {
+    public UserPaginationDTO getUsers(Long id) {
+        Sort sort = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(0, 10, sort);
+        Page<User> users = userRepository.findAll(pageable);
         List<UserResponseDTO> userResponseDTOs = new ArrayList<>();
         if (userRepository.existsById(id)) {
             User user = userRepository.findById(id).get();
@@ -111,7 +119,8 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                         user.getActiveMode(), user.getRole().getId(),
                         user.getInfor().getId(), user.getCart().getId(),
                         orders, ratings));
-                return userResponseDTOs;
+                return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
+                        users.getNumber() + 1, userResponseDTOs);
             } else {
                 throw new ResourceNotFoundException(roleNotFoundMessage + user.getRole().getId());
             }
@@ -169,6 +178,8 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
         } else {
             User newUser = new User();
             String encryptedPassword = passwordEncoder.encode(signUpRequestDTO.password());
+            newUser.setInfor(new Infor(newUser));
+            newUser.setCart(new Cart(newUser));
             newUser.setPassword(encryptedPassword);
             newUser.setEmail(signUpRequestDTO.email());
             if (!signUpRequestDTO.role().isEmpty()) {

@@ -13,29 +13,30 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenProvider      tokenProvider;
+    private final TokenProvider tokenProvider;
     private final UserDetailsService userService;
 
-    public JwtAuthenticationFilter (TokenProvider tokenProvider, UserDetailsService userService) {
+    public JwtAuthenticationFilter(TokenProvider tokenProvider, UserDetailsService userService) {
         this.tokenProvider = tokenProvider;
         this.userService = userService;
     }
 
-    protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         var token = this.recoverToken(request);
-        if ( token != null ) {
+        if (token != null) {
+            System.out.println(token.length());
             var login = tokenProvider.validateToken(token);
             var user = userService.loadUserByUsername(login);
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            var authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain.doFilter(request, response);
     }
 
-    private String recoverToken (HttpServletRequest request) {
+    private String recoverToken(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
-        if ( authHeader == null ) {
+        if (authHeader == null) {
             return null;
         }
         return authHeader.replace("Bearer ", "");

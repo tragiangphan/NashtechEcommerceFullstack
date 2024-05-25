@@ -68,9 +68,12 @@ public class AuthConfig {
                                 , "/swagger-ui/**"
                                 , "/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST,
-                                "api/v1/categories", "api/v1/cart",
+                        .requestMatchers(
+                                "api/v1/categories", "api/v1/images",
                                 "api/v1/suppliers", "api/v1/products",
+                                "api/v1/users", "api/v1/infors",
+                                "api/v1/cart", "api/v1/cartItem",
+                                "api/v1/orders", "api/v1/ratings",
                                 "api/v1/auth/signUp", "api/v1/auth/signIn"
                         ).permitAll()
                         .anyRequest().authenticated())

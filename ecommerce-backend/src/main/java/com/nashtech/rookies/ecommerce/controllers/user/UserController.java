@@ -2,8 +2,10 @@ package com.nashtech.rookies.ecommerce.controllers.user;
 
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.context.annotation.Role;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,13 +41,16 @@ public class UserController {
   }
 
   @GetMapping()
-  public ResponseEntity<List<UserResponseDTO>> getUsers(
-      @Valid @RequestParam(name = "id", required = false) Long id) {
-    List<UserResponseDTO> userResponseDTO;
+  public ResponseEntity<UserPaginationDTO> getUsers(
+      @Valid @RequestParam(name = "id", required = false) Long id,
+      @RequestParam(name = "direction") Sort.Direction dir,
+      @RequestParam(name = "pageNum") Integer pageNum,
+      @RequestParam(name = "pageSize") Integer pageSize) {
+    UserPaginationDTO userResponseDTO;
     if (id != null) {
       userResponseDTO = userService.getUsers(id);
     } else {
-      userResponseDTO = userService.getUsers();
+      userResponseDTO = userService.getUsers(dir, pageNum - 1, pageSize);
     }
     return ResponseEntity.ok(userResponseDTO);
   }

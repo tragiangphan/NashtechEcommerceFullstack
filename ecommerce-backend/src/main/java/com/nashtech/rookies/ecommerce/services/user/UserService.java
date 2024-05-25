@@ -6,20 +6,22 @@ import java.util.Optional;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.UserRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserResponseDTO;
 import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
 import com.nashtech.rookies.ecommerce.exceptions.UserExistException;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.services.CommonService;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface UserService extends CommonService<User, Long> {
     UserResponseDTO createUser(UserRequestDTO userRequestDTO);
 
-    List<UserResponseDTO> getUsers();
+    UserPaginationDTO getUsers(Sort.Direction dir, int pageNum, int pageSize);
 
-    List<UserResponseDTO> getUsers(Long id);
+    UserPaginationDTO getUsers(Long id);
 
     UserResponseDTO updateUser(Long id, UserRequestDTO userRequestDTO);
 

@@ -1,5 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.user;
 
+import com.nashtech.rookies.ecommerce.configs.AuthConfig;
 import com.nashtech.rookies.ecommerce.configs.RestVersionConfig;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
@@ -39,7 +40,7 @@ public class AuthController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<UserDetails> authSignUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO) {
         // Created user
-        UserDetails newUser = userService.signUp(signUpRequestDTO);
+        User newUser = (User) userService.signUp(signUpRequestDTO);
 
         return ResponseEntity.ok(newUser);
     }
@@ -48,27 +49,32 @@ public class AuthController {
             path = "/signIn",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<AuthResponseTokenDTO> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO) {
-        UserDetails user = userService.signIn(signInRequestDTO);
-        log.info("step 1: New user: {}, {}", user.getUsername(), user.getPassword());
+    public ResponseEntity<AuthResponseTokenDTO> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO) throws Exception {
+        try {
 
-        var usernamePassword = new UsernamePasswordAuthenticationToken(
-                user.getUsername(),
-                user.getPassword());
-        log.info("step 2: Authen: {}, {}", usernamePassword.getPrincipal(), usernamePassword.getCredentials());
+            UserDetails user = userService.signIn(signInRequestDTO);
+            log.info("step 1: New user: {}, {}", user.getUsername(), user.getPassword());
 
-        // Authenticate this user
-        Authentication authUser = authenticationManager.authenticate(usernamePassword);
+            var usernamePassword = new UsernamePasswordAuthenticationToken(
+                    user.getUsername(),
+                    user.getPassword());
+            log.info("step 2: Authen: {}, {}", usernamePassword.getPrincipal(), usernamePassword.getCredentials());
 
-        log.info("step 3: Authenticated user");
+            // Authenticate this user
+            Authentication authUser = authenticationManager.authenticate(usernamePassword);
 
-        // Generated token
-        var accessToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 2);
-        var refreshToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 24);
+            log.info("step 3: Authenticated user");
 
-        log.warn("Access Token user: {}", accessToken);
-        log.warn("Access Refresh user: {}", refreshToken);
-        return ResponseEntity.ok(new AuthResponseTokenDTO(accessToken, refreshToken));
+            // Generated token
+            var accessToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 2);
+            var refreshToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 24);
+
+            log.warn("Access Token user: {}", accessToken);
+            log.warn("Access Refresh user: {}", refreshToken);
+            return ResponseEntity.ok(new AuthResponseTokenDTO(accessToken, refreshToken));
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
 
     }
 

@@ -25,7 +25,7 @@ public class TokenProvider {
         try {
             return JWT.create()
                     .withSubject(user.getEmail())
-                    .withClaim(user.getUsername(), user.getEmail())
+                    .withClaim("username", user.getUsername())
                     .withExpiresAt(genTokenExpirationDate(hours))
                     .sign(algorithm);
         }

@@ -3,16 +3,18 @@ package com.nashtech.rookies.ecommerce.services.prod;
 import java.util.List;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductPaginationDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.services.CommonService;
+import org.springframework.data.domain.Sort;
 
 public interface ProductService extends CommonService<Product, Long> {
   ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO);
 
-  List<ProductResponseDTO> getProducts();
+  ProductPaginationDTO getProducts(Sort.Direction dir, int pageNum, int pageSize);
 
-  List<ProductResponseDTO> getProducts(Long id);
+  ProductPaginationDTO getProducts(Long id);
 
   ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO);
 }
