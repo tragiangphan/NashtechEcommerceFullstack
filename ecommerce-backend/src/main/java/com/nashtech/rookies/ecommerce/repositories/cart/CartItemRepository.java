@@ -7,5 +7,5 @@ import com.nashtech.rookies.ecommerce.models.cart.CartItem;
 
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-  boolean existsById(Long id);
+    boolean existsById(Long id);
 }

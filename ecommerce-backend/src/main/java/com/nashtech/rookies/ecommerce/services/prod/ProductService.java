@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.services.CommonService;
 
 public interface ProductService extends CommonService<Product, Long> {

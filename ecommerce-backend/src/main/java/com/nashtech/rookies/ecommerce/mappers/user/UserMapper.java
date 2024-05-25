@@ -11,17 +11,13 @@ import com.nashtech.rookies.ecommerce.models.user.User;
 public interface UserMapper {
   @Mapping(target = "roleId", source = "user.role.id")
   @Mapping(target = "inforId", source = "user.infor.id")
+  @Mapping(target = "cartId", source = "user.cart.id")
   UserRequestDTO toRequestDTO(User user);
 
   @Mapping(target = "roleId", source = "user.role.id")
   @Mapping(target = "inforId", source = "user.infor.id")
+  @Mapping(target = "cartId", source = "user.cart.id")
+  @Mapping(target = "orders", ignore = true)
+  @Mapping(target = "ratings", ignore = true)
   UserResponseDTO toResponseDTO(User user);
-
-  // @Mapping(target = "infor", ignore = true)
-  // @Mapping(target = "role", ignore = true)
-  User toRequestEntity(UserRequestDTO userDTO);
-
-  // @Mapping(target = "infor", ignore = true)
-  // @Mapping(target = "role", ignore = true)
-  User toResponseEntity(UserResponseDTO userDTO);
 }

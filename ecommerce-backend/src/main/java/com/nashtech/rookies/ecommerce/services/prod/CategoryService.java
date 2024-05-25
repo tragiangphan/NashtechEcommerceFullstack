@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prod.Category;
+import com.nashtech.rookies.ecommerce.models.prods.Category;
 import com.nashtech.rookies.ecommerce.services.CommonService;
 
 public interface CategoryService extends CommonService<Category, Long> {

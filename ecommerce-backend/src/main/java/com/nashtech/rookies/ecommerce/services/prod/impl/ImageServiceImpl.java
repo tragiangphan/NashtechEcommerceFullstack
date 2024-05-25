@@ -10,8 +10,8 @@ import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageResponseDTO;
 import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
 import com.nashtech.rookies.ecommerce.mappers.prod.ImageMapper;
-import com.nashtech.rookies.ecommerce.models.prod.Product;
-import com.nashtech.rookies.ecommerce.models.prod.Image;
+import com.nashtech.rookies.ecommerce.models.prods.Product;
+import com.nashtech.rookies.ecommerce.models.prods.Image;
 import com.nashtech.rookies.ecommerce.repositories.prod.ImageRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
@@ -34,13 +34,16 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
   @Transactional
   public ImageResponseDTO createImage(ImageRequestDTO imgRequestDTO) {
     Image image = new Image();
-    Product product = productRepository.findById(imgRequestDTO.productId())
-        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + imgRequestDTO.productId()));
-    image.setImageLink(imgRequestDTO.imageLink());
-    image.setImageDesc(imgRequestDTO.imageDesc());
-    image.setProduct(product);
-    image = imageRepository.saveAndFlush(image);
-    return imageMapper.toResponseDTO(image);
+    if (productRepository.existsById(imgRequestDTO.productId())) {
+      Product product = productRepository.findById(imgRequestDTO.productId()).get();
+      image.setImageLink(imgRequestDTO.imageLink());
+      image.setImageDesc(imgRequestDTO.imageDesc());
+      image.setProduct(product);
+      image = imageRepository.saveAndFlush(image);
+      return imageMapper.toResponseDTO(image);
+    } else {
+      throw new ResourceNotFoundException("Not found Product with an id: " + imgRequestDTO.productId());
+    }
   }
 
   @Override
@@ -53,23 +56,32 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
 
   @Override
   public List<ImageResponseDTO> getImages(Long id) {
-    var image = imageRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + id));
-    List<ImageResponseDTO> imageResponseDTOs = new ArrayList<>();
-    imageResponseDTOs.add(imageMapper.toResponseDTO(image));
-    return imageResponseDTOs;
+    if (imageRepository.existsById(id)) {
+      Image image = imageRepository.findById(id).get();
+      List<ImageResponseDTO> imageResponseDTOs = new ArrayList<>();
+      imageResponseDTOs.add(imageMapper.toResponseDTO(image));
+      return imageResponseDTOs;
+    } else {
+      throw new ResourceNotFoundException("Not found Image with an id: " + id);
+    }
   }
 
   @Transactional
   public ImageResponseDTO updateImage(Long id, ImageRequestDTO imgRequestDTO) {
-    Image image = imageRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + id));
-    Product product = productRepository.findById(imgRequestDTO.productId())
-        .orElseThrow(() -> new ResourceNotFoundException("Not found Product with an id: " + imgRequestDTO.productId()));
-    image.setImageLink(imgRequestDTO.imageLink());
-    image.setImageDesc(imgRequestDTO.imageDesc());
-    image.setProduct(product);
-    imageRepository.saveAndFlush(image);
-    return imageMapper.toResponseDTO(image);
+    if (imageRepository.existsById(id)) {
+      Image image = imageRepository.findById(id).get();
+      image.setImageLink(imgRequestDTO.imageLink());
+      image.setImageDesc(imgRequestDTO.imageDesc());
+      if (productRepository.existsById(imgRequestDTO.productId())) {
+        Product product = productRepository.findById(imgRequestDTO.productId()).get();
+        image.setProduct(product);
+        imageRepository.saveAndFlush(image);
+        return imageMapper.toResponseDTO(image);
+      } else {
+        throw new ResourceNotFoundException("Not found Product with an id: " + id);
+      }
+    } else {
+      throw new ResourceNotFoundException("Not found Image with an id: " + id);
+    }
   }
 }

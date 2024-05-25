@@ -1,14 +1,14 @@
 package com.nashtech.rookies.ecommerce.models.user;
 
-import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
+import java.util.Set;
+
+import com.nashtech.rookies.ecommerce.models.cart.Cart;
+import com.nashtech.rookies.ecommerce.models.cart.Order;
+import com.nashtech.rookies.ecommerce.models.cart.Rating;
+import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
 import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,23 +17,33 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "USERS")
+@Table(name = "users")
 public class User extends AuditEntity<Long> {
-  private String firstName;
-  private String lastName;
-  @Column(nullable = false)
-  private String email;
-  @Column(nullable = false)
-  private String password;
-  private String phoneNo;
-  @Column(nullable = false)
-  private ActiveModeEnum activeMode = ActiveModeEnum.ACTIVE;
+    private String firstName;
+    private String lastName;
+    @Column(nullable = false)
+    private String email;
+    @Column(nullable = false)
+    private String password;
+    private String phoneNo;
+    @Column(nullable = false)
+    private ActiveModeEnum activeMode = ActiveModeEnum.ACTIVE;
 
-  @ManyToOne()
-  @JoinColumn(name = "role_id", nullable = false)
-  private Role role;
+    @ManyToOne()
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
-  @OneToOne
-  @JoinColumn(name = "infor_id", nullable = true)
-  private Infor infor;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Infor infor;
+
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Cart cart;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Order> orders;
+
+    @OneToMany(mappedBy = "user")
+    private Set<Rating> ratings;
 }

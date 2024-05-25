@@ -12,13 +12,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nashtech.rookies.ecommerce.dto.user.responses.InforResponseDTO;
+import com.nashtech.rookies.ecommerce.configs.RestVersionConfig;
 import com.nashtech.rookies.ecommerce.dto.user.requests.InforRequestDTO;
 import com.nashtech.rookies.ecommerce.services.user.InforService;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/infors")
+@RequestMapping(RestVersionConfig.API_VERSION + "/infors")
 public class InforController {
   private final InforService inforService;
 

@@ -16,7 +16,6 @@ import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageResponseDTO;
 import com.nashtech.rookies.ecommerce.services.prod.ImageService;
 
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(RestVersionConfig.API_VERSION + "/images")
@@ -28,7 +27,7 @@ public class ImageController {
   }
 
   @PostMapping()
-  public ResponseEntity<ImageResponseDTO> createProdImage(@RequestBody @Valid ImageRequestDTO imageRequestDTO) {
+  public ResponseEntity<ImageResponseDTO> createProdImage(@RequestBody ImageRequestDTO imageRequestDTO) {
     return ResponseEntity.ok(imageService.createImage(imageRequestDTO));
   }
 

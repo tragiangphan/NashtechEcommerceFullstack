@@ -1,11 +1,19 @@
 package com.nashtech.rookies.ecommerce.dto.prod.requests;
 
-import com.nashtech.rookies.ecommerce.models.enums.ActiveModeEnum;
+import java.util.Set;
+
+import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record SupplierRequestDTO(
-    String supplierName, String phoneNo,
-    String email, String address,
-    String street, String ward,
-    String city, String country,
-    String postalCode, ActiveModeEnum activeMode) {
-}
+    @NotBlank(message = "is required") String supplierName,
+    String phoneNo,
+    @NotBlank(message = "is required") String email,
+    String address, String street,
+    String ward, String city,
+    String country, String postalCode,
+    @NotNull(message = "is required") ActiveModeEnum activeMode,
+    Set<Long> products) {
+} 

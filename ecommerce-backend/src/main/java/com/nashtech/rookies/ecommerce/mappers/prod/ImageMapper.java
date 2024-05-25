@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prod.Image;
+import com.nashtech.rookies.ecommerce.models.prods.Image;
 
 @Mapper(componentModel = "spring")
 public interface ImageMapper {
@@ -15,7 +15,7 @@ public interface ImageMapper {
   @Mapping(target = "productId", source = "image.product.id")
   ImageResponseDTO toResponseDTO(Image image);
 
-  Image toRequestEntity(ImageRequestDTO dto);
+  // Image toRequestEntity(ImageRequestDTO dto);
 
-  Image toResponseEntity(ImageResponseDTO dto);
+  // Image toResponseEntity(ImageResponseDTO dto);
 }

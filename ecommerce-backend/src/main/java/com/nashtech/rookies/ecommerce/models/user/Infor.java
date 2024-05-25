@@ -2,10 +2,7 @@ package com.nashtech.rookies.ecommerce.models.user;
 
 import com.nashtech.rookies.ecommerce.models.key.IdEntity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,15 +11,20 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "users_info")
+@Table(name = "users_infor")
 public class Infor extends IdEntity<Long> {
-  private String address;
-  private String street;
-  private String ward;
-  private String city;
-  private String country;
-  private String postalCode;
+    private String address;
+    private String street;
+    private String ward;
+    private String city;
+    private String country;
+    private String postalCode;
 
-  @OneToOne(mappedBy = "infor", cascade = CascadeType.ALL)
-  private User user;
+    @OneToOne()
+    @JoinColumn(name = "user_id", nullable = true)
+    private User user;
+
+    public Infor(User user) {
+        this.user = user;
+    }
 }
