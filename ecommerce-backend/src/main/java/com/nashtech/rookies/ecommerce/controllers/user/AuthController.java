@@ -7,6 +7,7 @@ import com.nashtech.rookies.ecommerce.dto.user.responses.AuthResponseTokenDTO;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.security.TokenProvider;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
+import com.nashtech.rookies.ecommerce.services.user.impl.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +21,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping(RestVersionConfig.API_VERSION + "/auth")
 public class AuthController {
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
-    private final AuthenticationManager authenticationManager;
-    private final TokenProvider tokenProvider;
-    private final UserService userService;
 
-    public AuthController(AuthenticationManager authenticationManager, TokenProvider tokenProvider, UserService userService) {
-        this.authenticationManager = authenticationManager;
-        this.tokenProvider = tokenProvider;
+    private final UserService userService;
+    private final UserServiceImpl userServiceImpl;
+
+    public AuthController(UserService userService, UserServiceImpl userServiceImpl) {
         this.userService = userService;
+        this.userServiceImpl = userServiceImpl;
     }
 
 
@@ -50,24 +51,9 @@ public class AuthController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<AuthResponseTokenDTO> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO) {
         try {
-            User user = userService.signIn(signInRequestDTO);
-            log.info("step 1: New User  : {} - {}", user.getUsername(), user.getPassword());
+            Map<String, String> tokens = userServiceImpl.signIn(signInRequestDTO);
 
-            // Authenticate this user
-            UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(
-                    user.getUsername(),
-                    user.getPassword(),
-                    user.getAuthorities());
-            log.info("step 2: Authen    : {} - {}", usernamePassword.getPrincipal(), usernamePassword.getCredentials());
-            Authentication authUser = authenticationManager.authenticate(usernamePassword);
-
-            log.info("step 3: Generating Token");
-            // Generated token
-            var accessToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 2);
-            var refreshToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 24);
-
-            log.info("Generated Token: access - {}, refresh - {}", accessToken, refreshToken);
-            return ResponseEntity.ok(new AuthResponseTokenDTO(accessToken, refreshToken));
+            return ResponseEntity.ok(new AuthResponseTokenDTO(tokens.get("access_token"), tokens.get("refresh_token")));
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Bad credentials", e);
         }

@@ -1,10 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.user;
 
-import java.util.List;
-
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
-import jakarta.annotation.security.RolesAllowed;
-import org.springframework.context.annotation.Role;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,14 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping(RestVersionConfig.API_VERSION + "/users")
 public class UserController {
-  private UserService userService;
+  private final UserService userService;
 
   public UserController(UserService userService) {
     this.userService = userService;
   }
 
   @PostMapping()
-  @RolesAllowed("ROLE_ADMIN")
   public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
     log.info("Create user request: {}", userRequestDTO);
     return ResponseEntity.ok(userService.createUser(userRequestDTO));

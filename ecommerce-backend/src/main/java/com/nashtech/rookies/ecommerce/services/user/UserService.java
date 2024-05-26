@@ -12,6 +12,8 @@ import com.nashtech.rookies.ecommerce.services.CommonService;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Map;
+
 public interface UserService extends CommonService<User, Long> {
     UserResponseDTO createUser(UserRequestDTO userRequestDTO);
 
@@ -27,5 +29,5 @@ public interface UserService extends CommonService<User, Long> {
 
     User signUp(SignUpRequestDTO signUpRequestDTO) throws ResourceConflictException;
 
-    User signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException;
+    Map<String, String> signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException;
 }
