@@ -12,6 +12,8 @@ import com.nashtech.rookies.ecommerce.models.prods.Product;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsById(Long id);
+    boolean existsByProductName(String productName);
+    Product findByProductName(String productName);
 
     @Query(value =
             "SELECT * " +

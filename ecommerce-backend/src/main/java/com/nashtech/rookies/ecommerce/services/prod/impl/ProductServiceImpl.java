@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductPaginationDTO;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,31 +42,36 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
 
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
-        Product product = new Product(
-                productRequestDTO.productName(), productRequestDTO.productDesc(),
-                productRequestDTO.unit(), productRequestDTO.price(),
-                productRequestDTO.quantity(), productRequestDTO.featureMode());
-        if (categoryRepository.existsById(productRequestDTO.categoryId())) {
-            product.setCategory(categoryRepository.findById(productRequestDTO.categoryId()).get());
-            Set<Supplier> suppliers = new HashSet<>();
-            productRequestDTO.suppliers().forEach(supplier -> {
-                if (supplierRepository.existsById(supplier)) {
-                    suppliers.add(supplierRepository.findById(supplier).get());
-                } else {
-                    throw new NotFoundException("Not found Supplier with an id: " + supplier);
-                }
-            });
-            product.setSuppliers(suppliers);
-            product = productRepository.saveAndFlush(product);
-            Set<Long> supplierIds = new HashSet<>(product.getSuppliers().stream().map(Persistable::getId).toList());
-            return new ProductResponseDTO(
-                    product.getId(), product.getProductName(),
-                    product.getProductDesc(), product.getUnit(),
-                    product.getPrice(), product.getQuantity(),
-                    product.getFeatureMode(), product.getCategory().getId(),
-                    supplierIds, new HashSet<>());
+        if (!productRepository.existsByProductName(productRequestDTO.productName())) {
+            Product product = new Product(
+                    productRequestDTO.productName(), productRequestDTO.productDesc(),
+                    productRequestDTO.unit(), productRequestDTO.price(),
+                    productRequestDTO.quantity(), productRequestDTO.featureMode());
+            if (categoryRepository.existsById(productRequestDTO.categoryId())) {
+                product.setCategory(categoryRepository.findById(productRequestDTO.categoryId()).get());
+                Set<Supplier> suppliers = new HashSet<>();
+                productRequestDTO.suppliers().forEach(supplier -> {
+                    if (supplierRepository.existsById(supplier)) {
+                        suppliers.add(supplierRepository.findById(supplier).get());
+                    } else {
+                        throw new NotFoundException("Not found Supplier with an id: " + supplier);
+                    }
+                });
+                product.setSuppliers(suppliers);
+                product = productRepository.saveAndFlush(product);
+                Set<Long> supplierIds = new HashSet<>(product.getSuppliers().stream().map(Persistable::getId).toList());
+                return new ProductResponseDTO(
+                        product.getId(), product.getProductName(),
+                        product.getProductDesc(), product.getUnit(),
+                        product.getPrice(), product.getQuantity(),
+                        product.getFeatureMode(), product.getCategory().getId(),
+                        supplierIds, new HashSet<>());
+            } else {
+                throw new NotFoundException("Not found Category with an id: " + productRequestDTO.categoryId());
+            }
         } else {
-            throw new NotFoundException("Not found Category with an id: " + productRequestDTO.categoryId());
+            Product product = productRepository.findByProductName(productRequestDTO.productName());
+            throw new ResourceConflictException("Existed Product Name with an id: " + product.getId());
         }
     }
 

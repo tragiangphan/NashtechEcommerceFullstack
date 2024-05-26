@@ -8,5 +8,6 @@ import com.nashtech.rookies.ecommerce.models.prods.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
   boolean existsById(Long id);
-  // List<Category> findAllByCategoryNameLikeIgnoreCaseOrderById();
+  boolean existsByCategoryName(String categoryName);
+  Category findByCategoryName(String categoryName);
 }

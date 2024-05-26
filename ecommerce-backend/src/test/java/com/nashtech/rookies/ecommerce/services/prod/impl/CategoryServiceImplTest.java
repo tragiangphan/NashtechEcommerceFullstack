@@ -1,37 +1,35 @@
 package com.nashtech.rookies.ecommerce.services.prod.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
+import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.models.prods.Category;
+import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-
-
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
+//@SpringBootTest
 class CategoryServiceImplTest {
 
     @Mock
-    private ProductRepository productRepository;
+    private CategoryRepository categoryRepository;
 
     @Mock
-    private CategoryRepository categoryRepository;
+    private ProductRepository productRepository;
 
     @InjectMocks
     private CategoryServiceImpl categoryService;
@@ -40,78 +38,89 @@ class CategoryServiceImplTest {
     private CategoryRequestDTO categoryRequestDTO;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         category = new Category();
         category.setId(1L);
         category.setCategoryName("Electronics");
-        category.setCategoryDesc("Electronic Items");
+        category.setCategoryDesc("Electronics Category");
         category.setActiveMode(ActiveModeEnum.ACTIVE);
-        category.setProducts(Collections.emptySet());
+        category.setProducts(new HashSet<>());
 
-        categoryRequestDTO = new CategoryRequestDTO("Electronics", "Electronic Items", ActiveModeEnum.ACTIVE);
+        categoryRequestDTO = new CategoryRequestDTO("Electronics", "Electronics Category", ActiveModeEnum.ACTIVE);
     }
 
     @Test
-    void createCategory() {
+    void testCreateCategory_WhenCategoryDoesNotExist_ShouldCreateNewCategory() {
+        when(categoryRepository.existsByCategoryName(categoryRequestDTO.categoryName())).thenReturn(false);
         when(categoryRepository.saveAndFlush(any(Category.class))).thenReturn(category);
 
-        CategoryResponseDTO response = categoryService.createCategory(categoryRequestDTO);
+        CategoryResponseDTO responseDTO = categoryService.createCategory(categoryRequestDTO);
 
-        assertNotNull(response);
-        assertEquals(category.getId(), response.id());
-        assertEquals(category.getCategoryName(), response.categoryName());
-        verify(categoryRepository).saveAndFlush(any(Category.class));
+        assertNotNull(responseDTO);
+        assertEquals(category.getId(), responseDTO.id());
+        verify(categoryRepository, times(1)).saveAndFlush(any(Category.class));
     }
 
     @Test
-    void getCategories() {
-        when(categoryRepository.findAll()).thenReturn(List.of(category));
-        when(productRepository.findAll()).thenReturn(Collections.emptyList());
+    void testCreateCategory_WhenCategoryExists_ShouldThrowResourceConflictException() {
+        when(categoryRepository.existsByCategoryName(categoryRequestDTO.categoryName())).thenReturn(true);
+        when(categoryRepository.findByCategoryName(categoryRequestDTO.categoryName())).thenReturn(category);
 
-        List<CategoryResponseDTO> categories = categoryService.getCategories();
-
-        assertNotNull(categories);
-        assertEquals(1, categories.size());
-        assertEquals(category.getId(), categories.getFirst().id());
-        verify(categoryRepository).findAll();
-        verify(productRepository).findAll();
+        assertThrows(ResourceConflictException.class, () -> categoryService.createCategory(categoryRequestDTO));
+        verify(categoryRepository, never()).saveAndFlush(any(Category.class));
     }
 
     @Test
-    void testGetCategoriesById() {
+    void testGetCategories_ShouldReturnAllCategories() {
+        List<Category> categories = Collections.singletonList(category);
+        List<Product> products = Collections.emptyList();
+        when(categoryRepository.findAll()).thenReturn(categories);
+        when(productRepository.findAll()).thenReturn(products);
+
+        List<CategoryResponseDTO> responseDTOs = categoryService.getCategories();
+
+        assertNotNull(responseDTOs);
+        assertEquals(1, responseDTOs.size());
+        assertEquals(category.getId(), responseDTOs.getFirst().id());
+    }
+
+    @Test
+    void testGetCategoryById_WhenCategoryExists_ShouldReturnCategory() {
+        when(categoryRepository.existsById(1L)).thenReturn(true);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
-        List<CategoryResponseDTO> response = categoryService.getCategories(1L);
+        List<CategoryResponseDTO> responseDTOs = categoryService.getCategories(1L);
 
-        assertNotNull(response);
-        assertEquals(1, response.size());
-        assertEquals(category.getId(), response.getFirst().id());
-        verify(categoryRepository).findById(1L);
+        assertNotNull(responseDTOs);
+        assertEquals(1, responseDTOs.size());
+        assertEquals(category.getId(), responseDTOs.getFirst().id());
     }
 
     @Test
-    void testGetCategoryById_whenNotFoundId() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+    void testGetCategoryById_WhenCategoryDoesNotExist_ShouldThrowNotFoundException() {
+        when(categoryRepository.existsById(1L)).thenReturn(false);
 
         assertThrows(NotFoundException.class, () -> categoryService.getCategories(1L));
-        verify(categoryRepository).findById(1L);
     }
 
     @Test
-    void updateCategory() {
+    void testUpdateCategory_WhenCategoryExists_ShouldUpdateCategory() {
+        when(categoryRepository.existsById(1L)).thenReturn(true);
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
         when(categoryRepository.saveAndFlush(any(Category.class))).thenReturn(category);
 
-        CategoryResponseDTO response = categoryService.updateCategory(1L, categoryRequestDTO);
+        CategoryResponseDTO responseDTO = categoryService.updateCategory(1L, categoryRequestDTO);
 
-        assertNotNull(response);
-        assertEquals(category.getId(), response.id());
-        assertEquals(category.getCategoryName(), response.categoryName());
-        verify(categoryRepository).findById(1L);
-        verify(categoryRepository).saveAndFlush(any(Category.class));
+        assertNotNull(responseDTO);
+        assertEquals(category.getId(), responseDTO.id());
+        verify(categoryRepository, times(1)).saveAndFlush(any(Category.class));
     }
 
-    @AfterEach
-    void tearDown() {
+    @Test
+    void testUpdateCategory_WhenCategoryDoesNotExist_ShouldThrowNotFoundException() {
+        when(categoryRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(NotFoundException.class, () -> categoryService.updateCategory(1L, categoryRequestDTO));
+        verify(categoryRepository, never()).saveAndFlush(any(Category.class));
     }
 }
