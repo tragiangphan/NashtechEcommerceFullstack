@@ -10,17 +10,16 @@ import com.nashtech.rookies.ecommerce.models.cart.Order;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
   @Mapping(target = "userId", source = "order.user.id")
-  @Mapping(target = "cartItems", ignore = true)
+  @Mapping(target = "cartItemId", source = "order.cartItem.id")
   OrderRequestDTO toRequestDTO(Order order);
 
   @Mapping(target = "userId", source = "order.user.id")
   @Mapping(target = "createOn", source = "order.createdOn")
   @Mapping(target = "lastUpdateOn", source = "order.lastUpdatedOn")
-  @Mapping(target = "cartItems", ignore = true)
   OrderResponseDTO toResponseDTO(Order order);
 
-  @Mapping(target = "cartItems", ignore = true)
+  @Mapping(target = "cartItem", ignore = true)
   Order toRequestEntity(OrderRequestDTO orderRequestDTO);
-  @Mapping(target = "cartItems", ignore = true)
+  @Mapping(target = "cartItem", ignore = true)
   Order toResponseEntity(OrderResponseDTO orderResponseDTO);
 }

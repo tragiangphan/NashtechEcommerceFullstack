@@ -1,11 +1,11 @@
-package com.nashtech.rookies.ecommerce.exceptions;
+package com.nashtech.rookies.ecommerce.handlers.exceptions;
 
-import com.nashtech.rookies.ecommerce.exceptions.utils.MessageUtils;
+import com.nashtech.rookies.ecommerce.handlers.utils.MessageUtils;
 
-public class RequirementNotFoundException extends RuntimeException {
+public class ResourceConflictException extends RuntimeException {
     private String message;
 
-    public RequirementNotFoundException(String errorCode, Object... var2) {
+    public ResourceConflictException(String errorCode, Object... var2) {
         this.message = MessageUtils.getMessage(errorCode, var2);
     }
 

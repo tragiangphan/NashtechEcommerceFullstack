@@ -20,13 +20,13 @@ public interface ProductMapper {
 
   @Mapping(target = "images", ignore = true)
   @Mapping(target = "suppliers", ignore = true)
-  @Mapping(target = "cartItem", ignore = true)
+  @Mapping(target = "cartItems", ignore = true)
   @Mapping(target = "category", ignore = true)
   Product toResponseEntity(ProductResponseDTO productDTO);
 
   @Mapping(target = "images", ignore = true)
   @Mapping(target = "suppliers", ignore = true)
-  @Mapping(target = "cartItem", ignore = true)
+  @Mapping(target = "cartItems", ignore = true)
   @Mapping(target = "category", ignore = true)
   Product toRequestEntity(ProductRequestDTO productDTO);
 

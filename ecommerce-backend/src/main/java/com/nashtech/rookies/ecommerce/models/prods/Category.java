@@ -29,4 +29,6 @@ public class Category extends IdEntity<Long> {
 
   @OneToMany(mappedBy = "category")
   private Set<Product> products;
+
+
 }

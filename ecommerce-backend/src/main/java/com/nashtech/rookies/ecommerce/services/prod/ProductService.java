@@ -16,5 +16,7 @@ public interface ProductService extends CommonService<Product, Long> {
 
   ProductPaginationDTO getProducts(Long id);
 
+  ProductPaginationDTO getProductByProductName(String productName, Sort.Direction dir, int pageNum, int pageSize);
+
   ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO);
 }

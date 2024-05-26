@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
-import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.mappers.prod.SupplierMapper;
 import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.models.prods.Supplier;
@@ -82,7 +82,7 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
           supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(), productIds));
       return supplierResponseDTOs;
     } else {
-      throw new ResourceNotFoundException("Not found Supplier with an id: " + id);
+      throw new NotFoundException("Not found Supplier with an id: " + id);
     }
   }
 
@@ -116,7 +116,7 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
           supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(), supplier.getWard(),
           supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(), productIds);
     } else {
-      throw new ResourceNotFoundException("Not found Supplier with an id: " + id);
+      throw new NotFoundException("Not found Supplier with an id: " + id);
     }
   }
 }

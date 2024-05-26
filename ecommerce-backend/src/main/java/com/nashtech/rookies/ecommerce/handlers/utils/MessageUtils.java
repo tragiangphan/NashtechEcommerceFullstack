@@ -1,4 +1,4 @@
-package com.nashtech.rookies.ecommerce.exceptions.utils;
+package com.nashtech.rookies.ecommerce.handlers.utils;
 
 import java.util.Locale;
 import java.util.MissingResourceException;

@@ -36,6 +36,7 @@ public class ProductController {
     @GetMapping()
     public ResponseEntity<ProductPaginationDTO> getProduct(
             @RequestParam(name = "id", required = false) Long id,
+            @RequestParam(name = "id", required = false) String productName,
             @RequestParam(name = "direction") Sort.Direction dir,
             @RequestParam(name = "pageNum") Integer pageNum,
             @RequestParam(name = "pageSize") Integer pageSize) {
@@ -43,6 +44,8 @@ public class ProductController {
 
         if (id != null) {
             productResponseDTO = productService.getProducts(id);
+        } else if (productName != null) {
+            productResponseDTO = productService.getProductByProductName(productName, dir, pageNum - 1, pageSize);
         } else {
             productResponseDTO = productService.getProducts(dir, pageNum - 1, pageSize);
         }

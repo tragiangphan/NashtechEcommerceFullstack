@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageResponseDTO;
-import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.mappers.prod.ImageMapper;
 import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.models.prods.Image;
@@ -42,7 +42,7 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
       image = imageRepository.saveAndFlush(image);
       return imageMapper.toResponseDTO(image);
     } else {
-      throw new ResourceNotFoundException("Not found Product with an id: " + imgRequestDTO.productId());
+      throw new NotFoundException("Not found Product with an id: " + imgRequestDTO.productId());
     }
   }
 
@@ -62,7 +62,7 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
       imageResponseDTOs.add(imageMapper.toResponseDTO(image));
       return imageResponseDTOs;
     } else {
-      throw new ResourceNotFoundException("Not found Image with an id: " + id);
+      throw new NotFoundException("Not found Image with an id: " + id);
     }
   }
 
@@ -78,10 +78,10 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
         imageRepository.saveAndFlush(image);
         return imageMapper.toResponseDTO(image);
       } else {
-        throw new ResourceNotFoundException("Not found Product with an id: " + id);
+        throw new NotFoundException("Not found Product with an id: " + id);
       }
     } else {
-      throw new ResourceNotFoundException("Not found Image with an id: " + id);
+      throw new NotFoundException("Not found Image with an id: " + id);
     }
   }
 }

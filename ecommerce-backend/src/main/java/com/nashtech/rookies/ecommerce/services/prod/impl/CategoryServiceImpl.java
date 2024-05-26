@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
-import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.models.prods.Category;
 import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
@@ -72,7 +72,7 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
   @Override
   public List<CategoryResponseDTO> getCategories(Long id) {
     var category = categoryRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Not found Category with an id: " + id));
+        .orElseThrow(() -> new NotFoundException("Not found Category with an id: " + id));
     List<CategoryResponseDTO> categoryResponseDTOs = new ArrayList<>();
     Set<Long> productIds = new HashSet<>();
     category.getProducts().forEach(product -> productIds.add(product.getId()));
@@ -86,7 +86,7 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
   @Transactional
   public CategoryResponseDTO updateCategory(Long id, CategoryRequestDTO categoryRequestDTO) {
     Category category = categoryRepository.findById(id)
-        .orElseThrow(() -> new ResourceNotFoundException("Not found Category with an id: " + id));
+        .orElseThrow(() -> new NotFoundException("Not found Category with an id: " + id));
     category.setCategoryName(categoryRequestDTO.categoryName());
     category.setCategoryDesc(categoryRequestDTO.categoryDesc());
     category.setActiveMode(categoryRequestDTO.activeMode());

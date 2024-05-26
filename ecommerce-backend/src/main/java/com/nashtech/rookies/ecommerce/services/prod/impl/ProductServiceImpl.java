@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
-import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.models.prods.Supplier;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
@@ -52,7 +52,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                 if (supplierRepository.existsById(supplier)) {
                     suppliers.add(supplierRepository.findById(supplier).get());
                 } else {
-                    throw new ResourceNotFoundException("Not found Supplier with an id: " + supplier);
+                    throw new NotFoundException("Not found Supplier with an id: " + supplier);
                 }
             });
             product.setSuppliers(suppliers);
@@ -65,7 +65,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getFeatureMode(), product.getCategory().getId(),
                     supplierIds, new HashSet<>());
         } else {
-            throw new ResourceNotFoundException("Not found Category with an id: " + productRequestDTO.categoryId());
+            throw new NotFoundException("Not found Category with an id: " + productRequestDTO.categoryId());
         }
     }
 
@@ -112,8 +112,30 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
             return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
                     products.getNumber() + 1, productResponseDTOs);
         } else {
-            throw new ResourceNotFoundException(productNotFoundMessage + id);
+            throw new NotFoundException(productNotFoundMessage + id);
         }
+    }
+
+    @Override
+    public ProductPaginationDTO getProductByProductName(String productName, Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "product_name");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Product> products = productRepository.findProductByProductNameLike(productName, pageable);
+        List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
+        products.forEach(product -> {
+            Set<Long> images = new HashSet<>();
+            product.getImages().forEach(image -> images.add(image.getId()));
+            Set<Long> suppliers = new HashSet<>();
+            product.getSuppliers().forEach(supplier -> suppliers.add(supplier.getId()));
+            productResponseDTOs.add(new ProductResponseDTO(
+                    product.getId(), product.getProductName(),
+                    product.getProductDesc(), product.getUnit(),
+                    product.getPrice(), product.getQuantity(),
+                    product.getFeatureMode(), product.getCategory().getId(),
+                    suppliers, images));
+        });
+        return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
+                products.getNumber() + 1, productResponseDTOs);
     }
 
     @Transactional
@@ -129,14 +151,14 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
             if (categoryRepository.existsById(productRequestDTO.categoryId())) {
                 product.setCategory(categoryRepository.findById(productRequestDTO.categoryId()).get());
             } else {
-                throw new ResourceNotFoundException("Not found Category with an id: " + productRequestDTO.categoryId());
+                throw new NotFoundException("Not found Category with an id: " + productRequestDTO.categoryId());
             }
             Set<Supplier> suppliers = new HashSet<>();
             productRequestDTO.suppliers().forEach(supplier -> {
                 if (supplierRepository.existsById(supplier)) {
                     suppliers.add(supplierRepository.findById(supplier).get());
                 } else {
-                    throw new ResourceNotFoundException("Not found Supplier with an id: " + supplier);
+                    throw new NotFoundException("Not found Supplier with an id: " + supplier);
                 }
             });
             product.setSuppliers(suppliers);
@@ -150,7 +172,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getFeatureMode(), product.getCategory().getId(),
                     supplierIds, images);
         } else {
-            throw new ResourceNotFoundException(productNotFoundMessage + id);
+            throw new NotFoundException(productNotFoundMessage + id);
         }
     }
 }

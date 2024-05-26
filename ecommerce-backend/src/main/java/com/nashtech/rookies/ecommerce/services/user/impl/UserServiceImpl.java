@@ -1,18 +1,15 @@
 package com.nashtech.rookies.ecommerce.services.user.impl;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
-import com.nashtech.rookies.ecommerce.exceptions.UserExistException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
 import org.springframework.data.domain.*;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.user.requests.UserRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserResponseDTO;
-import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.mappers.user.UserMapper;
 import com.nashtech.rookies.ecommerce.models.user.Role;
 import com.nashtech.rookies.ecommerce.models.user.User;
@@ -54,37 +51,42 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
 
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
-        User user = new User();
-        if (roleRepository.existsById(userRequestDTO.roleId())) {
-            Role role = roleRepository.findById(userRequestDTO.roleId()).get();
-            user.setRole(role);
-            user.setFirstName(userRequestDTO.firstName());
-            user.setLastName(userRequestDTO.lastName());
-            user.setEmail(userRequestDTO.email());
-            user.setPassword(userRequestDTO.password());
-            user.setPhoneNo(userRequestDTO.phoneNo());
-            user.setActiveMode(userRequestDTO.activeMode());
-            user.setInfor(new Infor(user));
-            user.setCart(new Cart(user));
-            user.setOrders(new HashSet<>());
-            user.setRatings(new HashSet<>());
-            user = userRepository.saveAndFlush(user);
-            return new UserResponseDTO(
-                    user.getId(), user.getFirstName(), user.getLastName(),
-                    user.getEmail(), user.getPassword(), user.getPhoneNo(),
-                    user.getActiveMode(), user.getRole().getId(),
-                    user.getInfor().getId(), user.getCart().getId(),
-                    user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()),
-                    user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()));
+        if (userRepository.existsUserByEmail(userRequestDTO.email())) {
+            throw new ResourceConflictException("User with email " + userRequestDTO.email() + " already exists");
         } else {
-            throw new ResourceNotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
+            User user = new User();
+            if (roleRepository.existsById(userRequestDTO.roleId())) {
+                Role role = roleRepository.findById(userRequestDTO.roleId()).get();
+                String encryptedPassword = passwordEncoder.encode(userRequestDTO.password());
+                user.setRole(role);
+                user.setFirstName(userRequestDTO.firstName());
+                user.setLastName(userRequestDTO.lastName());
+                user.setEmail(userRequestDTO.email());
+                user.setPassword(encryptedPassword);
+                user.setPhoneNo(userRequestDTO.phoneNo());
+                user.setActiveMode(userRequestDTO.activeMode());
+                user.setInfor(new Infor(user));
+                user.setCart(new Cart(user, 0L));
+                user.setOrders(new HashSet<>());
+                user.setRatings(new HashSet<>());
+                user = userRepository.saveAndFlush(user);
+                return new UserResponseDTO(
+                        user.getId(), user.getFirstName(), user.getLastName(),
+                        user.getEmail(), user.getPassword(), user.getPhoneNo(),
+                        user.getActiveMode(), user.getRole().getId(),
+                        user.getInfor().getId(), user.getCart().getId(),
+                        user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()),
+                        user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()));
+            } else {
+                throw new NotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
+            }
         }
     }
 
     @Override
     public UserPaginationDTO getUsers(Sort.Direction dir, int pageNum, int pageSize) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(0, 10, sort);
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
         Page<User> users = userRepository.findAll(pageable);
         List<UserResponseDTO> userResponseDTOs = new ArrayList<>();
         users.forEach(user -> {
@@ -126,10 +128,10 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
                         users.getNumber() + 1, userResponseDTOs);
             } else {
-                throw new ResourceNotFoundException(roleNotFoundMessage + user.getRole().getId());
+                throw new NotFoundException(roleNotFoundMessage + user.getRole().getId());
             }
         } else {
-            throw new ResourceNotFoundException(userNotFoundMessage + id);
+            throw new NotFoundException(userNotFoundMessage + id);
         }
     }
 
@@ -155,10 +157,10 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                         user.getInfor().getId(), user.getCart().getId(),
                         orders, ratings);
             } else {
-                throw new ResourceNotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
+                throw new NotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
             }
         } else {
-            throw new ResourceNotFoundException(userNotFoundMessage + id);
+            throw new NotFoundException(userNotFoundMessage + id);
         }
     }
 
@@ -175,21 +177,21 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
 
     @Override
     @Transactional
-    public User signUp(SignUpRequestDTO signUpRequestDTO) throws UserExistException {
+    public User signUp(SignUpRequestDTO signUpRequestDTO) throws ResourceConflictException {
         var user = userRepository.findOneByEmail(signUpRequestDTO.email());
         if (user.isPresent()) {
-            throw new UserExistException("Already exists an user with email: " + signUpRequestDTO.email());
+            throw new ResourceConflictException("Already exists an User with email: " + signUpRequestDTO.email());
         } else {
             User newUser = new User();
             String encryptedPassword = passwordEncoder.encode(signUpRequestDTO.password());
             newUser.setInfor(new Infor(newUser));
-            newUser.setCart(new Cart(newUser));
+            newUser.setCart(new Cart(newUser, 0L));
             newUser.setPassword(encryptedPassword);
             newUser.setEmail(signUpRequestDTO.email());
             if (!signUpRequestDTO.role().isEmpty()) {
                 var userRole = roleRepository.findByRoleName(signUpRequestDTO.role());
                 if (userRole == null) {
-                    throw new UserExistException("Not found any role with name: " + signUpRequestDTO.role());
+                    throw new ResourceConflictException("Not found any role with name: " + signUpRequestDTO.role());
                 }
                 newUser.setRole(userRole);
             }
@@ -198,12 +200,12 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
-    public User signIn(SignInRequestDTO signInRequestDTO) throws ResourceNotFoundException {
+    public User signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException {
         log.info("Started query user");
         var user = userRepository.findOneByEmail(signInRequestDTO.email());
         log.info("Queried user");
         if (user.isEmpty()) {
-            throw new UserExistException("Not exists an user with email: " + signInRequestDTO.email());
+            throw new NotFoundException("Not exists an user with email: " + signInRequestDTO.email());
         } else {
             log.info("step 0: Found User: {} - {}", user.get().getUsername(), user.get().getPassword());
             return user.get();

@@ -8,4 +8,5 @@ import com.nashtech.rookies.ecommerce.models.cart.Rating;
 @Repository
 public interface RatingRepository extends JpaRepository<Rating, Long> {
   boolean existsById(Long id);
+  boolean existsByProductIdAndUserId(Long productId, Long userId);
 }
