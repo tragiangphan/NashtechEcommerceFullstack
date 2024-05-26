@@ -24,7 +24,7 @@ public class TokenProvider {
     public String generateToken (User user, int hours) {
         try {
             return JWT.create()
-                    .withSubject(user.getEmail())
+                    .withSubject(user.getUsername())
                     .withClaim("username", user.getUsername())
                     .withExpiresAt(genTokenExpirationDate(hours))
                     .sign(algorithm);

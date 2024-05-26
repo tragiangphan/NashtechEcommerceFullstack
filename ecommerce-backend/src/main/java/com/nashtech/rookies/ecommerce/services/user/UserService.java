@@ -27,8 +27,9 @@ public interface UserService extends CommonService<User, Long> {
 
     boolean existsUserByEmail(String email);
 
-    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+    User loadUserByUsername(String username) throws UsernameNotFoundException;
 
-    UserDetails signUp(SignUpRequestDTO signUpRequestDTO) throws UserExistException;
-    UserDetails signIn(SignInRequestDTO signInRequestDTO) throws ResourceNotFoundException;
+    User signUp(SignUpRequestDTO signUpRequestDTO) throws UserExistException;
+
+    User signIn(SignInRequestDTO signInRequestDTO) throws ResourceNotFoundException;
 }

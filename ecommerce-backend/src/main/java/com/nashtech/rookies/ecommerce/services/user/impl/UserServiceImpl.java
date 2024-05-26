@@ -1,6 +1,7 @@
 package com.nashtech.rookies.ecommerce.services.user.impl;
 
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
@@ -29,8 +30,11 @@ import com.nashtech.rookies.ecommerce.repositories.user.UserRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class UserServiceImpl extends CommonServiceImpl<User, Long> implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -164,14 +168,14 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Override
     @Transactional
-    public UserDetails signUp(SignUpRequestDTO signUpRequestDTO) throws UserExistException {
+    public User signUp(SignUpRequestDTO signUpRequestDTO) throws UserExistException {
         var user = userRepository.findOneByEmail(signUpRequestDTO.email());
         if (user.isPresent()) {
             throw new UserExistException("Already exists an user with email: " + signUpRequestDTO.email());
@@ -194,11 +198,14 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
-    public UserDetails signIn(SignInRequestDTO signInRequestDTO) throws ResourceNotFoundException {
+    public User signIn(SignInRequestDTO signInRequestDTO) throws ResourceNotFoundException {
+        log.info("Started query user");
         var user = userRepository.findOneByEmail(signInRequestDTO.email());
+        log.info("Queried user");
         if (user.isEmpty()) {
             throw new UserExistException("Not exists an user with email: " + signInRequestDTO.email());
         } else {
+            log.info("step 0: Found User: {} - {}", user.get().getUsername(), user.get().getPassword());
             return user.get();
         }
     }

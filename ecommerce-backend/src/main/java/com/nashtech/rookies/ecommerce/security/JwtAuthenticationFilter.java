@@ -1,5 +1,6 @@
 package com.nashtech.rookies.ecommerce.security;
 
+import com.nashtech.rookies.ecommerce.models.user.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,10 +26,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         var token = this.recoverToken(request);
         if (token != null) {
-            System.out.println(token.length());
-            var login = tokenProvider.validateToken(token);
-            var user = userService.loadUserByUsername(login);
-            var authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
+            String login = tokenProvider.validateToken(token);
+            logger.info(login);
+            User user = (User) userService.loadUserByUsername(login);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    user.getUsername(), user.getPassword(), user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain.doFilter(request, response);

@@ -1,6 +1,5 @@
 package com.nashtech.rookies.ecommerce.models.user;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -52,21 +51,6 @@ public class User extends AuditEntity<Long> implements UserDetails {
     @OneToMany(mappedBy = "user")
     private Set<Rating> ratings;
 
-    public User(String firstName, String lastName, String email, String password, String phoneNo, ActiveModeEnum activeMode, Role role, Infor infor, Cart cart, Set<Order> orders, Set<Rating> ratings) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.username = email.split("@")[0] + "_" + email.split("@")[1].split("\\.")[0];
-        this.password = password;
-        this.phoneNo = phoneNo;
-        this.activeMode = activeMode;
-        this.role = role;
-        this.infor = infor;
-        this.cart = cart;
-        this.orders = orders;
-        this.ratings = ratings;
-    }
-
     public void setEmail(String email) {
         this.email = email;
         this.username = email.split("@")[0] + "_" + email.split("@")[1].split("\\.")[0];
@@ -82,7 +66,12 @@ public class User extends AuditEntity<Long> implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.username;
+        return username;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @Override
