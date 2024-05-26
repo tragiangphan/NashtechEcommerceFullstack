@@ -36,7 +36,10 @@ public class ProductController {
     @GetMapping()
     public ResponseEntity<ProductPaginationDTO> getProduct(
             @RequestParam(name = "id", required = false) Long id,
-            @RequestParam(name = "id", required = false) String productName,
+            @RequestParam(name = "productName", required = false) String productName,
+            @RequestParam(name = "categoryName", required = false) String categoryName,
+            @RequestParam(name = "priceGreater", required = false) Long priceGreater,
+            @RequestParam(name = "priceLess", required = false) Long priceLess,
             @RequestParam(name = "direction") Sort.Direction dir,
             @RequestParam(name = "pageNum") Integer pageNum,
             @RequestParam(name = "pageSize") Integer pageSize) {
@@ -46,6 +49,10 @@ public class ProductController {
             productResponseDTO = productService.getProducts(id);
         } else if (productName != null) {
             productResponseDTO = productService.getProductByProductName(productName, dir, pageNum - 1, pageSize);
+        } else if (categoryName != null) {
+            productResponseDTO = productService.getProductByCategoryName(categoryName, dir, pageNum - 1, pageSize);
+        } else if (priceGreater != null && priceLess != null) {
+            productResponseDTO = productService.getProductByPriceGreaterThanAndPriceLessThan(priceGreater, priceLess, dir, pageNum - 1, pageSize);
         } else {
             productResponseDTO = productService.getProducts(dir, pageNum - 1, pageSize);
         }

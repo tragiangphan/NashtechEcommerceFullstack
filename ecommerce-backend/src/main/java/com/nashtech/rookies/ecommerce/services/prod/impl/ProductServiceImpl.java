@@ -117,10 +117,60 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
     }
 
     @Override
-    public ProductPaginationDTO getProductByProductName(String productName, Sort.Direction dir, int pageNum, int pageSize) {
+    public ProductPaginationDTO getProductByProductName(String productName, Sort.Direction dir,
+                                                        int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "product_name");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
-        Page<Product> products = productRepository.findProductByProductNameLike(productName, pageable);
+        Page<Product> products = productRepository.findAllByProductNameLike(
+                "%" + productName + "%", pageable);
+        List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
+        products.forEach(product -> {
+            Set<Long> images = new HashSet<>();
+            product.getImages().forEach(image -> images.add(image.getId()));
+            Set<Long> suppliers = new HashSet<>();
+            product.getSuppliers().forEach(supplier -> suppliers.add(supplier.getId()));
+            productResponseDTOs.add(new ProductResponseDTO(
+                    product.getId(), product.getProductName(),
+                    product.getProductDesc(), product.getUnit(),
+                    product.getPrice(), product.getQuantity(),
+                    product.getFeatureMode(), product.getCategory().getId(),
+                    suppliers, images));
+        });
+        return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
+                products.getNumber() + 1, productResponseDTOs);
+    }
+
+    @Override
+    public ProductPaginationDTO getProductByCategoryName(String categoryName, Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "product_name");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Product> products = productRepository.findAllByCategoryName(
+                "%" + categoryName + "%", pageable);
+        List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
+        products.forEach(product -> {
+            Set<Long> images = new HashSet<>();
+            product.getImages().forEach(image -> images.add(image.getId()));
+            Set<Long> suppliers = new HashSet<>();
+            product.getSuppliers().forEach(supplier -> suppliers.add(supplier.getId()));
+            productResponseDTOs.add(new ProductResponseDTO(
+                    product.getId(), product.getProductName(),
+                    product.getProductDesc(), product.getUnit(),
+                    product.getPrice(), product.getQuantity(),
+                    product.getFeatureMode(), product.getCategory().getId(),
+                    suppliers, images));
+        });
+        return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
+                products.getNumber() + 1, productResponseDTOs);
+    }
+
+    @Override
+    public ProductPaginationDTO getProductByPriceGreaterThanAndPriceLessThan(Long maxPrice, Long minPrice,
+                                                                             Sort.Direction dir,
+                                                                             int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "product_name");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Product> products = productRepository.findAllByPriceGreaterThanAndPriceLessThan(maxPrice,
+                minPrice, pageable);
         List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
         products.forEach(product -> {
             Set<Long> images = new HashSet<>();

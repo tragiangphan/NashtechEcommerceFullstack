@@ -7,16 +7,21 @@ import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductPaginationDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.services.CommonService;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 public interface ProductService extends CommonService<Product, Long> {
-  ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO);
+    ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO);
 
-  ProductPaginationDTO getProducts(Sort.Direction dir, int pageNum, int pageSize);
+    ProductPaginationDTO getProducts(Sort.Direction dir, int pageNum, int pageSize);
 
-  ProductPaginationDTO getProducts(Long id);
+    ProductPaginationDTO getProducts(Long id);
 
-  ProductPaginationDTO getProductByProductName(String productName, Sort.Direction dir, int pageNum, int pageSize);
+    ProductPaginationDTO getProductByProductName(String productName, Sort.Direction dir, int pageNum, int pageSize);
 
-  ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO);
+    ProductPaginationDTO getProductByCategoryName(String categoryName, Sort.Direction dir, int pageNum, int pageSize);
+
+    ProductPaginationDTO getProductByPriceGreaterThanAndPriceLessThan(Long maxPrice, Long minPrice, Sort.Direction dir, int pageNum, int pageSize);
+
+    ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO);
 }
