@@ -7,7 +7,11 @@ import java.util.*;
 
 import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
 import com.nashtech.rookies.ecommerce.models.constants.FeatureModeEnum;
-import com.nashtech.rookies.ecommerce.models.prods.Image;
+import com.nashtech.rookies.ecommerce.models.prod.Category;
+import com.nashtech.rookies.ecommerce.models.prod.Image;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Supplier;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,9 +24,6 @@ import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductPaginationDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
-import com.nashtech.rookies.ecommerce.models.prods.Supplier;
-import com.nashtech.rookies.ecommerce.models.prods.Category;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;

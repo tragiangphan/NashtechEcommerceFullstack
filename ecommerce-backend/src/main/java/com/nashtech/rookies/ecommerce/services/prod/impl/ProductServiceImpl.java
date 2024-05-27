@@ -7,6 +7,9 @@ import java.util.Set;
 
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductPaginationDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Supplier;
+
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,8 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
-import com.nashtech.rookies.ecommerce.models.prods.Supplier;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;
@@ -170,12 +171,12 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
     }
 
     @Override
-    public ProductPaginationDTO getProductByPriceGreaterThanAndPriceLessThan(Long maxPrice, Long minPrice,
+    public ProductPaginationDTO getProductByPriceRange(Long maxPrice, Long minPrice,
                                                                              Sort.Direction dir,
                                                                              int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "product_name");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
-        Page<Product> products = productRepository.findAllByPriceGreaterThanAndPriceLessThan(maxPrice,
+        Page<Product> products = productRepository.getProductByPriceRange(maxPrice,
                 minPrice, pageable);
         List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
         products.forEach(product -> {

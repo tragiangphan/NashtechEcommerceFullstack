@@ -9,8 +9,6 @@ import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.services.prod.ProductService;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,15 +32,14 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ResponseEntity<ProductPaginationDTO> getProduct(
-            @RequestParam(name = "id", required = false) Long id,
-            @RequestParam(name = "productName", required = false) String productName,
-            @RequestParam(name = "categoryName", required = false) String categoryName,
-            @RequestParam(name = "priceGreater", required = false) Long priceGreater,
-            @RequestParam(name = "priceLess", required = false) Long priceLess,
-            @RequestParam(name = "direction") Sort.Direction dir,
-            @RequestParam(name = "pageNum") Integer pageNum,
-            @RequestParam(name = "pageSize") Integer pageSize) {
+    public ResponseEntity<ProductPaginationDTO> getProduct(@RequestParam(name = "id", required = false) Long id,
+                                                           @RequestParam(name = "productName", required = false) String productName,
+                                                           @RequestParam(name = "categoryName", required = false) String categoryName,
+                                                           @RequestParam(name = "maxPrice", required = false) Long maxPrice,
+                                                           @RequestParam(name = "minPrice", required = false) Long minPrice,
+                                                           @RequestParam(name = "direction") Sort.Direction dir,
+                                                           @RequestParam(name = "pageNum") Integer pageNum,
+                                                           @RequestParam(name = "pageSize") Integer pageSize) {
         ProductPaginationDTO productResponseDTO;
 
         if (id != null) {
@@ -51,8 +48,8 @@ public class ProductController {
             productResponseDTO = productService.getProductByProductName(productName, dir, pageNum - 1, pageSize);
         } else if (categoryName != null) {
             productResponseDTO = productService.getProductByCategoryName(categoryName, dir, pageNum - 1, pageSize);
-        } else if (priceGreater != null && priceLess != null) {
-            productResponseDTO = productService.getProductByPriceGreaterThanAndPriceLessThan(priceGreater, priceLess, dir, pageNum - 1, pageSize);
+        } else if (maxPrice != null && minPrice != null) {
+            productResponseDTO = productService.getProductByPriceRange(maxPrice, minPrice, dir, pageNum - 1, pageSize);
         } else {
             productResponseDTO = productService.getProducts(dir, pageNum - 1, pageSize);
         }
