@@ -40,12 +40,13 @@ public class RatingController {
             @RequestParam(name = "direction") Sort.Direction dir,
             @RequestParam(name = "pageNum") Integer pageNum,
             @RequestParam(name = "pageSize") Integer pageSize) {
+        RatingResponseDTO ratingResponseDTO;
         PaginationRatingDTO ratingResponseDTOs;
         Double ratingAvg;
 
         if (id != null) {
-            ratingResponseDTOs = ratingService.getRating(id);
-            return ResponseEntity.ok(ratingResponseDTOs);
+            ratingResponseDTO = ratingService.getRating(id);
+            return ResponseEntity.ok(ratingResponseDTO);
         } else if (productName != null && needAverage != null) {
             ratingAvg = ratingService.getAverageRatingByProductName(productName);
             return ResponseEntity.ok(ratingAvg);

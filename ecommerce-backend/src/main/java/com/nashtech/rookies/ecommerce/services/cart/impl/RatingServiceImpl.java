@@ -96,14 +96,12 @@ public class RatingServiceImpl extends CommonServiceImpl<Rating, Long> implement
     }
 
     @Override
-    public List<RatingResponseDTO> getRating(Long id) {
+    public RatingResponseDTO getRating(Long id) {
         if (ratingRepository.existsById(id)) {
             Rating rating = ratingRepository.findById(id).get();
-            List<RatingResponseDTO> ratingResponseDTOs = new ArrayList<>();
-            ratingResponseDTOs.add(new RatingResponseDTO(rating.getId(), rating.getCreatedOn(),
+            return new RatingResponseDTO(rating.getId(), rating.getCreatedOn(),
                     rating.getLastUpdatedOn(), rating.getRateRange(), rating.getRateDesc(),
-                    rating.getProduct().getId(), rating.getUser().getId()));
-            return ratingResponseDTOs;
+                    rating.getProduct().getId(), rating.getUser().getId());
         } else {
             throw new NotFoundException("Not found a Rating with an id: " + id);
         }

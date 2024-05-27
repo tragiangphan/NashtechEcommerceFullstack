@@ -18,7 +18,7 @@ public interface RatingService extends CommonService<Rating, Long> {
 
     Double getAverageRatingByProductName(String productName);
 
-    PaginationRatingDTO getRating(Long id);
+    RatingResponseDTO getRating(Long id);
 
     RatingResponseDTO updateRating(Long id, RatingRequestDTO ratingRequestDTO);
 }
