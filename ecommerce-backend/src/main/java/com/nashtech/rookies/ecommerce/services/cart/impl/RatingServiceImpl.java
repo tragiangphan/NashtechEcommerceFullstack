@@ -78,10 +78,10 @@ public class RatingServiceImpl extends CommonServiceImpl<Rating, Long> implement
     }
 
     @Override
-    public PaginationRatingDTO getRatingByProductName(String productName, Sort.Direction dir, int pageNum, int pageSize) {
+    public PaginationRatingDTO getRatingByProductId(Long productId, Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
-        Page<Rating> ratings = ratingRepository.findByRatingByProductName(productName, pageable);
+        Page<Rating> ratings = ratingRepository.findByRatingByProductId(productId, pageable);
         List<RatingResponseDTO> ratingResponseDTOs = new ArrayList<>();
         ratings.forEach(rating -> ratingResponseDTOs.add(new RatingResponseDTO(rating.getId(), rating.getCreatedOn(),
                 rating.getLastUpdatedOn(), rating.getRateRange(), rating.getRateDesc(),
