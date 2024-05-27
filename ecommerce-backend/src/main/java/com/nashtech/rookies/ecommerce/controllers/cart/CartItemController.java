@@ -2,6 +2,8 @@ package com.nashtech.rookies.ecommerce.controllers.cart;
 
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationCartItemDTO;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,37 +22,46 @@ import com.nashtech.rookies.ecommerce.services.cart.CartItemService;
 @RestController
 @RequestMapping(RestVersionConfig.API_VERSION + "/cartItem")
 public class CartItemController {
-  private final CartItemService cartItemService;
+    private final CartItemService cartItemService;
 
-  public CartItemController(CartItemService cartItemService) {
-    this.cartItemService = cartItemService;
-  }
-
-  @PostMapping()
-  public ResponseEntity<CartItemResponseDTO> createCart(@RequestBody CartItemRequestDTO cartItemRequestDTO) {
-    return ResponseEntity.ok(cartItemService.createCartItem(cartItemRequestDTO));
-  }
-
-  @GetMapping()
-  public ResponseEntity<List<CartItemResponseDTO>> getCart(@RequestParam(name = "id", required = false) Long id) {
-    List<CartItemResponseDTO> cartItemResponseDTOs;
-
-    if (id != null) {
-      cartItemResponseDTOs = cartItemService.getCartItem(id);
-    } else {
-      cartItemResponseDTOs = cartItemService.getCartItem();
+    public CartItemController(CartItemService cartItemService) {
+        this.cartItemService = cartItemService;
     }
-    return ResponseEntity.ok(cartItemResponseDTOs);
-  }
 
-  @PutMapping()
-  public ResponseEntity<CartItemResponseDTO> updateCart(@RequestParam(name = "id", required = true) Long id,
-      @RequestBody CartItemRequestDTO cartItemRequestDTO) {
-    return ResponseEntity.ok(cartItemService.updateCartItem(id, cartItemRequestDTO));
-  }
+    @PostMapping()
+    public ResponseEntity<CartItemResponseDTO> createCart(@RequestBody CartItemRequestDTO cartItemRequestDTO) {
+        return ResponseEntity.ok(cartItemService.createCartItem(cartItemRequestDTO));
+    }
 
-  @DeleteMapping()
-  public ResponseEntity<String> deleteCart(@RequestParam(name = "id", required = true) Long id) {
-    return ResponseEntity.ok(cartItemService.deleteCartItem(id));
-  }
+    @GetMapping()
+    public ResponseEntity<?> getCart(@RequestParam(name = "id", required = false) Long id,
+                                     @RequestParam(name = "userId") Long userId,
+                                     @RequestParam(name = "direction") Sort.Direction dir,
+                                     @RequestParam(name = "pageNum") Integer pageNum,
+                                     @RequestParam(name = "pageSize") Integer pageSize) {
+        PaginationCartItemDTO cartItemResponseDTOs;
+        CartItemResponseDTO cartItemResponseDTO;
+
+        if (id != null) {
+            cartItemResponseDTO = cartItemService.getCartItem(id);
+            return ResponseEntity.ok(cartItemResponseDTO);
+        } else if (userId != null) {
+            cartItemResponseDTOs = cartItemService.getCartItemByUserId(userId, dir, pageNum, pageSize);
+            return ResponseEntity.ok(cartItemResponseDTOs);
+        } else {
+            cartItemResponseDTOs = cartItemService.getCartItem(dir, pageNum, pageSize);
+            return ResponseEntity.ok(cartItemResponseDTOs);
+        }
+    }
+
+    @PutMapping()
+    public ResponseEntity<CartItemResponseDTO> updateCart(@RequestParam(name = "id", required = true) Long id,
+                                                          @RequestBody CartItemRequestDTO cartItemRequestDTO) {
+        return ResponseEntity.ok(cartItemService.updateCartItem(id, cartItemRequestDTO));
+    }
+
+    @DeleteMapping()
+    public ResponseEntity<String> deleteCart(@RequestParam(name = "id", required = true) Long id) {
+        return ResponseEntity.ok(cartItemService.deleteCartItem(id));
+    }
 }

@@ -3,7 +3,13 @@ package com.nashtech.rookies.ecommerce.services.cart.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationCartItemDTO;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,20 +62,32 @@ public class CartItemServiceImpl extends CommonServiceImpl<CartItem, Long> imple
     }
 
     @Override
-    public List<CartItemResponseDTO> getCartItem() {
-        var cartItems = cartItemRepository.findAll();
+    public PaginationCartItemDTO getCartItem(Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<CartItem> cartItems = cartItemRepository.findAll(pageable);
         List<CartItemResponseDTO> cartItemResponseDTOs = new ArrayList<>();
         cartItems.forEach(cartItem -> cartItemResponseDTOs.add(cartItemMapper.toResponseDTO(cartItem)));
-        return cartItemResponseDTOs;
+        return new PaginationCartItemDTO(cartItems.getTotalPages(), cartItems.getTotalElements(), cartItems.getSize(),
+                cartItems.getNumber(), cartItemResponseDTOs);
     }
 
     @Override
-    public List<CartItemResponseDTO> getCartItem(Long id) {
+    public PaginationCartItemDTO getCartItemByUserId(Long userId, Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<CartItem> cartItems = cartItemRepository.findByUserId(userId, pageable);
+        List<CartItemResponseDTO> cartItemResponseDTOs = new ArrayList<>();
+        cartItems.forEach(cartItem -> cartItemResponseDTOs.add(cartItemMapper.toResponseDTO(cartItem)));
+        return new PaginationCartItemDTO(cartItems.getTotalPages(), cartItems.getTotalElements(), cartItems.getSize(),
+                cartItems.getNumber(), cartItemResponseDTOs);
+    }
+
+    @Override
+    public CartItemResponseDTO getCartItem(Long id) {
         if (cartItemRepository.existsById(id)) {
             CartItem cartItem = cartItemRepository.findById(id).get();
-            List<CartItemResponseDTO> cartItemResponseDTOs = new ArrayList<>();
-            cartItemResponseDTOs.add(cartItemMapper.toResponseDTO(cartItem));
-            return cartItemResponseDTOs;
+            return cartItemMapper.toResponseDTO(cartItem);
         } else
             throw new NotFoundException("Not found a Cart Item with an id: " + id);
     }
