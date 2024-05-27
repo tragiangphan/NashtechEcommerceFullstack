@@ -2,9 +2,9 @@ package com.nashtech.rookies.ecommerce.services.prod.impl;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
-import com.nashtech.rookies.ecommerce.models.prods.Image;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
-import com.nashtech.rookies.ecommerce.models.prods.Supplier;
+import com.nashtech.rookies.ecommerce.models.prod.Image;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Supplier;
 import com.nashtech.rookies.ecommerce.repositories.prod.ImageRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;

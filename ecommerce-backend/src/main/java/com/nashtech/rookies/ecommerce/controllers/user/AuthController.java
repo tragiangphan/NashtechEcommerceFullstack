@@ -28,11 +28,11 @@ import java.util.Map;
 public class AuthController {
 
     private final UserService userService;
-    private final UserServiceImpl userServiceImpl;
+    private final AuthenticationManager authenticationManager;
 
-    public AuthController(UserService userService, UserServiceImpl userServiceImpl) {
+    public AuthController(UserService userService, AuthenticationManager authenticationManager) {
         this.userService = userService;
-        this.userServiceImpl = userServiceImpl;
+        this.authenticationManager = authenticationManager;
     }
 
 
@@ -51,9 +51,14 @@ public class AuthController {
             produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<AuthResponseTokenDTO> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO) {
         try {
-            Map<String, String> tokens = userServiceImpl.signIn(signInRequestDTO);
+            User user = userService.signIn(signInRequestDTO);
+            // Authenticate this user
+            UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(user.getUsername(),
+                    user.getPassword(), user.getAuthorities());
+            Authentication authUser = authenticationManager.authenticate(usernamePassword);
 
-            return ResponseEntity.ok(new AuthResponseTokenDTO(tokens.get("access_token"), tokens.get("refresh_token")));
+            return ResponseEntity.ok(new AuthResponseTokenDTO(userService.generateToken(authUser).get("access_token"),
+                    userService.generateToken(authUser).get("refresh_token")));
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Bad credentials", e);
         }

@@ -1,7 +1,7 @@
 package com.nashtech.rookies.ecommerce.models.cart;
 
 import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
 import com.nashtech.rookies.ecommerce.models.user.User;
 
 import jakarta.persistence.CascadeType;

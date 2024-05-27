@@ -6,14 +6,15 @@ import java.util.List;
 import java.util.Set;
 
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
+import com.nashtech.rookies.ecommerce.models.prod.Category;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-import com.nashtech.rookies.ecommerce.models.prods.Category;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;

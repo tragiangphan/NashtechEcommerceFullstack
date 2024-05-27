@@ -6,6 +6,9 @@ import static org.mockito.Mockito.*;
 import java.util.*;
 
 import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
+import com.nashtech.rookies.ecommerce.models.prod.Category;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +19,6 @@ import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.CategoryResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
-import com.nashtech.rookies.ecommerce.models.prods.Category;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 

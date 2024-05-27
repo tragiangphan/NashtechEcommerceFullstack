@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -73,9 +74,10 @@ public class AuthConfig {
                                 "api/v1/users",         "api/v1/infors",
                                 "api/v1/cart",          "api/v1/cartItem",
                                 "api/v1/orders",        "api/v1/ratings",
-                                "api/v1/auth/signUp",   "api/v1/auth/signIn"
+                                "api/v1/auth/signUp"
                         ).permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers(HttpMethod.POST, "api/v1/auth/signIn").permitAll()
+                        .anyRequest().permitAll())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

@@ -3,10 +3,17 @@ package com.nashtech.rookies.ecommerce.services.cart.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationRatingDTO;
+import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
 import com.nashtech.rookies.ecommerce.repositories.cart.CartItemRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.user.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,13 +65,34 @@ public class RatingServiceImpl extends CommonServiceImpl<Rating, Long> implement
     }
 
     @Override
-    public List<RatingResponseDTO> getRating() {
-        var ratings = ratingRepository.findAll();
+    public PaginationRatingDTO getRating(Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Rating> ratings = ratingRepository.findAll(pageable);
         List<RatingResponseDTO> ratingResponseDTOs = new ArrayList<>();
         ratings.forEach(rating -> ratingResponseDTOs.add(new RatingResponseDTO(rating.getId(), rating.getCreatedOn(),
                 rating.getLastUpdatedOn(), rating.getRateRange(), rating.getRateDesc(),
                 rating.getProduct().getId(), rating.getUser().getId())));
-        return ratingResponseDTOs;
+        return new PaginationRatingDTO(ratings.getTotalPages(), ratings.getTotalElements(), ratings.getSize(),
+                ratings.getNumber(), ratingResponseDTOs);
+    }
+
+    @Override
+    public PaginationRatingDTO getRatingByProductName(String productName, Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Rating> ratings = ratingRepository.findByRatingByProductName(productName, pageable);
+        List<RatingResponseDTO> ratingResponseDTOs = new ArrayList<>();
+        ratings.forEach(rating -> ratingResponseDTOs.add(new RatingResponseDTO(rating.getId(), rating.getCreatedOn(),
+                rating.getLastUpdatedOn(), rating.getRateRange(), rating.getRateDesc(),
+                rating.getProduct().getId(), rating.getUser().getId())));
+        return new PaginationRatingDTO(ratings.getTotalPages(), ratings.getTotalElements(), ratings.getSize(),
+                ratings.getNumber(), ratingResponseDTOs);
+    }
+
+    @Override
+    public Double getAverageRatingByProductName(String productName) {
+        return ratingRepository.getAverageRatingByProductName(productName);
     }
 
     @Override
