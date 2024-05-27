@@ -91,8 +91,8 @@ public class RatingServiceImpl extends CommonServiceImpl<Rating, Long> implement
     }
 
     @Override
-    public Double getAverageRatingByProductName(String productName) {
-        return ratingRepository.getAverageRatingByProductName(productName);
+    public Double getAverageRatingByProductId(Long productId) {
+        return ratingRepository.getAverageRatingByProductId(productId);
     }
 
     @Override

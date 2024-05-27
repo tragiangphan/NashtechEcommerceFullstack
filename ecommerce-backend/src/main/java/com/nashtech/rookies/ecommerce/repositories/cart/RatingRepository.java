@@ -24,9 +24,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
   @Query(value =
           "SELECT AVG(r.rate_range) " +
           "FROM ratings r " +
-          "JOIN products p " +
-          "ON r.product_id = p.id " +
-          "WHERE p.product_name LIKE :productName",
+          "WHERE r.product_id = :productId",
           nativeQuery = true)
-  Double getAverageRatingByProductName(@Param("productName") String productName);
+  Double getAverageRatingByProductId(@Param("productId") Long productId);
 }

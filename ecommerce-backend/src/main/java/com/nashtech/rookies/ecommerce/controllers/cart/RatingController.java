@@ -35,7 +35,7 @@ public class RatingController {
     @GetMapping()
     public ResponseEntity<?> getRating(
             @RequestParam(name = "id", required = false) Long id,
-            @RequestParam(name = "productName", required = false) String productName,
+            @RequestParam(name = "productId") Long productId,
             @RequestParam(name = "average") Boolean needAverage,
             @RequestParam(name = "direction") Sort.Direction dir,
             @RequestParam(name = "pageNum") Integer pageNum,
@@ -47,11 +47,11 @@ public class RatingController {
         if (id != null) {
             ratingResponseDTO = ratingService.getRating(id);
             return ResponseEntity.ok(ratingResponseDTO);
-        } else if (productName != null && needAverage != null) {
-            ratingAvg = ratingService.getAverageRatingByProductName(productName);
+        } else if (productId != null && needAverage != null) {
+            ratingAvg = ratingService.getAverageRatingByProductId(productId);
             return ResponseEntity.ok(ratingAvg);
-        } else if (productName != null) {
-            ratingResponseDTOs = ratingService.getRatingByProductName(productName, dir, pageNum - 1, pageSize);
+        } else if (productId != null) {
+            ratingResponseDTOs = ratingService.getRatingByProductId(productId, dir, pageNum - 1, pageSize);
             return ResponseEntity.ok(ratingResponseDTOs);
         } else {
             ratingResponseDTOs = ratingService.getRating(dir, pageNum - 1, pageSize);
