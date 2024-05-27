@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
-import com.nashtech.rookies.ecommerce.models.prods.Category;
-import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
 import org.springframework.data.domain.Persistable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-import com.nashtech.rookies.ecommerce.mappers.prod.SupplierMapper;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
-import com.nashtech.rookies.ecommerce.models.prods.Supplier;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Supplier;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
@@ -28,16 +25,11 @@ import com.nashtech.rookies.ecommerce.services.prod.SupplierService;
 public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> implements SupplierService {
     private final ProductRepository productRepository;
     private final SupplierRepository supplierRepository;
-    private final SupplierMapper supplierMapper;
-    private final CategoryRepository categoryRepository;
 
-    SupplierServiceImpl(SupplierRepository supplierRepository, SupplierMapper supplierMapper,
-                        ProductRepository productRepository, CategoryRepository categoryRepository) {
+    SupplierServiceImpl(SupplierRepository supplierRepository, ProductRepository productRepository) {
         super(supplierRepository);
         this.productRepository = productRepository;
         this.supplierRepository = supplierRepository;
-        this.supplierMapper = supplierMapper;
-        this.categoryRepository = categoryRepository;
     }
 
     @Override

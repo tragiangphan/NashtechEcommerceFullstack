@@ -6,7 +6,9 @@ import static org.mockito.Mockito.*;
 import java.util.*;
 
 import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Supplier;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +20,6 @@ import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.mappers.prod.SupplierMapper;
-import com.nashtech.rookies.ecommerce.models.prods.Supplier;
 import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;
