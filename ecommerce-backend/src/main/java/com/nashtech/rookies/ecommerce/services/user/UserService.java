@@ -10,9 +10,13 @@ import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictExcept
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.services.CommonService;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface UserService extends CommonService<User, Long> {
     UserResponseDTO createUser(UserRequestDTO userRequestDTO);
@@ -29,5 +33,7 @@ public interface UserService extends CommonService<User, Long> {
 
     User signUp(SignUpRequestDTO signUpRequestDTO) throws ResourceConflictException;
 
-    Map<String, String> signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException;
+    User signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException;
+
+    Map<String, String> generateToken(Authentication authenticationManager);
 }

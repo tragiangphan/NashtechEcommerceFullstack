@@ -23,36 +23,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping(RestVersionConfig.API_VERSION + "/users")
 public class UserController {
-  private final UserService userService;
+    private final UserService userService;
 
-  public UserController(UserService userService) {
-    this.userService = userService;
-  }
-
-  @PostMapping()
-  public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
-    log.info("Create user request: {}", userRequestDTO);
-    return ResponseEntity.ok(userService.createUser(userRequestDTO));
-  }
-
-  @GetMapping()
-  public ResponseEntity<UserPaginationDTO> getUsers(
-      @Valid @RequestParam(name = "id", required = false) Long id,
-      @RequestParam(name = "direction") Sort.Direction dir,
-      @RequestParam(name = "pageNum") Integer pageNum,
-      @RequestParam(name = "pageSize") Integer pageSize) {
-    UserPaginationDTO userResponseDTO;
-    if (id != null) {
-      userResponseDTO = userService.getUsers(id);
-    } else {
-      userResponseDTO = userService.getUsers(dir, pageNum - 1, pageSize);
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
-    return ResponseEntity.ok(userResponseDTO);
-  }
 
-  @PutMapping()
-  public ResponseEntity<UserResponseDTO> updateUserById(@RequestParam(name = "id", required = true) Long id,
-      @RequestBody UserRequestDTO userRequestDTO) {
-    return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
-  }
+    @PostMapping()
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
+        log.info("Create user request: {}", userRequestDTO);
+        return ResponseEntity.ok(userService.createUser(userRequestDTO));
+    }
+
+    @GetMapping()
+    public ResponseEntity<UserPaginationDTO> getUsers(
+            @Valid @RequestParam(name = "id", required = false) Long id,
+            @RequestParam(name = "direction") Sort.Direction dir,
+            @RequestParam(name = "pageNum") Integer pageNum,
+            @RequestParam(name = "pageSize") Integer pageSize) {
+        UserPaginationDTO userResponseDTO;
+        if (id != null) {
+            userResponseDTO = userService.getUsers(id);
+        } else {
+            userResponseDTO = userService.getUsers(dir, pageNum - 1, pageSize);
+        }
+        return ResponseEntity.ok(userResponseDTO);
+    }
+
+    @PutMapping()
+    public ResponseEntity<UserResponseDTO> updateUserById(@RequestParam(name = "id", required = true) Long id,
+                                                          @RequestBody UserRequestDTO userRequestDTO) {
+        return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
+    }
 }

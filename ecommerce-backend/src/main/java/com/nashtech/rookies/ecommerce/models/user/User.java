@@ -53,6 +53,7 @@ public class User extends AuditEntity<Long> implements UserDetails {
 
     public void setEmail(String email) {
         this.email = email;
+        // should add subdomain (like .com, .vn,...)
         this.username = email.split("@")[0] + "_" + email.split("@")[1].split("\\.")[0];
     }
 

@@ -3,22 +3,16 @@ package com.nashtech.rookies.ecommerce.services.user.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.nashtech.rookies.ecommerce.controllers.user.AuthController;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
-import com.nashtech.rookies.ecommerce.dto.user.responses.AuthResponseTokenDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
 import com.nashtech.rookies.ecommerce.security.TokenProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,19 +40,18 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
+
 
     private String userNotFoundMessage = "Not found User with an id: ";
     private String roleNotFoundMessage = "Not found Role with an id: ";
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, TokenProvider tokenProvider) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
         super(userRepository);
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
     }
 
@@ -157,7 +150,11 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
 
     @Override
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if (userRepository.existsUserByUsername(username)) {
+            return userRepository.findOneByUsername(username).get();
+        } else {
+            throw new UsernameNotFoundException(username);
+        }
     }
 
     @Override
@@ -185,21 +182,20 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
-    public Map<String, String> signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException {
+    public User signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException {
         if (userRepository.findOneByEmail(signInRequestDTO.email()).isEmpty()) {
             throw new NotFoundException("Not exists an user with email: " + signInRequestDTO.email());
         } else {
-            User user = userRepository.findOneByEmail(signInRequestDTO.email()).get();
-            // Authenticate this user
-            UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(user.getUsername(),
-                    user.getPassword(), user.getAuthorities());
-            Authentication authUser = authenticationManager.authenticate(usernamePassword);
-
-            // Generated token
-            var accessToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 2);
-            var refreshToken = tokenProvider.generateToken((User) authUser.getPrincipal(), 24);
-
-            return Map.of("access_token", accessToken, "refresh_token", refreshToken);
+            return userRepository.findOneByEmail(signInRequestDTO.email()).get();
         }
     }
+
+    @Override
+    public Map<String, String> generateToken(Authentication authenticationManager) {
+        // Generated token
+        var accessToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 2);
+        var refreshToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 24);
+        return Map.of("access_token", accessToken, "refresh_token", refreshToken);
+    }
+
 }
