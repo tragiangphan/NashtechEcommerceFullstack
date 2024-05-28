@@ -77,9 +77,10 @@ public class AuthConfig {
         return httpSecurity
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(List.of("*"));
+                    configuration.setAllowedOriginPatterns(List.of("*localhost:[*]*"));
                     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-                    configuration.setAllowedHeaders(List.of("Authorization", "Content-type", "header"));
+                    configuration.setAllowedHeaders(List.of("Authorization", "Content-type", "Access-Control-Allow-Credentials"));
+                    configuration.setAllowCredentials(true);
                     return configuration;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -90,72 +91,54 @@ public class AuthConfig {
                                 "/swagger-ui/**",
                                 "/api-docs/**"
                         ).permitAll()
+                        // .requestMatchers(HttpMethod.POST,
+                        //         signUpAPI,      signInAPI
+                        // ).permitAll()
+                        // .requestMatchers(HttpMethod.POST,
+                        //         categoriesAPI,      suppliersAPI,       productsAPI,        imagesAPI,
+                        //         cartAPI,
+                        //         usersAPI
+                        // ).hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.POST,
+                        //         cartAPI,            cartItemsAPI,       ordersAPI,
+                        //         ratingsAPI,
+                        //         inforsAPI
+                        // ).hasRole("CUSTOMER")
+                        // .requestMatchers(HttpMethod.GET,
+                        //         categoriesAPI,      suppliersAPI,       productsAPI,        imagesAPI,
+                        //         ratingsAPI
+                        // ).permitAll()
+                        // .requestMatchers(HttpMethod.GET,
+                        //         usersAPI,           inforsAPI
+                        // ).hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.GET,
+                        //         categoriesAPI,      suppliersAPI,       productsAPI,        imagesAPI,
+                        //         cartAPI,            cartItemsAPI,       ordersAPI,          ratingsAPI,
+                        //         usersAPI,           inforsAPI,          signUpAPI,          signInAPI
+                        // ).hasRole("CUSTOMER")
+                        // .requestMatchers(HttpMethod.PUT,
+                        //         categoriesAPI,      suppliersAPI,       productsAPI,        imagesAPI,
+                        //         cartAPI,            cartItemsAPI,       ordersAPI,          ratingsAPI,
+                        //         usersAPI,           inforsAPI,          signUpAPI,          signInAPI
+                        // ).permitAll()
+                        // .requestMatchers(HttpMethod.PUT,
+                        //         categoriesAPI,      suppliersAPI,       productsAPI,        imagesAPI,
+                        //         cartAPI,            cartItemsAPI,       ordersAPI,          ratingsAPI,
+                        //         usersAPI,           inforsAPI,          signUpAPI,          signInAPI
+                        // ).hasRole("ADMIN")
+                        // .requestMatchers(HttpMethod.PUT,
+                        //         categoriesAPI,      suppliersAPI,       productsAPI,        imagesAPI,
+                        //         cartAPI,            cartItemsAPI,       ordersAPI,          ratingsAPI,
+                        //         usersAPI,           inforsAPI,          signUpAPI,          signInAPI
+                        // ).hasRole("CUSTOMER")
+                        // .requestMatchers(HttpMethod.DELETE,
+                        //         cartItemsAPI
+                        // ).hasRole("CUSTOMER")
                         .requestMatchers(
-                                HttpMethod.POST,
-                                signUpAPI,      signInAPI
+                                categoriesAPI,      suppliersAPI,       productsAPI,        imagesAPI,
+                                cartAPI,            cartItemsAPI,       ordersAPI,          ratingsAPI,
+                                usersAPI,           inforsAPI,          signUpAPI,          signInAPI
                         ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                categoriesAPI,  suppliersAPI,
-                                productsAPI,    imagesAPI,
-                                cartAPI,        usersAPI
-                        ).hasRole("ADMIN")
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                cartAPI,        cartItemsAPI,
-                                ordersAPI,      ratingsAPI,
-                                inforsAPI
-                        ).hasRole("CUSTOMER")
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                categoriesAPI,  suppliersAPI,
-                                productsAPI,    imagesAPI,
-                                ratingsAPI
-                        ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                usersAPI,       inforsAPI
-                        ).hasRole("ADMIN")
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                categoriesAPI,  suppliersAPI,
-                                productsAPI,    imagesAPI,
-                                cartAPI,        cartItemsAPI,
-                                ordersAPI,      ratingsAPI,
-                                usersAPI,       inforsAPI,
-                                signUpAPI,      signInAPI
-                        ).hasRole("CUSTOMER")
-                        .requestMatchers(
-                                HttpMethod.PUT,
-                                categoriesAPI,  suppliersAPI,
-                                productsAPI,    imagesAPI,
-                                cartAPI,        cartItemsAPI,
-                                ordersAPI,      ratingsAPI,
-                                usersAPI,       inforsAPI,
-                                signUpAPI,      signInAPI
-                        ).permitAll()
-                        .requestMatchers(
-                                HttpMethod.PUT,
-                                categoriesAPI,  suppliersAPI,
-                                productsAPI,    imagesAPI,
-                                cartAPI,        cartItemsAPI,
-                                ordersAPI,      ratingsAPI,
-                                usersAPI,       inforsAPI,
-                                signUpAPI,      signInAPI
-                        ).hasRole("ADMIN")
-                        .requestMatchers(
-                                HttpMethod.PUT,
-                                categoriesAPI,  suppliersAPI,
-                                productsAPI,    imagesAPI,
-                                cartAPI,        cartItemsAPI,
-                                ordersAPI,      ratingsAPI,
-                                usersAPI,       inforsAPI,
-                                signUpAPI,      signInAPI
-                        ).hasRole("CUSTOMER")
-                        .requestMatchers(
-                                HttpMethod.DELETE, cartItemsAPI
-                        ).hasRole("CUSTOMER")
-                        .requestMatchers(HttpMethod.POST, "api/v1/auth/signIn").permitAll()
                         .anyRequest().permitAll())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
