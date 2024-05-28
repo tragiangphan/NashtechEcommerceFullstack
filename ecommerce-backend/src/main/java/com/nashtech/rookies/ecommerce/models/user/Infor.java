@@ -21,7 +21,7 @@ public class Infor extends IdEntity<Long> {
     private String postalCode;
 
     @OneToOne()
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id")
     private User user;
 
     public Infor(User user) {

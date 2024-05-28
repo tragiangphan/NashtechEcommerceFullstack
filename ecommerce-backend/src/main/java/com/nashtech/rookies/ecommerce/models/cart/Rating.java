@@ -1,6 +1,7 @@
 package com.nashtech.rookies.ecommerce.models.cart;
 
 import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
 import com.nashtech.rookies.ecommerce.models.user.User;
 
 import jakarta.persistence.CascadeType;
@@ -25,8 +26,8 @@ public class Rating extends AuditEntity<Long> {
   private String rateDesc;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "cart_item_id", nullable = false)
-  private CartItem cartItem;
+  @JoinColumn(name = "product_id", nullable = false)
+  private Product product;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id", nullable = false)

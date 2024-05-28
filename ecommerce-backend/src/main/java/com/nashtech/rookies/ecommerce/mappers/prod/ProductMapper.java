@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
@@ -20,13 +20,13 @@ public interface ProductMapper {
 
   @Mapping(target = "images", ignore = true)
   @Mapping(target = "suppliers", ignore = true)
-  @Mapping(target = "cartItem", ignore = true)
+  @Mapping(target = "cartItems", ignore = true)
   @Mapping(target = "category", ignore = true)
   Product toResponseEntity(ProductResponseDTO productDTO);
 
   @Mapping(target = "images", ignore = true)
   @Mapping(target = "suppliers", ignore = true)
-  @Mapping(target = "cartItem", ignore = true)
+  @Mapping(target = "cartItems", ignore = true)
   @Mapping(target = "category", ignore = true)
   Product toRequestEntity(ProductRequestDTO productDTO);
 

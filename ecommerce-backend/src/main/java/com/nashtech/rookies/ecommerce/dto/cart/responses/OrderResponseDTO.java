@@ -5,6 +5,6 @@ import java.util.Set;
 
 public record OrderResponseDTO(Long id,
                                LocalDateTime createOn, LocalDateTime lastUpdateOn,
-                               Set<Long> cartItems, Long userId) {
+                               Long quantity, Long productId, Long userId) {
 
 }

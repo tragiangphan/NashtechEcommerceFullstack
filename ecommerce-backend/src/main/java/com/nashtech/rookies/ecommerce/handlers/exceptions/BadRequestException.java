@@ -1,4 +1,6 @@
-package com.nashtech.rookies.ecommerce.exceptions;
+package com.nashtech.rookies.ecommerce.handlers.exceptions;
+
+import com.nashtech.rookies.ecommerce.handlers.utils.MessageUtils;
 
 public class BadRequestException extends RuntimeException {
   private String message;

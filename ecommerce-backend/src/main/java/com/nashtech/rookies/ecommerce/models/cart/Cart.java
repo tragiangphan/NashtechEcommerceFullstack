@@ -19,19 +19,16 @@ import lombok.Setter;
 @Table(name = "CARTS")
 public class Cart extends IdEntity<Long> {
     @OneToOne()
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private Long quantity;
 
-    @OneToMany(mappedBy = "cart")
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CartItem> cartItems;
 
-    public Cart(User user) {
+    public Cart(User user, Long quantity) {
         this.user = user;
-    }
-
-    public void setQuantity() {
-        this.quantity = (long) cartItems.size();
+        this.quantity = quantity;
     }
 }

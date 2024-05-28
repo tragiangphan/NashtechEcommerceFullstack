@@ -8,4 +8,5 @@ import com.nashtech.rookies.ecommerce.models.user.Role;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long>{
   boolean existsById(Long id);
+  Role findByRoleName(String name);
 }

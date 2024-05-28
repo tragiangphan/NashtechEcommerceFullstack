@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.user.requests.InforRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.InforResponseDTO;
-import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.mappers.user.InforMapper;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
 import com.nashtech.rookies.ecommerce.repositories.user.InforRepository;
@@ -44,7 +44,7 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
       infor = inforRepository.saveAndFlush(infor);
       return inforMapper.toResponseDTO(infor);
     } else {
-      throw new ResourceNotFoundException("Not found User with an id: " + inforRequestDTO.userId());
+      throw new NotFoundException("Not found User with an id: " + inforRequestDTO.userId());
     }
   }
 
@@ -63,7 +63,7 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
       inforResponseDTO.add(inforMapper.toResponseDTO(inforRepository.findById(id).get()));
       return inforResponseDTO;
     } else {
-      throw new ResourceNotFoundException("Not found Infor with an id: " + id);
+      throw new NotFoundException("Not found Infor with an id: " + id);
     }
   }
 
@@ -82,10 +82,10 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
         infor = inforRepository.saveAndFlush(infor);
         return inforMapper.toResponseDTO(infor);
       } else {
-        throw new ResourceNotFoundException("Not found User with an id: " + inforRequestDTO.userId());
+        throw new NotFoundException("Not found User with an id: " + inforRequestDTO.userId());
       }
     } else {
-      throw new ResourceNotFoundException("Not found Infor with an id: " + id);
+      throw new NotFoundException("Not found Infor with an id: " + id);
     }
   }
 }

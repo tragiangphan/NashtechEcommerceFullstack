@@ -2,6 +2,7 @@ package com.nashtech.rookies.ecommerce.models.key;
 
 import java.io.Serializable;
 
+import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
 import jakarta.persistence.GeneratedValue;
@@ -12,17 +13,18 @@ import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@Setter
 @MappedSuperclass
 @Getter
 public abstract class IdEntity<P extends Serializable> implements Persistable<P> {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @EqualsAndHashCode.Include
-  private P id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    private P id;
 
-  @Transient
-  @Override
-  public boolean isNew() {
-    return null == getId();
-  }
+    @Transient
+    @Override
+    public boolean isNew() {
+        return null == getId();
+    }
 }

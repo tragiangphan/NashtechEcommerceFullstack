@@ -1,15 +1,10 @@
 package com.nashtech.rookies.ecommerce.models.cart;
 
 import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
-import com.nashtech.rookies.ecommerce.models.prods.Product;
+import com.nashtech.rookies.ecommerce.models.key.IdEntity;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,18 +16,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(name = "cart_items")
-public class CartItem extends AuditEntity<Long> {
+public class CartItem extends IdEntity<Long> {
   private Long quantity;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "cart_id", nullable = false)
   private Cart cart;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "order_id", nullable = true)
+  @OneToOne()
+  @JoinColumn(name = "order_id")
   private Order order;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id", nullable = false)
   private Product product;
 }

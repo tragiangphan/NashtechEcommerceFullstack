@@ -1,7 +1,7 @@
 package com.nashtech.rookies.ecommerce.controllers.user;
 
-import java.util.List;
-
+import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,33 +23,36 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping(RestVersionConfig.API_VERSION + "/users")
 public class UserController {
-  private UserService userService;
+    private final UserService userService;
 
-  public UserController(UserService userService) {
-    this.userService = userService;
-  }
-
-  @PostMapping()
-  public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
-    log.info("Create user request: {}", userRequestDTO);
-    return ResponseEntity.ok(userService.createUser(userRequestDTO));
-  }
-
-  @GetMapping()
-  public ResponseEntity<List<UserResponseDTO>> getUsers(
-      @Valid @RequestParam(name = "id", required = false) Long id) {
-    List<UserResponseDTO> userResponseDTO;
-    if (id != null) {
-      userResponseDTO = userService.getUsers(id);
-    } else {
-      userResponseDTO = userService.getUsers();
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
-    return ResponseEntity.ok(userResponseDTO);
-  }
 
-  @PutMapping()
-  public ResponseEntity<UserResponseDTO> updateUserById(@RequestParam(name = "id", required = true) Long id,
-      @RequestBody UserRequestDTO userRequestDTO) {
-    return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
-  }
+    @PostMapping()
+    public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO userRequestDTO) {
+        log.info("Create user request: {}", userRequestDTO);
+        return ResponseEntity.ok(userService.createUser(userRequestDTO));
+    }
+
+    @GetMapping()
+    public ResponseEntity<UserPaginationDTO> getUsers(
+            @Valid @RequestParam(name = "id", required = false) Long id,
+            @RequestParam(name = "direction") Sort.Direction dir,
+            @RequestParam(name = "pageNum") Integer pageNum,
+            @RequestParam(name = "pageSize") Integer pageSize) {
+        UserPaginationDTO userResponseDTO;
+        if (id != null) {
+            userResponseDTO = userService.getUsers(id);
+        } else {
+            userResponseDTO = userService.getUsers(dir, pageNum - 1, pageSize);
+        }
+        return ResponseEntity.ok(userResponseDTO);
+    }
+
+    @PutMapping()
+    public ResponseEntity<UserResponseDTO> updateUserById(@RequestParam(name = "id", required = true) Long id,
+                                                          @RequestBody UserRequestDTO userRequestDTO) {
+        return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
+    }
 }

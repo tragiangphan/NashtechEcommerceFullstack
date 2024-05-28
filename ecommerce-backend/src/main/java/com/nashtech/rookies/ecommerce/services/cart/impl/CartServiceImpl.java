@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.cart.requests.CartRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.cart.responses.CartResponseDTO;
-import com.nashtech.rookies.ecommerce.exceptions.ResourceNotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.mappers.cart.CartMapper;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
 import com.nashtech.rookies.ecommerce.repositories.cart.CartItemRepository;
@@ -42,21 +42,23 @@ public class CartServiceImpl extends CommonServiceImpl<Cart, Long> implements Ca
             Cart cart = new Cart();
             cart.setUser(userRepository.findById(cartRequestDTO.userId()).get());
             cart.setCartItems(new HashSet<>());
-            cart.setQuantity();
+            cart.setQuantity(0L);
             cart = cartRepository.saveAndFlush(cart);
             return new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
                     cart.getCartItems() != null ?
                             cart.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>());
-        } else throw new ResourceNotFoundException("Not found User with an id: " + cartRequestDTO.userId());
+        } else throw new NotFoundException("Not found User with an id: " + cartRequestDTO.userId());
     }
 
     @Override
     public List<CartResponseDTO> getCart() {
         var carts = cartRepository.findAll();
         List<CartResponseDTO> cartResponseDTOs = new ArrayList<>();
-        carts.forEach(cart -> cartResponseDTOs.add(new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
-                cart.getCartItems() != null ?
-                        cart.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>())));
+        carts.forEach(cart -> {
+            Set<CartItem> cartItems = cart.getCartItems() != null ? cart.getCartItems() : new HashSet<>();
+            cartResponseDTOs.add(new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
+                    cartItems.stream().map(Persistable::getId).collect(Collectors.toSet())));
+        });
         return cartResponseDTOs;
     }
 
@@ -67,7 +69,7 @@ public class CartServiceImpl extends CommonServiceImpl<Cart, Long> implements Ca
             return List.of(new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
                     cart.getCartItems() != null ?
                             cart.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>()));
-        } else throw new ResourceNotFoundException("Not found a Cart with an id: " + id);
+        } else throw new NotFoundException("Not found a Cart with an id: " + id);
     }
 
     @Override
@@ -76,7 +78,6 @@ public class CartServiceImpl extends CommonServiceImpl<Cart, Long> implements Ca
         if (cartRepository.existsById(id)) {
             Cart cart = cartRepository.findById(id).get();
             if (userRepository.existsById(cartRequestDTO.userId())) {
-                cart.setQuantity(cartRequestDTO.quantity());
                 cart.setCartItems(cartRequestDTO.cartItem()
                         .stream()
                         .map(cartItem -> cartItemRepository.findById(cartItem).get()).collect(Collectors.toSet()));
@@ -85,7 +86,7 @@ public class CartServiceImpl extends CommonServiceImpl<Cart, Long> implements Ca
                 return new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
                         cart.getCartItems() != null ?
                                 cart.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>());
-            } else throw new ResourceNotFoundException("Not found Cart with an id: " + id);
-        } else throw new ResourceNotFoundException("Not found User with an id: " + cartRequestDTO.userId());
+            } else throw new NotFoundException("Not found Cart with an id: " + id);
+        } else throw new NotFoundException("Not found User with an id: " + cartRequestDTO.userId());
     }
 }
