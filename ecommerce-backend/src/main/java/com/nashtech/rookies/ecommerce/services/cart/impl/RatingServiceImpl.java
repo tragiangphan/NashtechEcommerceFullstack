@@ -3,17 +3,16 @@ package com.nashtech.rookies.ecommerce.services.cart.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.cart.requests.RatingGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationRatingDTO;
-import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
-import com.nashtech.rookies.ecommerce.models.prod.Product;
-import com.nashtech.rookies.ecommerce.repositories.cart.CartItemRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.user.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,6 +64,28 @@ public class RatingServiceImpl extends CommonServiceImpl<Rating, Long> implement
     }
 
     @Override
+    public ResponseEntity<?> handleGetRating(RatingGetRequestParamsDTO requestParamsDTO) {
+        RatingResponseDTO ratingResponseDTO;
+        PaginationRatingDTO ratingResponseDTOs;
+        Double ratingAvg;
+
+        if (requestParamsDTO.id() != null) {
+            ratingResponseDTO = getRating(requestParamsDTO.id());
+            return ResponseEntity.ok(ratingResponseDTO);
+        } else if (requestParamsDTO.productId() != null && requestParamsDTO.average() != null) {
+            ratingAvg = getAverageRatingByProductId(requestParamsDTO.productId());
+            return ResponseEntity.ok(ratingAvg);
+        } else if (requestParamsDTO.productId() != null) {
+            ratingResponseDTOs = getRatingByProductId(requestParamsDTO.productId(), requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
+            return ResponseEntity.ok(ratingResponseDTOs);
+        } else {
+            ratingResponseDTOs = getRating(requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
+            return ResponseEntity.ok(ratingResponseDTOs);
+        }
+    }
+
     public PaginationRatingDTO getRating(Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
@@ -77,7 +98,6 @@ public class RatingServiceImpl extends CommonServiceImpl<Rating, Long> implement
                 ratings.getNumber(), ratingResponseDTOs);
     }
 
-    @Override
     public PaginationRatingDTO getRatingByProductId(Long productId, Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
@@ -90,12 +110,10 @@ public class RatingServiceImpl extends CommonServiceImpl<Rating, Long> implement
                 ratings.getNumber(), ratingResponseDTOs);
     }
 
-    @Override
     public Double getAverageRatingByProductId(Long productId) {
         return ratingRepository.getAverageRatingByProductId(productId);
     }
 
-    @Override
     public RatingResponseDTO getRating(Long id) {
         if (ratingRepository.existsById(id)) {
             Rating rating = ratingRepository.findById(id).get();

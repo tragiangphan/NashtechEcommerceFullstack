@@ -61,6 +61,19 @@ public class AuthConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
                                             JwtAuthenticationFilter authFilter) throws Exception {
+        String categoriesAPI = "/api/categories";
+        String suppliersAPI = "/api/suppliers";
+        String productsAPI = "api/v1/products";
+        String imagesAPI = "api/v1/images";
+        String cartAPI = "api/v1/cart";
+        String cartItemsAPI = "api/v1/cartItems";
+        String ordersAPI = "api/v1/orders";
+        String ratingsAPI = "api/v1/ratings";
+        String usersAPI = "api/v1/users";
+        String inforsAPI = "api/v1/infors";
+        String signUpAPI = "api/v1/auth/signUp";
+        String signInAPI = "api/v1/auth/signIn";
+
         return httpSecurity
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
@@ -78,13 +91,70 @@ public class AuthConfig {
                                 "/api-docs/**"
                         ).permitAll()
                         .requestMatchers(
-                                "api/v1/categories",    "api/v1/images",
-                                "api/v1/suppliers",     "api/v1/products",
-                                "api/v1/users",         "api/v1/infors",
-                                "api/v1/cart",          "api/v1/cartItem",
-                                "api/v1/orders",        "api/v1/ratings",
-                                "api/v1/auth/signUp"
+                                HttpMethod.POST,
+                                signUpAPI,      signInAPI
                         ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                categoriesAPI,  suppliersAPI,
+                                productsAPI,    imagesAPI,
+                                cartAPI,        usersAPI
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                cartAPI,        cartItemsAPI,
+                                ordersAPI,      ratingsAPI,
+                                inforsAPI
+                        ).hasRole("CUSTOMER")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                categoriesAPI,  suppliersAPI,
+                                productsAPI,    imagesAPI,
+                                ratingsAPI
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                usersAPI,       inforsAPI
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                categoriesAPI,  suppliersAPI,
+                                productsAPI,    imagesAPI,
+                                cartAPI,        cartItemsAPI,
+                                ordersAPI,      ratingsAPI,
+                                usersAPI,       inforsAPI,
+                                signUpAPI,      signInAPI
+                        ).hasRole("CUSTOMER")
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                categoriesAPI,  suppliersAPI,
+                                productsAPI,    imagesAPI,
+                                cartAPI,        cartItemsAPI,
+                                ordersAPI,      ratingsAPI,
+                                usersAPI,       inforsAPI,
+                                signUpAPI,      signInAPI
+                        ).permitAll()
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                categoriesAPI,  suppliersAPI,
+                                productsAPI,    imagesAPI,
+                                cartAPI,        cartItemsAPI,
+                                ordersAPI,      ratingsAPI,
+                                usersAPI,       inforsAPI,
+                                signUpAPI,      signInAPI
+                        ).hasRole("ADMIN")
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                categoriesAPI,  suppliersAPI,
+                                productsAPI,    imagesAPI,
+                                cartAPI,        cartItemsAPI,
+                                ordersAPI,      ratingsAPI,
+                                usersAPI,       inforsAPI,
+                                signUpAPI,      signInAPI
+                        ).hasRole("CUSTOMER")
+                        .requestMatchers(
+                                HttpMethod.DELETE, cartItemsAPI
+                        ).hasRole("CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "api/v1/auth/signIn").permitAll()
                         .anyRequest().permitAll())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)

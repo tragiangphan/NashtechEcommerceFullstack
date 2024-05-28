@@ -1,24 +1,24 @@
 package com.nashtech.rookies.ecommerce.services.cart.impl;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.nashtech.rookies.ecommerce.dto.cart.requests.OrderGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.models.cart.CartItem;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.repositories.cart.CartItemRepository;
 import com.nashtech.rookies.ecommerce.repositories.user.UserRepository;
 import org.springframework.data.domain.Persistable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.cart.requests.OrderRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.cart.responses.OrderResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-import com.nashtech.rookies.ecommerce.mappers.cart.OrderMapper;
 import com.nashtech.rookies.ecommerce.models.cart.Order;
 import com.nashtech.rookies.ecommerce.repositories.cart.OrderRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
@@ -29,15 +29,13 @@ import com.nashtech.rookies.ecommerce.services.cart.OrderService;
 public class OrderServiceImpl extends CommonServiceImpl<Order, Long> implements OrderService {
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
     private final CartItemRepository cartItemRepository;
 
-    public OrderServiceImpl(UserRepository userRepository, OrderRepository orderRepository, OrderMapper orderMapper,
+    public OrderServiceImpl(UserRepository userRepository, OrderRepository orderRepository,
                             CartItemRepository cartItemRepository) {
         super(orderRepository);
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
-        this.orderMapper = orderMapper;
         this.cartItemRepository = cartItemRepository;
     }
 
@@ -71,6 +69,22 @@ public class OrderServiceImpl extends CommonServiceImpl<Order, Long> implements 
     }
 
     @Override
+    public ResponseEntity<?> handleGetOrder(OrderGetRequestParamsDTO requestParamsDTO) {
+        List<OrderResponseDTO> orderResponseDTOs;
+        OrderResponseDTO orderResponseDTO;
+
+        if (requestParamsDTO.id() != null) {
+            orderResponseDTO = getOrderById(requestParamsDTO.id());
+            return ResponseEntity.ok(orderResponseDTO);
+        } else if (requestParamsDTO.userId() != null) {
+            orderResponseDTOs = getOrderByUserId(requestParamsDTO.userId());
+            return ResponseEntity.ok(orderResponseDTOs);
+        } else {
+            orderResponseDTOs = getOrder();
+            return ResponseEntity.ok(orderResponseDTOs);
+        }
+    }
+
     public List<OrderResponseDTO> getOrder() {
         var orders = orderRepository.findAll();
         List<OrderResponseDTO> orderResponseDTOs = new ArrayList<>();
@@ -81,17 +95,24 @@ public class OrderServiceImpl extends CommonServiceImpl<Order, Long> implements 
         return orderResponseDTOs;
     }
 
-    @Override
-    public List<OrderResponseDTO> getOrder(Long id) {
+    public OrderResponseDTO getOrderById(Long id) {
         if (orderRepository.existsById(id)) {
             Order order = orderRepository.findById(id).get();
-            List<OrderResponseDTO> orderResponseDTOs = new ArrayList<>();
-            orderResponseDTOs.add(new OrderResponseDTO(order.getId(), order.getCreatedOn(), order.getLastUpdatedOn(),
-                    order.getQuantity(), order.getProduct().getId(), order.getUser().getId()));
-            return orderResponseDTOs;
+            return new OrderResponseDTO(order.getId(), order.getCreatedOn(), order.getLastUpdatedOn(),
+                    order.getQuantity(), order.getProduct().getId(), order.getUser().getId());
         } else {
             throw new NotFoundException("Not found a Order with an id: " + id);
         }
+    }
+
+    public List<OrderResponseDTO> getOrderByUserId(Long userId) {
+        var orders = orderRepository.findAll();
+        List<OrderResponseDTO> orderResponseDTOs = new ArrayList<>();
+        orders.forEach(order ->
+                orderResponseDTOs.add(new OrderResponseDTO(order.getId(), order.getCreatedOn(), order.getLastUpdatedOn(),
+                        order.getQuantity(), order.getProduct().getId(), order.getUser().getId()))
+        );
+        return orderResponseDTOs;
     }
 
     @Override

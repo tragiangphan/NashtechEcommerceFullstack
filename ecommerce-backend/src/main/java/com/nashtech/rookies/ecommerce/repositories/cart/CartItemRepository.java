@@ -1,6 +1,5 @@
 package com.nashtech.rookies.ecommerce.repositories.cart;
 
-import com.nashtech.rookies.ecommerce.models.cart.Cart;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

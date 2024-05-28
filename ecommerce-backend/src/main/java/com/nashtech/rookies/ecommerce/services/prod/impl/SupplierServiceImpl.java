@@ -5,8 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import org.springframework.data.domain.Persistable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +59,19 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
     }
 
     @Override
+    public ResponseEntity<?> handleGetSupplier(SupplierGetRequestParamsDTO requestParamsDTO) {
+        List<SupplierResponseDTO> supplierResponseDTOs;
+        SupplierResponseDTO supplierResponseDTO;
+
+        if (requestParamsDTO.id() != null) {
+            supplierResponseDTO = getSuppliers(requestParamsDTO.id());
+            return ResponseEntity.ok(supplierResponseDTO);
+        } else {
+            supplierResponseDTOs = getSuppliers();
+            return ResponseEntity.ok(supplierResponseDTOs);
+        }
+    }
+
     public List<SupplierResponseDTO> getSuppliers() {
         var suppliers = supplierRepository.findAll();
         List<SupplierResponseDTO> supplierResponseDTOs = new ArrayList<>();
@@ -71,18 +86,15 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
         return supplierResponseDTOs;
     }
 
-    @Override
-    public List<SupplierResponseDTO> getSuppliers(Long id) {
-        List<SupplierResponseDTO> supplierResponseDTOs = new ArrayList<>();
+    public SupplierResponseDTO getSuppliers(Long id) {
         if (supplierRepository.existsById(id)) {
             Supplier supplier = supplierRepository.findById(id).get();
             Set<Long> productIds = new HashSet<>();
             supplier.getProducts().forEach(prod -> productIds.add(prod.getId()));
-            supplierResponseDTOs.add(new SupplierResponseDTO(
+            return new SupplierResponseDTO(
                     supplier.getId(), supplier.getSupplierName(),
                     supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(), supplier.getWard(),
-                    supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(), productIds));
-            return supplierResponseDTOs;
+                    supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(), productIds);
         } else {
             throw new NotFoundException("Not found Supplier with an id: " + id);
         }

@@ -1,5 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.prod;
 
+import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductPaginationDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +33,7 @@ public class ProductController {
     }
 
     @GetMapping()
-    public ResponseEntity<ProductPaginationDTO> getProduct(@RequestParam(name = "id", required = false) Long id,
+    public ResponseEntity<?> getProduct(@RequestParam(name = "id", required = false) Long id,
                                                            @RequestParam(name = "productName", required = false) String productName,
                                                            @RequestParam(name = "categoryName", required = false) String categoryName,
                                                            @RequestParam(name = "maxPrice", required = false) Long maxPrice,
@@ -40,20 +41,8 @@ public class ProductController {
                                                            @RequestParam(name = "direction") Sort.Direction dir,
                                                            @RequestParam(name = "pageNum") Integer pageNum,
                                                            @RequestParam(name = "pageSize") Integer pageSize) {
-        ProductPaginationDTO productResponseDTO;
-
-        if (id != null) {
-            productResponseDTO = productService.getProducts(id);
-        } else if (productName != null) {
-            productResponseDTO = productService.getProductByProductName(productName, dir, pageNum - 1, pageSize);
-        } else if (categoryName != null) {
-            productResponseDTO = productService.getProductByCategoryName(categoryName, dir, pageNum - 1, pageSize);
-        } else if (maxPrice != null && minPrice != null) {
-            productResponseDTO = productService.getProductByPriceRange(maxPrice, minPrice, dir, pageNum - 1, pageSize);
-        } else {
-            productResponseDTO = productService.getProducts(dir, pageNum - 1, pageSize);
-        }
-        return ResponseEntity.ok(productResponseDTO);
+        return productService.handleGetProduct(new ProductGetRequestParamsDTO(id, productName,
+                categoryName, maxPrice, minPrice, dir, pageNum, pageSize));
     }
 
     @PutMapping()

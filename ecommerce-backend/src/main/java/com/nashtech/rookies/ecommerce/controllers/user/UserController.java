@@ -1,6 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.user;
 
-import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
+import com.nashtech.rookies.ecommerce.dto.user.requests.UserGetRequestParamsDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,18 +36,12 @@ public class UserController {
     }
 
     @GetMapping()
-    public ResponseEntity<UserPaginationDTO> getUsers(
+    public ResponseEntity<?> getUsers(
             @Valid @RequestParam(name = "id", required = false) Long id,
             @RequestParam(name = "direction") Sort.Direction dir,
             @RequestParam(name = "pageNum") Integer pageNum,
             @RequestParam(name = "pageSize") Integer pageSize) {
-        UserPaginationDTO userResponseDTO;
-        if (id != null) {
-            userResponseDTO = userService.getUsers(id);
-        } else {
-            userResponseDTO = userService.getUsers(dir, pageNum - 1, pageSize);
-        }
-        return ResponseEntity.ok(userResponseDTO);
+        return userService.handleGetUser(new UserGetRequestParamsDTO(id, dir, pageNum, pageSize));
     }
 
     @PutMapping()

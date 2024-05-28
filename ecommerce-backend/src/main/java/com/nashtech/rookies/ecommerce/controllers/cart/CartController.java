@@ -1,5 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.cart;
 
+import com.nashtech.rookies.ecommerce.dto.cart.requests.CartGetRequestParamsDTO;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nashtech.rookies.ecommerce.configs.RestVersionConfig;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
-@RequestMapping(RestVersionConfig.API_VERSION + "/cart")
+@RequestMapping(RestVersionConfig.API_VERSION + "/carts")
 public class CartController {
   private final CartService cartService;
 
@@ -32,15 +33,10 @@ public class CartController {
   }
 
   @GetMapping()
-  public ResponseEntity<List<CartResponseDTO>> getCart(@RequestParam(name = "id", required = false) Long id) {
-    List<CartResponseDTO> cartResponseDTOs;
+  public ResponseEntity<?> getCart(@RequestParam(name = "id", required = false) Long id,
+                                   @RequestParam(name = "userId", required = false) Long userId) {
 
-    if (id != null) {
-      cartResponseDTOs = cartService.getCart(id);
-    } else {
-      cartResponseDTOs = cartService.getCart();
-    }
-    return ResponseEntity.ok(cartResponseDTOs);
+    return ResponseEntity.ok(cartService.handleGetCart(new CartGetRequestParamsDTO(id, userId)));
   }
 
   @PutMapping()

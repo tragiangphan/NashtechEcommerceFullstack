@@ -3,16 +3,16 @@ package com.nashtech.rookies.ecommerce.services.user.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.user.requests.UserGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
 import com.nashtech.rookies.ecommerce.security.TokenProvider;
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nashtech.rookies.ecommerce.dto.user.requests.UserRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-import com.nashtech.rookies.ecommerce.mappers.user.UserMapper;
 import com.nashtech.rookies.ecommerce.models.user.Role;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.repositories.user.RoleRepository;
@@ -30,14 +29,10 @@ import com.nashtech.rookies.ecommerce.repositories.user.UserRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 public class UserServiceImpl extends CommonServiceImpl<User, Long> implements UserService, UserDetailsService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
@@ -46,10 +41,9 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     private String userNotFoundMessage = "Not found User with an id: ";
     private String roleNotFoundMessage = "Not found Role with an id: ";
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
         super(userRepository);
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
@@ -84,6 +78,17 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
+    public ResponseEntity<?> handleGetUser(UserGetRequestParamsDTO requestParamsDTO) {
+        UserPaginationDTO userResponseDTO;
+        if (requestParamsDTO.id() != null) {
+            userResponseDTO = getUsers(requestParamsDTO.id());
+        } else {
+            userResponseDTO = getUsers(requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
+        }
+        return ResponseEntity.ok(userResponseDTO);
+    }
+
     public UserPaginationDTO getUsers(Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
@@ -97,7 +102,6 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
         return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(), users.getNumber() + 1, userResponseDTOs);
     }
 
-    @Override
     public UserPaginationDTO getUsers(Long id) {
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
         Pageable pageable = PageRequest.of(0, 10, sort);
@@ -144,11 +148,6 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
-    public boolean existsUserByEmail(String email) {
-        return userRepository.existsUserByEmail(email);
-    }
-
-    @Override
     public User loadUserByUsername(String username) throws UsernameNotFoundException {
         if (userRepository.existsUserByUsername(username)) {
             return userRepository.findOneByUsername(username).get();
@@ -178,15 +177,6 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 newUser.setRole(userRole);
             }
             return userRepository.saveAndFlush(newUser);
-        }
-    }
-
-    @Override
-    public User signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException {
-        if (userRepository.findOneByEmail(signInRequestDTO.email()).isEmpty()) {
-            throw new NotFoundException("Not exists an user with email: " + signInRequestDTO.email());
-        } else {
-            return userRepository.findOneByEmail(signInRequestDTO.email()).get();
         }
     }
 

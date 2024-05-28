@@ -1,7 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.user;
 
-import java.util.List;
-
+import com.nashtech.rookies.ecommerce.dto.user.requests.InforGetRequestParamsDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,18 +32,12 @@ public class InforController {
   }
 
   @GetMapping()
-  public ResponseEntity<List<InforResponseDTO>> getInfors(@Valid @RequestParam(name = "id", required = false) Long id) {
-    List<InforResponseDTO> inforResponseDTO;
-    if (id != null) {
-      inforResponseDTO = inforService.getInfors(id);
-    } else {
-      inforResponseDTO = inforService.getInfors();
-    }
-    return ResponseEntity.ok(inforResponseDTO);
+  public ResponseEntity<?> getInfors(@Valid @RequestParam(name = "id", required = false) Long id) {
+      return inforService.handleGetInfor(new InforGetRequestParamsDTO(id));
   }
 
   @PutMapping()
-  public ResponseEntity<InforResponseDTO> updateInfor(@Valid @RequestParam(name = "id", required = true) Long id,
+  public ResponseEntity<InforResponseDTO> updateInfor(@Valid @RequestParam(name = "id") Long id,
       @RequestBody InforRequestDTO inforRequestDTO) {
     return ResponseEntity.ok(inforService.updateInfor(id, inforRequestDTO));
   }

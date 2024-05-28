@@ -1,7 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.cart;
 
-import java.util.List;
-
+import com.nashtech.rookies.ecommerce.dto.cart.requests.RatingGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationRatingDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -36,27 +35,11 @@ public class RatingController {
     public ResponseEntity<?> getRating(
             @RequestParam(name = "id", required = false) Long id,
             @RequestParam(name = "productId") Long productId,
-            @RequestParam(name = "average") Boolean needAverage,
+            @RequestParam(name = "average") Boolean average,
             @RequestParam(name = "direction") Sort.Direction dir,
             @RequestParam(name = "pageNum") Integer pageNum,
             @RequestParam(name = "pageSize") Integer pageSize) {
-        RatingResponseDTO ratingResponseDTO;
-        PaginationRatingDTO ratingResponseDTOs;
-        Double ratingAvg;
-
-        if (id != null) {
-            ratingResponseDTO = ratingService.getRating(id);
-            return ResponseEntity.ok(ratingResponseDTO);
-        } else if (productId != null && needAverage != null) {
-            ratingAvg = ratingService.getAverageRatingByProductId(productId);
-            return ResponseEntity.ok(ratingAvg);
-        } else if (productId != null) {
-            ratingResponseDTOs = ratingService.getRatingByProductId(productId, dir, pageNum - 1, pageSize);
-            return ResponseEntity.ok(ratingResponseDTOs);
-        } else {
-            ratingResponseDTOs = ratingService.getRating(dir, pageNum - 1, pageSize);
-            return ResponseEntity.ok(ratingResponseDTOs);
-        }
+        return ratingService.handleGetRating(new RatingGetRequestParamsDTO(id, productId, average, dir, pageNum, pageSize));
     }
 
 

@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.models.prod.Category;
 import com.nashtech.rookies.ecommerce.models.prod.Product;
 
+import org.springframework.data.domain.Persistable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,11 +53,24 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
                     category.getActiveMode(), new HashSet<>());
         } else {
             Category category = categoryRepository.findByCategoryName(categoryRequestDTO.categoryName());
-            throw new ResourceConflictException("Existed Category Name with an id: " + category.getId());
+            throw new ResourceConflictException("Existed this Category with an id: " + category.getId());
         }
     }
 
     @Override
+    public ResponseEntity<?> handleGetCategory(CategoryGetRequestParamsDTO requestParamsDTO) {
+        List<CategoryResponseDTO> categoryResponseDTOs;
+        CategoryResponseDTO categoryResponseDTO;
+
+        if (requestParamsDTO.id() != null) {
+            categoryResponseDTO = getCategories(requestParamsDTO.id());
+            return ResponseEntity.ok(categoryResponseDTO);
+        } else {
+            categoryResponseDTOs = getCategories();
+            return ResponseEntity.ok(categoryResponseDTOs);
+        }
+    }
+
     public List<CategoryResponseDTO> getCategories() {
         var categories = categoryRepository.findAll();
         List<Product> products = productRepository.findAll();
@@ -62,8 +79,13 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
         categories.forEach(category -> {
             Set<Product> productResponse = new HashSet<>();
             products.forEach(product -> {
-                if (product.getCategory().getId().equals(category.getId())) {
-                    productResponse.add(product);
+                if (product.getCategory().getId() != null) {
+                    if (product.getCategory().getId().equals(category.getId())) {
+                        productResponse.add(product);
+                    }
+                } else {
+                    throw new NotFoundException("Category with id: " + category.getId() + " does not have this " +
+                            "Product with an id: " + product.getId());
                 }
             });
             category.setProducts(productResponse);
@@ -76,18 +98,13 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
         return categoryResponseDTOs;
     }
 
-    @Override
-    public List<CategoryResponseDTO> getCategories(Long id) {
+    public CategoryResponseDTO getCategories(Long id) {
         if (categoryRepository.existsById(id)) {
-            var category = categoryRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundException("Not found Category with an id: " + id));
-            List<CategoryResponseDTO> categoryResponseDTOs = new ArrayList<>();
-            Set<Long> productIds = new HashSet<>();
-            category.getProducts().forEach(product -> productIds.add(product.getId()));
-            categoryResponseDTOs.add(new CategoryResponseDTO(id,
+            var category = categoryRepository.findById(id).get();
+            Set<Long> productIds = category.getProducts().stream().map(Persistable::getId).collect(Collectors.toSet());
+            return new CategoryResponseDTO(id,
                     category.getCategoryName(), category.getCategoryDesc(),
-                    category.getActiveMode(), productIds));
-            return categoryResponseDTOs;
+                    category.getActiveMode(), productIds);
         } else {
             throw new NotFoundException("Not found Category with an id: " + id);
         }

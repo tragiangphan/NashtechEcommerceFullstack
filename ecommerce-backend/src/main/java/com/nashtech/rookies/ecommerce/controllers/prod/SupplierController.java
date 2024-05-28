@@ -1,7 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.prod;
 
-import java.util.List;
-
+import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierGetRequestParamsDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,15 +30,9 @@ public class SupplierController {
   }
 
   @GetMapping()
-  public ResponseEntity<List<SupplierResponseDTO>> getSupplier(@RequestParam(name = "id", required = false) Long id) {
-    List<SupplierResponseDTO> supplierResponseDTO;
-    
-    if (id != null) {
-      supplierResponseDTO = supplierService.getSuppliers(id);
-    } else {
-      supplierResponseDTO = supplierService.getSuppliers();
-    }
-    return ResponseEntity.ok(supplierResponseDTO);
+  public ResponseEntity<?> getSupplier(@RequestParam(name = "id", required = false) Long id,
+                                                               @RequestParam(name = "productId", required = false) Long productId) {
+      return supplierService.handleGetSupplier(new SupplierGetRequestParamsDTO(id, productId));
   }
 
   @PutMapping()
