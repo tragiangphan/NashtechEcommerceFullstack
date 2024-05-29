@@ -179,7 +179,7 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
             return userRepository.saveAndFlush(newUser);
         }
     }
-
+ 
     @Override
     public Map<String, String> generateToken(Authentication authenticationManager) {
         // Generated token

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.nashtech.rookies.ecommerce.models.constants.FeatureModeEnum;
 import com.nashtech.rookies.ecommerce.models.prod.Product;
 
 @Repository
@@ -37,5 +38,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(value = "SELECT * FROM products p WHERE p.price > :minPrice AND p.price < :maxPrice", nativeQuery = true)
     Page<Product> getProductByPriceRange(@Param("maxPrice") Long maxPrice,
                                         @Param("minPrice") Long minPrice,
+                                        Pageable pageable);
+
+    @Query(value = "SELECT * FROM products p WHERE p.feature_mode = :featureMode", nativeQuery = true)
+    Page<Product> getProductByFeatureMode(@Param("featureMode") FeatureModeEnum featureMode,
                                         Pageable pageable);
 }

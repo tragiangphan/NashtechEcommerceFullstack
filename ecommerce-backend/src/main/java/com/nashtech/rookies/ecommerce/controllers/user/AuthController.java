@@ -46,7 +46,7 @@ public class AuthController {
         try {
             // Authenticate this user
             UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(
-                    signInRequestDTO.username(),
+                    signInRequestDTO.email().split("@")[0] + "_" + signInRequestDTO.email().split("@")[1].split("\\.")[0],
                     signInRequestDTO.password());
             Authentication authUser = authenticationManager.authenticate(usernamePassword);
 

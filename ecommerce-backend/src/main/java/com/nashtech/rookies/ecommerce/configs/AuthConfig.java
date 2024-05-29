@@ -77,10 +77,10 @@ public class AuthConfig {
         return httpSecurity
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOriginPatterns(List.of("*localhost:[*]*"));
+                    configuration.setAllowedOriginPatterns(List.of("http://localhost:[*]"));
                     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-                    configuration.setAllowedHeaders(List.of("Authorization", "Content-type", "Access-Control-Allow-Credentials"));
-                    configuration.setAllowCredentials(true);
+                    configuration.setAllowedHeaders(List.of("Authorization", "Content-type", "Access-Control-Allow-Credentials", "Access-Control-Allow-Headers"));
+                    configuration.setAllowCredentials(Boolean.TRUE);
                     return configuration;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)

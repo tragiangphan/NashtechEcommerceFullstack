@@ -8,6 +8,7 @@ import java.util.Set;
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ProductGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ProductPaginationDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
+import com.nashtech.rookies.ecommerce.models.constants.FeatureModeEnum;
 import com.nashtech.rookies.ecommerce.models.prod.Product;
 import com.nashtech.rookies.ecommerce.models.prod.Supplier;
 
@@ -36,13 +37,14 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
     private String productNotFoundMessage = "Not found Product with an id: ";
 
     public ProductServiceImpl(ProductRepository productRepository,
-                              CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
+            CategoryRepository categoryRepository, SupplierRepository supplierRepository) {
         super(productRepository);
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.supplierRepository = supplierRepository;
     }
 
+    @Override
     @Transactional
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
         if (!productRepository.existsByProductName(productRequestDTO.productName())) {
@@ -92,6 +94,10 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
             return ResponseEntity.ok(productPaginationDTO);
         } else if (requestParamsDTO.categoryName() != null) {
             productPaginationDTO = getProductAllByCategoryName(requestParamsDTO.categoryName(), requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
+            return ResponseEntity.ok(productPaginationDTO);
+        } else if (requestParamsDTO.featureMode() != null) {
+            productPaginationDTO = getProductByFeatureMode(requestParamsDTO.featureMode(), requestParamsDTO.dir(),
                     requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
             return ResponseEntity.ok(productPaginationDTO);
         } else if (requestParamsDTO.maxPrice() != null && requestParamsDTO.minPrice() != null) {
@@ -146,7 +152,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
     }
 
     public ProductPaginationDTO getProductAllByProductName(String productName, Sort.Direction dir,
-                                                        int pageNum, int pageSize) {
+            int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "product_name");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
         Page<Product> products = productRepository.findAllByProductNameLike(
@@ -168,7 +174,8 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                 products.getNumber() + 1, productResponseDTOs);
     }
 
-    public ProductPaginationDTO getProductAllByCategoryName(String categoryName, Sort.Direction dir, int pageNum, int pageSize) {
+    public ProductPaginationDTO getProductAllByCategoryName(String categoryName, Sort.Direction dir, int pageNum,
+            int pageSize) {
         Sort sort = Sort.by(dir, "product_name");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
         Page<Product> products = productRepository.findAllByCategoryName(
@@ -190,9 +197,8 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                 products.getNumber() + 1, productResponseDTOs);
     }
 
-    public ProductPaginationDTO getProductByPriceRange(Long maxPrice, Long minPrice,
-                                                                             Sort.Direction dir,
-                                                                             int pageNum, int pageSize) {
+    public ProductPaginationDTO getProductByPriceRange(Long maxPrice, Long minPrice, Sort.Direction dir, int pageNum,
+            int pageSize) {
         Sort sort = Sort.by(dir, "product_name");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
         Page<Product> products = productRepository.getProductByPriceRange(maxPrice,
@@ -214,6 +220,29 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                 products.getNumber() + 1, productResponseDTOs);
     }
 
+    public ProductPaginationDTO getProductByFeatureMode(FeatureModeEnum featureMode, Sort.Direction dir, int pageNum,
+            int pageSize) {
+        Sort sort = Sort.by(dir, "product_name");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Product> products = productRepository.getProductByFeatureMode(featureMode, pageable);
+        List<ProductResponseDTO> productResponseDTOs = new ArrayList<>();
+        products.forEach(product -> {
+            Set<Long> images = new HashSet<>();
+            product.getImages().forEach(image -> images.add(image.getId()));
+            Set<Long> suppliers = new HashSet<>();
+            product.getSuppliers().forEach(supplier -> suppliers.add(supplier.getId()));
+            productResponseDTOs.add(new ProductResponseDTO(
+                    product.getId(), product.getProductName(),
+                    product.getProductDesc(), product.getUnit(),
+                    product.getPrice(), product.getQuantity(),
+                    product.getFeatureMode(), product.getCategory().getId(),
+                    suppliers, images));
+        });
+        return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
+                products.getNumber() + 1, productResponseDTOs);
+    }
+
+    @Override
     @Transactional
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO productRequestDTO) {
         if (productRepository.existsById(id)) {
