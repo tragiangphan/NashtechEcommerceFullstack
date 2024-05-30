@@ -1,7 +1,7 @@
 const REST_API_URL = "http://localhost:8080/api/v1"
 
 // Products
-export const CATEGORY_REST_API_URL = `${REST_API_URL}/catogories`
+export const CATEGORY_REST_API_URL = `${REST_API_URL}/categories`
 export const SUPPLIER_REST_API_URL = `${REST_API_URL}/suppliers`
 export const PRODUCT_REST_API_URL = `${REST_API_URL}/products`
 export const IMAGE_REST_API_URL = `${REST_API_URL}/images`
