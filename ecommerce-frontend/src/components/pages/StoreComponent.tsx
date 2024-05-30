@@ -1,73 +1,102 @@
 import React, { useEffect, useState } from 'react';
-import { TagFilterComponent } from '../commons/TagFilterComponent';
 import { Pagination } from '../../models/commons/Pagination';
-import { getAllProduct, getProductByCategoryName } from '../../services/prod/ProductServices';
+import { getAllProduct, getProductByCategoryName, getProductByProductName } from '../../services/prod/ProductServices';
 import { ProductComponent } from '../commons/ProductComponent';
 import { SearchComponent } from '../store/SearchComponent';
 import { getAllCategory } from '../../services/prod/CategoryServices';
 import { Category } from '../../models/prod/entity/Category';
-
+import { TagComponent } from '../commons/TagComponent';
 
 export const StoreComponent: React.FC<{}> = () => {
-  const [categories, setCategories] = useState<string[]>([]);
-  const [totalPage, setTotalPage] = useState(0);
   const [products, setProducts] = useState<ProductResponse[]>([]);
-  const [currentCategory, setCurrentCategory] = useState<string>(categories[0]);
-	const pagination: Pagination = {
-		direction: 'ASC',
-		currentPage: 1,
-		pageSize: 12
-	};
-
-	useEffect(() => {
-    getCategories();
-    getProductsByCategoryName(currentCategory);
-    getAllProducts();
-	}, [currentCategory]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [currentCategory, setCurrentCategory] = useState<string>('All Categories');
+  const [searchKeys, setSearchKeys] = useState<string>('');
+  const [totalPage, setTotalPage] = useState(0);
+  const [pagination, setPagination] = useState<Pagination>({
+    direction: 'ASC',
+    currentPage: 1,
+    pageSize: 8
+  });
 
   useEffect(() => {
-    if (currentCategory) {
-      console.log("Current category changed:", currentCategory);
-    }
-  }, [currentCategory]);
+    getCategories();
+  }, []);
 
-  function getCategories() {
+  useEffect(() => {
+    fetchProducts(currentCategory, searchKeys);
+  }, [pagination]);
+
+  const getCategories = () => {
     getAllCategory().then((res) => {
       const cates: string[] = res.data.map((cate: Category) => cate.categoryName);
-      setCategories(cates);
-      console.log(res.data);
-    })
-  }
+      setCategories(['All Categories', ...cates]);
+    }).catch((error) => {
+      console.error(error);
+    });
+  };
 
-  function getAllProducts() {
-		getAllProduct(pagination)
-			.then((res) => {
-				setProducts(res.data?.products);
-        setTotalPage(res.data?.totalElement);
-				console.log(res.data);
-			})
-			.catch((error) => {
-				console.error(error);
-			});
-	}
+  const fetchProducts = (category: string, searchKey: string) => {
+    if (searchKey == '') {
+      if (category === 'All Categories') {
+        getAllProduct(pagination)
+          .then((res) => {
+            setProducts(res.data?.products);
+            setTotalPage(res.data?.totalElement);
+            console.log(res.data?.products);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      } else {
+        getProductByCategoryName(category, pagination)
+          .then((res) => {
+            setProducts(res.data?.products);
+            setTotalPage(res.data?.totalElement);
+            console.log(res.data?.products);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+    } else {
+      getProductByProductName(searchKey, pagination)
+        .then((res) => {
+          setProducts(res.data?.products);
+          setTotalPage(res.data?.totalElement);
+          console.log(res.data?.products);
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+    }
+  };
 
-  function getProductsByCategoryName(currentCategory: string) {
-		getProductByCategoryName(currentCategory, pagination)
-			.then((res) => {
-				setProducts(res.data?.products);
-        setTotalPage(res.data?.totalElement);
-				console.log(res.data);
-			})
-			.catch((error) => {
-				console.error(error);
-			});
-	}
+  const handleCategoryChange = (selectedCategory: string) => {
+    setCurrentCategory(selectedCategory);
+    setPagination({ ...pagination, currentPage: 1 }); // Reset to first page on category change
+    fetchProducts(selectedCategory, '');
+  };
+
+  const handlePageChange = (page: number, size: number) => {
+    setPagination({ ...pagination, currentPage: page, pageSize: size });
+  };
+
+  const handleSearch = (searchKey: string) => {
+    setSearchKeys(searchKey);
+    setPagination({ ...pagination, currentPage: 1 }); // Reset to first page on category change
+    fetchProducts('', searchKey);
+  };
 
   return (
     <div className="products container mx-auto">
-      <SearchComponent />
-      <TagFilterComponent tags={categories} tagsChange={(selectedCategory) => setCurrentCategory(selectedCategory)} />
-      <ProductComponent prods={products} totalPage={totalPage} currentPage={pagination.currentPage} pageSize={pagination.pageSize} />
+      <SearchComponent searchKeyword={handleSearch} />
+      <TagComponent
+        tags={categories}
+        tagsChange={handleCategoryChange}
+      />
+      <ProductComponent prods={products} totalPage={totalPage}
+        currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
     </div>
   );
 };

@@ -11,8 +11,10 @@ export const ProductItemComponent: React.FC<{ prods: Product[] }> = ({ prods }) 
     <>
       {
         products.map(product => (
-          <div key={product.id} className="h-auto max-w-full rounded-lg bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-            <a href="#"><img className="p-8 rounded-t-lg" src={product.images[0]?.url} alt={product.images[0]?.desc} /></a>
+          <div key={product.id} className="h-auto max-w-full rounded-lg bg-white border border-gray-200 shadow dark:bg-gray-800 dark:border-gray-700">
+            <a className='grid content-center' href="#">
+              <img className="p-8 object-scale-down h-96 w-96 rounded-t-lg" src={product.images[0]?.url} alt={product.images[0]?.desc} />
+            </a>
             <div className="px-5 pb-5">
               <a href="#"><h5 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">{product.productName}</h5></a>
               <RatingComponent />
