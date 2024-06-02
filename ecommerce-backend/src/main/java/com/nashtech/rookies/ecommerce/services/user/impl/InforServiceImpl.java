@@ -39,6 +39,7 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
       infor.setAddress(inforRequestDTO.address());
       infor.setStreet(inforRequestDTO.street());
       infor.setWard(inforRequestDTO.ward());
+      infor.setDistrict(inforRequestDTO.district());
       infor.setCity(inforRequestDTO.city());
       infor.setCountry(inforRequestDTO.country());
       infor.setPostalCode(inforRequestDTO.postalCode());
@@ -87,6 +88,7 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
         infor.setAddress(inforRequestDTO.address());
         infor.setStreet(inforRequestDTO.street());
         infor.setWard(inforRequestDTO.ward());
+        infor.setDistrict(inforRequestDTO.district());
         infor.setCity(inforRequestDTO.city());
         infor.setCountry(inforRequestDTO.country());
         infor.setPostalCode(inforRequestDTO.postalCode());

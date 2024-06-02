@@ -1,23 +1,138 @@
-import { FormEvent, useEffect, useRef } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { signIn } from "../../services/user/AuthService";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from 'react-cookie'
+import { getInforById } from "../../services/user/InforServices";
+import { getUserByUsername } from "../../services/user/UserServices";
+import { Infor } from "../../models/user/entity/Infor";
+import { User } from "../../models/user/entity/User";
+import { PaginationModel } from "../../models/commons/PaginationModel";
 
 
 export const SignInComponent: React.FC<{}> = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const [cookies, setCookies] = useCookies(['username', 'accessToken'])
+  const [pagination, setPagination] = useState<PaginationModel>({
+    direction: 'ASC',
+    currentPage: 1,
+    pageSize: 5
+  });
 
   const navigator = useNavigate();
 
   useEffect(() => {
-    if (cookies.username) {
-      const username = cookies.username;
-      username !== undefined ? localStorage.setItem('username', username) : console.error('Not found username in Cookies');
-      navigator("/home");
+    fetchUserData();
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      const parsedUser = JSON.parse(userData);
+      if (parsedUser.roleId == 1) {
+        console.log(parsedUser.roleId);
+        navigator('/admin')
+      } else {
+        console.log(parsedUser.roleId);
+        navigator('/home')
+      }
+    } else {
+      navigator('/');
     }
-  }, [])
+  }, [cookies.username, navigator]);
+
+  const fetchUserData = async () => {
+    if (cookies.username) {
+      try {
+        const user = await fetchUser(cookies.username);
+        console.log(JSON.stringify(user));
+        if (user) {
+          localStorage.setItem('userData', JSON.stringify(user));
+          localStorage.setItem('username', cookies.username);
+        } else {
+          console.error('User not found');
+        }
+        // navigator("/home");
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    } else {
+      console.error('Username not found in Cookies');
+    }
+  };
+
+  // Function to fetch user details
+  const fetchUser = async (username: string): Promise<User | null> => {
+    try {
+      console.log("0");
+      const res = await getUserByUsername(username, pagination);
+      console.log(res.data);
+      const userData = res.data;
+      console.log(userData);
+      
+      if (!userData) {
+        throw new Error('User not found');
+      }
+
+      const infor = await fetchInfor(userData.inforId);
+
+      const user: User = {
+        id: userData.id,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        username: userData.username,
+        email: userData.email,
+        password: userData.password,
+        phoneNo: userData.phoneNo,
+        activeMode: userData.activeMode,
+        roleId: userData.roleId,
+        infor: {
+          id: infor.id,
+          address: infor.address,
+          street: infor.street,
+          ward: infor.ward,
+          district: infor.district,
+          city: infor.city,
+          country: infor.country,
+          postalCode: infor.postalCode
+        },
+        cartId: userData.cartId,
+        orders: userData.orders,
+        ratings: userData.ratings,
+      };
+
+      return user;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+
+  // Function to fetch infor details
+  const fetchInfor = async (inforId: number): Promise<Infor> => {
+    try {
+      const inforResponse = await getInforById(inforId);
+      console.log(inforResponse.data);
+      const inforData = inforResponse.data; // Assuming the API returns an array
+
+      if (!inforData) {
+        throw new Error('Infor not found');
+      }
+
+      const infor: Infor = {
+        id: inforData.id,
+        address: inforData.address,
+        street: inforData.street,
+        ward: inforData.ward,
+        district: inforData.district,
+        city: inforData.city,
+        country: inforData.country,
+        postalCode: inforData.postalCode,
+      };
+
+      return infor;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
 
   const handleSignIn = (event: FormEvent) => {
     event.preventDefault();
@@ -31,14 +146,14 @@ export const SignInComponent: React.FC<{}> = () => {
       if (cookies.username) {
         const username = cookies.username;
         username !== undefined ? localStorage.setItem('username', username) : console.error('Not found username in Cookies');
-        navigator("/home");
+        // navigator("/home");
       } else {
         signIn(signInData)
           .then((res) => {
             console.log(res.data);
             setCookies('username', res.data?.username);
             setCookies('accessToken', res.data?.accessToken);
-            navigator("/home");
+            // navigator("/home");
           })
           .catch((err) => {
             console.error(err);

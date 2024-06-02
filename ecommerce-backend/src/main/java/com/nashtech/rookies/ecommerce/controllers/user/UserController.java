@@ -37,11 +37,13 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<?> getUsers(
-            @Valid @RequestParam(name = "id", required = false) Long id,
+            @Valid 
+            @RequestParam(name = "id", required = false) Long id,
+            @RequestParam(name = "username", required = false) String username,
             @RequestParam(name = "direction") Sort.Direction dir,
             @RequestParam(name = "pageNum") Integer pageNum,
             @RequestParam(name = "pageSize") Integer pageSize) {
-        return userService.handleGetUser(new UserGetRequestParamsDTO(id, dir, pageNum, pageSize));
+        return userService.handleGetUser(new UserGetRequestParamsDTO(id, username, dir, pageNum, pageSize));
     }
 
     @PutMapping()

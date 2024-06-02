@@ -1,22 +1,21 @@
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Product } from '../../models/prod/entity/Product';
-import { Carousel, InputNumber, InputNumberProps, Pagination } from 'antd';
-import { Rating } from '../../models/cart/entity/Rating';
-import { createRating, getAverageRatingByProductId, getRatingByProductId } from '../../services/cart/RatingServices';
-import { PaginationModel } from '../../models/commons/PaginationModel';
-import { getUserById } from '../../services/user/UserServices';
-import { User } from '../../models/user/entity/User';
-import { RatingRequest } from '../../models/cart/request/RatingRequest';
 import { useCookies } from 'react-cookie';
+import { Carousel, InputNumber, Pagination } from 'antd';
+import { Rating } from '../../../models/cart/entity/Rating';
+import { RatingRequest } from '../../../models/cart/request/RatingRequest';
+import { PaginationModel } from '../../../models/commons/PaginationModel';
+import { Product } from '../../../models/prod/entity/Product';
+import { User } from '../../../models/user/entity/User';
+import { getAverageRatingByProductId, getRatingByProductId, createRating } from '../../../services/cart/RatingServices';
 
 export const DetailComponent: React.FC<{}> = () => {
   const { productName } = useParams<{ productName: string }>();
-  const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
-  const [avgRating, setAvgRatings] = useState<number>(0);
-  const [cookies, setCookies] = useCookies(['username'])
+  const [avgRating, setAvgRating] = useState<number>(0);
+  const [cookies] = useCookies(['username'])
   const [totalPage, setTotalPage] = useState(0);
   const commentRef = useRef<HTMLTextAreaElement>(null);
   const rateScoreRef = useRef<HTMLInputElement>(null);
@@ -27,12 +26,25 @@ export const DetailComponent: React.FC<{}> = () => {
     pageSize: 5
   });
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Lấy thông tin sản phẩm từ localStorage
     const productData = localStorage.getItem('productDetail');
-    if (productData) {
+    const userData = localStorage.getItem('userData');
+    if (productData && userData) {
       const parsedProduct = JSON.parse(productData);
       console.log(parsedProduct);
+      const parsedUser = JSON.parse(userData);
+      console.log(parsedUser);
+
+      // Kiểm tra xem tên sản phẩm có khớp với URL không
+      if (parsedUser.username === cookies.username) {
+        setUser(parsedUser);
+      } else {
+        // Điều hướng về trang store nếu không khớp
+        navigate('/store');
+      }
 
       // Kiểm tra xem tên sản phẩm có khớp với URL không
       if (parsedProduct.productName === productName) {
@@ -57,32 +69,13 @@ export const DetailComponent: React.FC<{}> = () => {
     return <div>Loading...</div>;
   }
 
-  const fetchUser = async (userId: number): Promise<User | null> => {
-    try {
-      const res = await getUserById(userId, pagination);
-      console.log(res.data);
-      const user: User = {
-        id: res.data.users[0].id,
-        username: res.data.users[0].username,
-        email: res.data?.users[0].email,
-        password: res.data?.users[0].password,
-        role: res.data?.users[0].roleId,
-        createdAt: res.data?.users[0].createdOn
-      };
-      return user;
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  };
-
   const fetchRatings = async (productId: number) => {
     try {
       const avgResponse = await getAverageRatingByProductId(productId, pagination);
       console.log(avgResponse.data);
       const prodResponse = await getRatingByProductId(productId, pagination);
       console.log(prodResponse.data);
-      setAvgRatings(avgResponse.data);
+      setAvgRating(avgResponse.data);
       setTotalPage(prodResponse.data?.totalElement)
 
       if (Array.isArray(prodResponse.data.ratings)) {
@@ -93,7 +86,7 @@ export const DetailComponent: React.FC<{}> = () => {
           comment: res.comment,
           rateScore: res.rateScore,
           prodId: res.productId,
-          user: await fetchUser(res.userId)
+          user: user
         }));
         // Chờ tất cả các promise được giải quyết
         const resolvedRatings = await Promise.all(ratingPromises);
@@ -106,9 +99,13 @@ export const DetailComponent: React.FC<{}> = () => {
     }
   };
 
-  const handleAddToCart = () => {
-
-  }
+  const handleAddToCart = (event: FormEvent) => {
+    event.preventDefault();
+    const quantityValue = Number(quantityRef.current?.value);
+    if (!quantityValue || quantityValue < 1) {
+      console.error("Quantity is invalid");
+    }
+  };
 
   const handleSubmitReview = (event: FormEvent) => {
     event.preventDefault();

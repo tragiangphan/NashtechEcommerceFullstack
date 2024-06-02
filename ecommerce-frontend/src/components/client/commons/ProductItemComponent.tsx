@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { RatingComponent } from './RatingComponent';
-import { Product } from '../../models/prod/entity/Product';
+import { Product } from '../../../models/prod/entity/Product';
 import { Tooltip } from 'antd';
 import { useNavigate } from 'react-router-dom';
 

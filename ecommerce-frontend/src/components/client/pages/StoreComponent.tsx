@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { PaginationModel } from '../../models/commons/PaginationModel';
-import { getAllProduct, getProductByCategoryName, getProductByProductName } from '../../services/prod/ProductServices';
-import { SearchComponent } from '../store/SearchComponent';
-import { getAllCategory } from '../../services/prod/CategoryServices';
-import { Category } from '../../models/prod/entity/Category';
+import { PaginationModel } from '../../../models/commons/PaginationModel';
+import { getAllProduct, getProductByCategoryName, getProductByProductName } from '../../../services/prod/ProductServices';
+import { SearchComponent } from '../commons/SearchComponent';
+import { getAllCategory } from '../../../services/prod/CategoryServices';
+import { Category } from '../../../models/prod/entity/Category';
 import { ProductComponent } from '../commons/ProductComponent';
 import { TagComponent } from '../commons/TagComponent';
 

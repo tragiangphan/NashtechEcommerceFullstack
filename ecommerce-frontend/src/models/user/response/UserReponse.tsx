@@ -1,6 +1,4 @@
-import { Infor } from "./Infor"
-
-export type User = {
+export type UserResponse = {
   id: number,
   firstName: string,
   lastName: string,
@@ -9,9 +7,9 @@ export type User = {
   password: string,
   phoneNo: string,
   activeMode: string,
-  roleId: number,
-  infor: Infor,
-  cartId: number,
+  roleId: 2,
+  inforId: 1,
+  cartId: 1,
   orders: number[],
   ratings: number[]
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Images } from '../../models/prod/entity/Images';
-import { Product } from '../../models/prod/entity/Product';
-import { getImageById } from '../../services/prod/ImageServices';
+import { Images } from '../../../models/prod/entity/Images';
+import { Product } from '../../../models/prod/entity/Product';
+import { getImageById } from '../../../services/prod/ImageServices';
 import { Pagination } from 'antd';
 import { ProductItemComponent } from './ProductItemComponent';
 
