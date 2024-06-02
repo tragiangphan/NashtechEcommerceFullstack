@@ -41,9 +41,9 @@ public class ProductController {
                                                            @RequestParam(name = "featureMode", required = false) FeatureModeEnum featureMode,
                                                            @RequestParam(name = "maxPrice", required = false) Long maxPrice,
                                                            @RequestParam(name = "minPrice", required = false) Long minPrice,
-                                                           @RequestParam(name = "direction") Sort.Direction dir,
-                                                           @RequestParam(name = "pageNum") Integer pageNum,
-                                                           @RequestParam(name = "pageSize") Integer pageSize) {
+                                                           @RequestParam(name = "direction", required = false) Sort.Direction dir,
+                                                           @RequestParam(name = "pageNum", required = false) Integer pageNum,
+                                                           @RequestParam(name = "pageSize", required = false) Integer pageSize) {
         return productService.handleGetProduct(new ProductGetRequestParamsDTO(id, productName,
                 categoryName, featureMode, maxPrice, minPrice, dir, pageNum, pageSize));
     }

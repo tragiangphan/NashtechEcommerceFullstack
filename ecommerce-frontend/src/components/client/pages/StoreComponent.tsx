@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import { PaginationModel } from '../../../models/commons/PaginationModel';
 import { getAllProduct, getProductByCategoryName, getProductByProductName } from '../../../services/prod/ProductServices';
-import { SearchComponent } from '../commons/SearchComponent';
+import { SearchComponent } from '../features/SearchComponent';
 import { getAllCategory } from '../../../services/prod/CategoryServices';
 import { Category } from '../../../models/prod/entity/Category';
-import { ProductComponent } from '../commons/ProductComponent';
-import { TagComponent } from '../commons/TagComponent';
+import { ProductComponent } from '../features/ProductComponent';
+import { TagComponent } from '../features/TagComponent';
+import { ProductResponse } from '../../../models/prod/response/ProductResponse';
 
 export const StoreComponent: React.FC<{}> = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [currentCategory, setCurrentCategory] = useState<string>('All Categories');
   const [searchKeys, setSearchKeys] = useState<string>('');
-  const [totalPage, setTotalPage] = useState(0);
+  const [totalElement, setTotalElement] = useState(0);
   const [pagination, setPagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
@@ -28,7 +29,7 @@ export const StoreComponent: React.FC<{}> = () => {
   }, [pagination]);
 
   const getCategories = () => {
-    getAllCategory().then((res) => {
+    getAllCategory(pagination).then((res) => {
       const cates: string[] = res.data.map((cate: Category) => cate.categoryName);
       setCategories(['All Categories', ...cates]);
     }).catch((error) => {
@@ -42,7 +43,7 @@ export const StoreComponent: React.FC<{}> = () => {
         getAllProduct(pagination)
           .then((res) => {
             setProducts(res.data?.products);
-            setTotalPage(res.data?.totalElement);
+            setTotalElement(res.data?.totalElement);
             console.log(res.data?.products);
           })
           .catch((error) => {
@@ -52,7 +53,7 @@ export const StoreComponent: React.FC<{}> = () => {
         getProductByCategoryName(category, pagination)
           .then((res) => {
             setProducts(res.data?.products);
-            setTotalPage(res.data?.totalElement);
+            setTotalElement(res.data?.totalElement);
             console.log(res.data?.products);
           })
           .catch((error) => {
@@ -63,7 +64,7 @@ export const StoreComponent: React.FC<{}> = () => {
       getProductByProductName(searchKey, pagination)
         .then((res) => {
           setProducts(res.data?.products);
-          setTotalPage(res.data?.totalElement);
+          setTotalElement(res.data?.totalElement);
           console.log(res.data?.products);
         })
         .catch((error) => {
@@ -95,7 +96,7 @@ export const StoreComponent: React.FC<{}> = () => {
       tags={categories}
       tagsChange={handleCategoryChange}
     />
-      <ProductComponent prods={products} totalPage={totalPage}
+      <ProductComponent prods={products} totalPage={totalElement}
         currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
     </div>
   );

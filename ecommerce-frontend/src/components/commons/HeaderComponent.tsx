@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
-import { User } from "../../../models/user/entity/User";
+import { User } from "../../models/user/entity/User";
 
 export const HeaderComponent: React.FC<{}> = () => {
   const [currentPage, setCurrentPage] = useState('home');

@@ -8,12 +8,11 @@ import { Infor } from "../../models/user/entity/Infor";
 import { User } from "../../models/user/entity/User";
 import { PaginationModel } from "../../models/commons/PaginationModel";
 
-
 export const SignInComponent: React.FC<{}> = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const [cookies, setCookies] = useCookies(['username', 'accessToken'])
-  const [pagination, setPagination] = useState<PaginationModel>({
+  const [pagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
     pageSize: 5
@@ -26,15 +25,13 @@ export const SignInComponent: React.FC<{}> = () => {
     const userData = localStorage.getItem('userData');
     if (userData) {
       const parsedUser = JSON.parse(userData);
-      if (parsedUser.roleId == 1) {
+      if (parsedUser.roleId === 1) {
         console.log(parsedUser.roleId);
-        navigator('/admin')
+        navigator('/admin');
       } else {
         console.log(parsedUser.roleId);
-        navigator('/home')
+        navigator('/home');
       }
-    } else {
-      navigator('/');
     }
   }, [cookies.username, navigator]);
 
@@ -49,7 +46,6 @@ export const SignInComponent: React.FC<{}> = () => {
         } else {
           console.error('User not found');
         }
-        // navigator("/home");
       } catch (error) {
         console.error('Error fetching user:', error);
       }
@@ -58,15 +54,11 @@ export const SignInComponent: React.FC<{}> = () => {
     }
   };
 
-  // Function to fetch user details
   const fetchUser = async (username: string): Promise<User | null> => {
     try {
-      console.log("0");
       const res = await getUserByUsername(username, pagination);
-      console.log(res.data);
       const userData = res.data;
-      console.log(userData);
-      
+
       if (!userData) {
         throw new Error('User not found');
       }
@@ -105,12 +97,10 @@ export const SignInComponent: React.FC<{}> = () => {
     }
   };
 
-  // Function to fetch infor details
   const fetchInfor = async (inforId: number): Promise<Infor> => {
     try {
       const inforResponse = await getInforById(inforId);
-      console.log(inforResponse.data);
-      const inforData = inforResponse.data; // Assuming the API returns an array
+      const inforData = inforResponse.data;
 
       if (!inforData) {
         throw new Error('Infor not found');
@@ -134,30 +124,34 @@ export const SignInComponent: React.FC<{}> = () => {
     }
   };
 
-  const handleSignIn = (event: FormEvent) => {
+  const handleSignIn = async (event: FormEvent) => {
     event.preventDefault();
     if (emailRef.current && passwordRef.current) {
-      const signInData: SignInRequest = {
+      const signInData = {
         email: emailRef.current.value,
         password: passwordRef.current.value,
       };
 
-      console.log(signInData.email, ' ', signInData.password);
-      if (cookies.username) {
-        const username = cookies.username;
-        username !== undefined ? localStorage.setItem('username', username) : console.error('Not found username in Cookies');
-        // navigator("/home");
-      } else {
-        signIn(signInData)
-          .then((res) => {
-            console.log(res.data);
-            setCookies('username', res.data?.username);
-            setCookies('accessToken', res.data?.accessToken);
-            // navigator("/home");
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+      try {
+        const res = await signIn(signInData);
+        setCookies('username', res.data?.username);
+        setCookies('accessToken', res.data?.accessToken);
+
+        const user = await fetchUser(res.data?.username);
+        if (user) {
+          localStorage.setItem('userData', JSON.stringify(user));
+          localStorage.setItem('username', res.data?.username);
+          
+          if (user.roleId === 1) {
+            navigator('/admin');
+          } else {
+            navigator('/home');
+          }
+        } else {
+          console.error('User not found');
+        }
+      } catch (err) {
+        console.error(err);
       }
     } else {
       console.error("Email or password ref is not assigned");
@@ -193,6 +187,5 @@ export const SignInComponent: React.FC<{}> = () => {
         </form>
       </div>
     </div>
-
-  )
+  );
 }

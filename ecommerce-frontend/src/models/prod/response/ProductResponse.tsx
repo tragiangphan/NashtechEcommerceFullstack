@@ -1,4 +1,4 @@
-interface ProductResponse {
+export type ProductResponse = {
   id: number,
   productName: string,
   productDesc: string,

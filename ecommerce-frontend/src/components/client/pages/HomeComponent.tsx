@@ -1,8 +1,9 @@
 import { PaginationModel } from "../../../models/commons/PaginationModel"
 import { useEffect, useState } from "react"
 import { getProductByFeatureMode } from "../../../services/prod/ProductServices"
-import { ProductComponent } from "../commons/ProductComponent";
+import { ProductComponent } from "../features/ProductComponent";
 import { ThumbSearch } from "../features/ThumbSearch";
+import { ProductResponse } from "../../../models/prod/response/ProductResponse";
 
 
 export const HomeComponent: React.FC<{}> = () => {

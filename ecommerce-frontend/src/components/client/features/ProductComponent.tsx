@@ -4,6 +4,7 @@ import { Product } from '../../../models/prod/entity/Product';
 import { getImageById } from '../../../services/prod/ImageServices';
 import { Pagination } from 'antd';
 import { ProductItemComponent } from './ProductItemComponent';
+import { ProductResponse } from '../../../models/prod/response/ProductResponse';
 
 export const ProductComponent: React.FC<{ prods: ProductResponse[], totalPage: number, currentPage: number, pageSize: number, onPageChange: (page: number, size: number) => void }> = ({ prods, totalPage, currentPage, pageSize, onPageChange }) => {
   const [productStore, setProductStore] = useState<Product[]>([]);

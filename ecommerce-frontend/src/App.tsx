@@ -1,8 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { HomeComponent } from './components/client/pages/HomeComponent'
-import { HeaderComponent } from './components/client/commons/HeaderComponent';
-import { FooterComponent } from './components/client/commons/FooterComponent';
+import { HeaderComponent } from './components/commons/HeaderComponent';
+import { FooterComponent } from './components/commons/FooterComponent';
 import { StoreComponent } from './components/client/pages/StoreComponent';
 import { SignInComponent } from './components/auths/SignInComponent';
 import { AboutComponent } from './components/client/pages/AboutComponent';

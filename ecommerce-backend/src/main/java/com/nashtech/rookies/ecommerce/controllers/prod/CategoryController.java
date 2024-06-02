@@ -3,6 +3,8 @@ package com.nashtech.rookies.ecommerce.controllers.prod;
 import java.util.List;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryGetRequestParamsDTO;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,13 +37,16 @@ public class CategoryController {
 
     @GetMapping()
     public ResponseEntity<?> getCategoryMethod(
-            @RequestParam(name = "id", required = false) Long id) {
-        return categoryService.handleGetCategory(new CategoryGetRequestParamsDTO(id));
+            @RequestParam(name = "id", required = false) Long id,
+            @RequestParam(name = "direction", required = false) Sort.Direction dir,
+            @RequestParam(name = "pageNum", required = false) Integer pageNum,
+            @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+        return categoryService.handleGetCategory(new CategoryGetRequestParamsDTO(id, dir, pageNum, pageSize));
     }
 
     @PutMapping()
     public ResponseEntity<CategoryResponseDTO> updateCategoryById(@RequestParam(name = "id", required = true) Long id,
-                                                                  @RequestBody CategoryRequestDTO categoryRequestDTO) {
+            @RequestBody CategoryRequestDTO categoryRequestDTO) {
         return ResponseEntity.ok(categoryService.updateCategory(id, categoryRequestDTO));
     }
 }

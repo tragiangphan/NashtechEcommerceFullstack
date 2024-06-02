@@ -1,4 +1,7 @@
 package com.nashtech.rookies.ecommerce.dto.prod.requests;
 
-public record CategoryGetRequestParamsDTO(Long id) {
+import org.springframework.data.domain.Sort;
+
+public record CategoryGetRequestParamsDTO(Long id, Sort.Direction dir,
+    Integer pageNum, Integer pageSize) {
 }

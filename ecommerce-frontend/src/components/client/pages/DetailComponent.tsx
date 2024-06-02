@@ -9,6 +9,7 @@ import { Product } from '../../../models/prod/entity/Product';
 import { User } from '../../../models/user/entity/User';
 import { getAverageRatingByProductId, getRatingByProductId, createRating } from '../../../services/cart/RatingServices';
 
+
 export const DetailComponent: React.FC<{}> = () => {
   const { productName } = useParams<{ productName: string }>();
   const [product, setProduct] = useState<Product | null>(null);

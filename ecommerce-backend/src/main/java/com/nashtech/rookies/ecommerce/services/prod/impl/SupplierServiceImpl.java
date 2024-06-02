@@ -4,15 +4,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierPaginationDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
 import com.nashtech.rookies.ecommerce.models.prod.Product;
@@ -60,41 +68,50 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
 
     @Override
     public ResponseEntity<?> handleGetSupplier(SupplierGetRequestParamsDTO requestParamsDTO) {
-        List<SupplierResponseDTO> supplierResponseDTOs;
+        SupplierPaginationDTO supplierResponseDTOs;
         SupplierResponseDTO supplierResponseDTO;
 
         if (requestParamsDTO.id() != null) {
-            supplierResponseDTO = getSuppliers(requestParamsDTO.id());
+            supplierResponseDTO = getSupplierById(requestParamsDTO.id());
             return ResponseEntity.ok(supplierResponseDTO);
         } else {
-            supplierResponseDTOs = getSuppliers();
+            supplierResponseDTOs = getSuppliers(requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
             return ResponseEntity.ok(supplierResponseDTOs);
         }
     }
 
-    public List<SupplierResponseDTO> getSuppliers() {
-        var suppliers = supplierRepository.findAll();
+    public SupplierPaginationDTO getSuppliers(Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Supplier> suppliers = supplierRepository.findAll(pageable);
         List<SupplierResponseDTO> supplierResponseDTOs = new ArrayList<>();
         suppliers.forEach(supplier -> {
-            Set<Long> productIds = new HashSet<>(supplier.getProducts().stream().map(Persistable::getId).toList());
+            Set<Long> productIds = new HashSet<>();
+            supplier.getProducts().forEach(prod -> productIds.add(prod.getId()));
             supplierResponseDTOs.add(new SupplierResponseDTO(
-                    supplier.getId(), supplier.getSupplierName(), supplier.getPhoneNo(),
-                    supplier.getEmail(), supplier.getAddress(), supplier.getStreet(),
-                    supplier.getWard(), supplier.getCity(), supplier.getCountry(),
-                    supplier.getPostalCode(), supplier.getActiveMode(), productIds));
+                    supplier.getId(), supplier.getSupplierName(),
+                    supplier.getPhoneNo(), supplier.getEmail(),
+                    supplier.getAddress(), supplier.getStreet(),
+                    supplier.getWard(), supplier.getCity(),
+                    supplier.getCountry(), supplier.getPostalCode(),
+                    supplier.getActiveMode(), productIds));
         });
-        return supplierResponseDTOs;
+        return new SupplierPaginationDTO(suppliers.getTotalPages(), suppliers.getTotalElements(), suppliers.getSize(),
+                suppliers.getNumber(), supplierResponseDTOs);
     }
 
-    public SupplierResponseDTO getSuppliers(Long id) {
+    public SupplierResponseDTO getSupplierById(Long id) {
         if (supplierRepository.existsById(id)) {
             Supplier supplier = supplierRepository.findById(id).get();
             Set<Long> productIds = new HashSet<>();
             supplier.getProducts().forEach(prod -> productIds.add(prod.getId()));
             return new SupplierResponseDTO(
                     supplier.getId(), supplier.getSupplierName(),
-                    supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(), supplier.getWard(),
-                    supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(), productIds);
+                    supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(),
+                    supplier.getWard(),
+                    supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(),
+                    productIds);
         } else {
             throw new NotFoundException("Not found Supplier with an id: " + id);
         }
@@ -127,8 +144,10 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
             supplier.getProducts().forEach(prod -> productIds.add(prod.getId()));
             return new SupplierResponseDTO(
                     supplier.getId(), supplier.getSupplierName(),
-                    supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(), supplier.getWard(),
-                    supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(), productIds);
+                    supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(),
+                    supplier.getWard(),
+                    supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(),
+                    productIds);
         } else {
             throw new NotFoundException("Not found Supplier with an id: " + id);
         }
