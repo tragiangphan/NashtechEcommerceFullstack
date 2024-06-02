@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 export const TagComponent: React.FC<{ tags: string[], tagsChange: (selectedCategory: string) => void }> = ({ tags, tagsChange }) => {
   const [currentTag, setCurrentTag] = useState<string>('');

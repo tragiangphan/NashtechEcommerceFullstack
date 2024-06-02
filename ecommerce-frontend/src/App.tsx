@@ -6,6 +6,7 @@ import { FooterComponent } from './components/commons/FooterComponent';
 import { StoreComponent } from './components/pages/StoreComponent';
 import { SignInComponent } from './components/user/SignInComponent';
 import { AboutComponent } from './components/pages/AboutComponent';
+import { DetailComponent } from './components/store/DetailComponent';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<SignInComponent />} />
         <Route path="/home" element={<HomeComponent />} />
         <Route path="/store" element={<StoreComponent />} />
+        <Route path="/store/:productName" element={<DetailComponent />} />
         <Route path="/about" element={<AboutComponent />} />
       </Routes>
       <FooterComponent />

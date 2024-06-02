@@ -1,4 +1,3 @@
-import React from 'react'
 
 export const RatingComponent: React.FC<{}> = () => {
   return (

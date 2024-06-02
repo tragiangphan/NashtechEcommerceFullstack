@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Images } from '../../models/prod/entity/Images';
 import { Product } from '../../models/prod/entity/Product';
 import { getImageById } from '../../services/prod/ImageServices';
@@ -38,12 +38,13 @@ export const ProductComponent: React.FC<{ prods: ProductResponse[], totalPage: n
       })
     );
     const images = await Promise.all(imagePromises);
+    console.log(images.filter((image) => image !== null) as Images[]);
     return images.filter((image) => image !== null) as Images[];
   };
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         <ProductItemComponent prods={productStore} />
       </div>
       <div className='grid content-center'>

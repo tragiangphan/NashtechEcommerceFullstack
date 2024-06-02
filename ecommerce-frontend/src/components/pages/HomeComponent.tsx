@@ -1,5 +1,5 @@
-import { Pagination } from "../../models/commons/Pagination"
-import React, { useEffect, useState } from "react"
+import { PaginationModel } from "../../models/commons/PaginationModel"
+import { useEffect, useState } from "react"
 import { getProductByFeatureMode } from "../../services/prod/ProductServices"
 import { ThumbSearch } from "../home/ThumbSearch";
 import { ProductComponent } from "../commons/ProductComponent";
@@ -10,7 +10,7 @@ export const HomeComponent: React.FC<{}> = () => {
 	const [featureProducts, setFeatureProducts] = useState<ProductResponse[]>([]);
 	const [newProducts, setNewProducts] = useState<ProductResponse[]>([]);
 	const [totalPage, setTotalPage] = useState(0);
-	const [pagination, setPagination] = useState<Pagination>({
+	const [pagination, setPagination] = useState<PaginationModel>({
 		direction: 'ASC',
 		currentPage: 1,
 		pageSize: 4
@@ -55,11 +55,11 @@ export const HomeComponent: React.FC<{}> = () => {
 			<ThumbSearch />
 			<div className="container mx-auto">
 				<h1 className="text-3xl font-bold my-5">ON SALE!!!</h1>
-				<ProductComponent prods={featureProducts} totalPage={totalPage} currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
+				<ProductComponent prods={saleProducts} totalPage={totalPage} currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
 			</div>
 			<div className="container mx-auto mt-10">
 				<h1 className="text-3xl font-bold my-5">NEW!!!</h1>
-				<ProductComponent prods={saleProducts} totalPage={totalPage} currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
+				<ProductComponent prods={newProducts} totalPage={totalPage} currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
 			</div>
 			<div className="container mx-auto mt-10">
 				<h1 className="text-3xl font-bold my-5">FEATURE</h1>

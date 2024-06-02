@@ -1,4 +1,4 @@
-import React, { FormEvent, useRef } from 'react';
+import  { FormEvent, useRef } from 'react';
 
 export const SearchComponent: React.FC<{ searchKeyword: (searchKey: string) => void }> = ({ searchKeyword }) => {
   const searchKeyRef = useRef<HTMLInputElement>(null);

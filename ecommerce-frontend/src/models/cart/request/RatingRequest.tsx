@@ -1,7 +1,7 @@
-import { CartItem } from "../entity/CartItem";
-
 
 export type RatingRequest = {
-  userId: number;
-  cartItems: CartItem[];
+  username: string,
+  rateScore: number,
+  comment: string,
+  productId: number
 }

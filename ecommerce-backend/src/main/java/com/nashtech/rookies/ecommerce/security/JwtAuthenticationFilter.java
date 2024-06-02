@@ -3,6 +3,7 @@ package com.nashtech.rookies.ecommerce.security;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,9 +25,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        var token = this.recoverToken(request);
-        if (token != null) {
-            String login = tokenProvider.validateToken(token);
+        var tokenCookie = getTokenCookies(request);
+        var tokenRecover = this.recoverToken(request);
+                
+        if (tokenCookie != null) {
+            String login = tokenProvider.validateToken(tokenCookie);
+            logger.info(login);
+            User user = (User) userService.loadUserByUsername(login);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    user.getUsername(), null, user.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else if(tokenRecover != null) {
+            String login = tokenProvider.validateToken(tokenRecover);
             logger.info(login);
             User user = (User) userService.loadUserByUsername(login);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -42,5 +52,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return null;
         }
         return authHeader.replace("Bearer ", "");
+    }
+
+    private String getTokenCookies(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("accessToken")) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

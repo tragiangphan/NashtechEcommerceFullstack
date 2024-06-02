@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import { Avatar, Badge } from "antd";
+import { ShoppingOutlined } from '@ant-design/icons';
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export const HeaderComponent: React.FC<{}> = () => {
@@ -18,8 +20,16 @@ export const HeaderComponent: React.FC<{}> = () => {
           <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">NRS Store</span>
         </a>
         <div className="flex items-center md:order-2 space-x-1 md:space-x-2 rtl:space-x-reverse">
-          <button className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Login</button>
-          <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Sign up</button>
+          {/* <button className="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Login</button>
+          <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 md:px-5 md:py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Sign up</button> */}
+          <a href="#">
+            <Badge count={10} overflowCount={5} style={{ fontFamily: 'inherit', fontWeight: 'bold' }}>
+              <Avatar
+                icon={<ShoppingOutlined />}
+                size="large" shape="square"
+                style={{ backgroundColor: '#1A56DB', fontSize: '20px', fontFamily: 'inherit' }} />
+            </Badge>
+          </a>
         </div>
         <div id="mega-menu" className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
           <ul className="flex flex-col mt-4 font-medium md:flex-row md:mt-0 md:space-x-8 rtl:space-x-reverse">

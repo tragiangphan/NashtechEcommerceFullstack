@@ -19,8 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(value =
             "SELECT * " +
             "FROM products p " +
-            "WHERE p.product_name " +
-            "LIKE :productName",
+            "WHERE LOWER(p.product_name) " +
+            "LIKE LOWER(:productName)",
             nativeQuery = true)
     Page<Product> findAllByProductNameLike(@Param("productName") String productName,
                                            Pageable pageable);

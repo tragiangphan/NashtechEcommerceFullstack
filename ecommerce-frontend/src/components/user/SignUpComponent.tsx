@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import  { useRef } from 'react'
 
 export const SignUpComponent: React.FC<{}> = () => {
   const emailRef = useRef<HTMLInputElement>(null);

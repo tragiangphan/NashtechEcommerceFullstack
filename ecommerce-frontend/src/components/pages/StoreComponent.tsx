@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { Pagination } from '../../models/commons/Pagination';
+import { useEffect, useState } from 'react';
+import { PaginationModel } from '../../models/commons/PaginationModel';
 import { getAllProduct, getProductByCategoryName, getProductByProductName } from '../../services/prod/ProductServices';
-import { ProductComponent } from '../commons/ProductComponent';
 import { SearchComponent } from '../store/SearchComponent';
 import { getAllCategory } from '../../services/prod/CategoryServices';
 import { Category } from '../../models/prod/entity/Category';
+import { ProductComponent } from '../commons/ProductComponent';
 import { TagComponent } from '../commons/TagComponent';
 
 export const StoreComponent: React.FC<{}> = () => {
@@ -13,7 +13,7 @@ export const StoreComponent: React.FC<{}> = () => {
   const [currentCategory, setCurrentCategory] = useState<string>('All Categories');
   const [searchKeys, setSearchKeys] = useState<string>('');
   const [totalPage, setTotalPage] = useState(0);
-  const [pagination, setPagination] = useState<Pagination>({
+  const [pagination, setPagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
     pageSize: 8
@@ -92,9 +92,9 @@ export const StoreComponent: React.FC<{}> = () => {
     <div className="products container mx-auto">
       <SearchComponent searchKeyword={handleSearch} />
       <TagComponent
-        tags={categories}
-        tagsChange={handleCategoryChange}
-      />
+      tags={categories}
+      tagsChange={handleCategoryChange}
+    />
       <ProductComponent prods={products} totalPage={totalPage}
         currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
     </div>

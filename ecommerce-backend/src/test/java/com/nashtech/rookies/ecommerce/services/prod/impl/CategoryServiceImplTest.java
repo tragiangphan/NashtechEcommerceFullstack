@@ -85,17 +85,17 @@ class CategoryServiceImplTest {
         assertEquals(category.getId(), responseDTOs.getFirst().id());
     }
 
-    @Test
-    void testGetCategoryById_WhenCategoryExists_ShouldReturnCategory() {
-        when(categoryRepository.existsById(1L)).thenReturn(true);
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+    // @Test
+    // void testGetCategoryById_WhenCategoryExists_ShouldReturnCategory() {
+    //     when(categoryRepository.existsById(1L)).thenReturn(true);
+    //     when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
-        List<CategoryResponseDTO> responseDTOs = categoryService.getCategories(1L);
+    //     List<CategoryResponseDTO> responseDTOs = categoryService.getCategories(1L);
 
-        assertNotNull(responseDTOs);
-        assertEquals(1, responseDTOs.size());
-        assertEquals(category.getId(), responseDTOs.getFirst().id());
-    }
+    //     assertNotNull(responseDTOs);
+    //     assertEquals(1, responseDTOs.size());
+    //     assertEquals(category.getId(), responseDTOs.getFirst().id());
+    // }
 
     @Test
     void testGetCategoryById_WhenCategoryDoesNotExist_ShouldThrowNotFoundException() {

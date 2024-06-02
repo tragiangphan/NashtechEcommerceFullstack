@@ -8,7 +8,7 @@ import com.nashtech.rookies.ecommerce.services.CommonService;
 import org.springframework.http.ResponseEntity;
 
 public interface RatingService extends CommonService<Rating, Long> {
-    RatingResponseDTO createRating(RatingRequestDTO ratingRequestDTO);
+    RatingResponseDTO createRating(String username, RatingRequestDTO ratingRequestDTO);
 
     ResponseEntity<?> handleGetRating(RatingGetRequestParamsDTO requestParamsDTO);
 

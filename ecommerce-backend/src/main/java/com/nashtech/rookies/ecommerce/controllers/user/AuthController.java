@@ -6,6 +6,9 @@ import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.AuthResponseTokenDTO;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,29 +31,28 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-
-    @PostMapping(
-            path = "/signUp",
-            consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(path = "/signUp", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+            MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<User> authSignUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO) {
         User newUser = userService.signUp(signUpRequestDTO);
         return ResponseEntity.ok(newUser);
     }
 
-    @PostMapping(
-            path = "/signIn",
-            consumes = {MediaType.APPLICATION_JSON_VALUE},
-            produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<AuthResponseTokenDTO> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO) {
+    @PostMapping(path = "/signIn", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
+            MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<AuthResponseTokenDTO> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO,
+            HttpServletResponse httpResponse) {
         try {
             // Authenticate this user
+            String username = signInRequestDTO.email().split("@")[0] + "_"
+                    + signInRequestDTO.email().split("@")[1].split("\\.")[0];
             UsernamePasswordAuthenticationToken usernamePassword = new UsernamePasswordAuthenticationToken(
-                    signInRequestDTO.email().split("@")[0] + "_" + signInRequestDTO.email().split("@")[1].split("\\.")[0],
+                    username,
                     signInRequestDTO.password());
             Authentication authUser = authenticationManager.authenticate(usernamePassword);
 
-            return ResponseEntity.ok(new AuthResponseTokenDTO(userService.generateToken(authUser).get("access_token"),
+            return ResponseEntity.ok(new AuthResponseTokenDTO(username,
+                    userService.generateToken(authUser).get("access_token"),
                     userService.generateToken(authUser).get("refresh_token")));
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Bad credentials", e);

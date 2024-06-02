@@ -22,7 +22,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
   Page<Rating> findByRatingByProductId(@Param("productId") Long productId, Pageable pageable);
 
   @Query(value =
-          "SELECT AVG(r.rate_range) " +
+          "SELECT AVG(r.rate_score) " +
           "FROM ratings r " +
           "WHERE r.product_id = :productId",
           nativeQuery = true)

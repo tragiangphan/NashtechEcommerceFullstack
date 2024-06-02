@@ -37,11 +37,11 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
-
     private String userNotFoundMessage = "Not found User with an id: ";
     private String roleNotFoundMessage = "Not found Role with an id: ";
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
         super(userRepository);
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -70,7 +70,7 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 user.setOrders(new HashSet<>());
                 user.setRatings(new HashSet<>());
                 user = userRepository.saveAndFlush(user);
-                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()), user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()));
+                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()), user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()));
             } else {
                 throw new NotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
             }
@@ -95,11 +95,16 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
         Page<User> users = userRepository.findAll(pageable);
         List<UserResponseDTO> userResponseDTOs = new ArrayList<>();
         users.forEach(user -> {
-            Set<Long> orders = user.getOrders() != null ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-            Set<Long> ratings = user.getRatings() != null ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-            userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
+            Set<Long> orders = user.getOrders() != null
+                    ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet())
+                    : new HashSet<>();
+            Set<Long> ratings = user.getRatings() != null
+                    ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet())
+                    : new HashSet<>();
+            userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
         });
-        return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(), users.getNumber() + 1, userResponseDTOs);
+        return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
+                users.getNumber() + 1, userResponseDTOs);
     }
 
     public UserPaginationDTO getUsers(Long id) {
@@ -111,10 +116,15 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
             User user = userRepository.findById(id).get();
             assert user.getRole().getId() != null;
             if (roleRepository.existsById(user.getRole().getId())) {
-                Set<Long> orders = user.getOrders() != null ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-                Set<Long> ratings = user.getRatings() != null ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-                userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
-                return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(), users.getNumber() + 1, userResponseDTOs);
+                Set<Long> orders = user.getOrders() != null
+                        ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet())
+                        : new HashSet<>();
+                Set<Long> ratings = user.getRatings() != null
+                        ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet())
+                        : new HashSet<>();
+                userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
+                return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
+                        users.getNumber() + 1, userResponseDTOs);
             } else {
                 throw new NotFoundException(roleNotFoundMessage + user.getRole().getId());
             }
@@ -138,7 +148,7 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 user = userRepository.saveAndFlush(user);
                 Set<Long> orders = new HashSet<>(user.getOrders().stream().map(Persistable::getId).toList());
                 Set<Long> ratings = new HashSet<>(user.getRatings().stream().map(Persistable::getId).toList());
-                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings);
+                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings);
             } else {
                 throw new NotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
             }
@@ -179,7 +189,7 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
             return userRepository.saveAndFlush(newUser);
         }
     }
- 
+
     @Override
     public Map<String, String> generateToken(Authentication authenticationManager) {
         // Generated token
