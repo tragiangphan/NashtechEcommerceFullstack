@@ -1,7 +1,6 @@
 import { Tabs } from 'antd';
 import { ProductOutlined, BuildOutlined, ApartmentOutlined, HeatMapOutlined } from '@ant-design/icons';
 import React from 'react';
-import { TableComponent } from '../features/TableComponent';
 import { ProductManagement } from './ProductManagement';
 import { CategoryManagement } from './CategoryManagement';
 import { SupplierManagement } from './SupplierManagement';

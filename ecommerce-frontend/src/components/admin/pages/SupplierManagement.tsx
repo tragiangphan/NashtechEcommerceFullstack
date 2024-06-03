@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { PaginationModel } from '../../../models/commons/PaginationModel';
 import { TableComponent } from '../features/TableComponent';
 import { Pagination } from 'antd';
-import { getAllCategory } from '../../../services/prod/CategoryServices';
 import { SupplierResponse } from '../../../models/prod/response/SupplierResponse';
-import { updateSupplier } from '../../../services/prod/SupplierServices';
+import { createSupplier, getAllSupplier, updateSupplier } from '../../../services/prod/SupplierServices';
 
 export const SupplierManagement: React.FC = () => {
   const [suppliers, setSuppliers] = useState<SupplierResponse[]>([]);
@@ -22,8 +21,8 @@ export const SupplierManagement: React.FC = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const res = await getAllCategory(pagination);
-      setSuppliers(res.data.categoryResponseDTOs);
+      const res = await getAllSupplier(pagination);
+      setSuppliers(res.data.supplierResponseDTOs);
       setTotalElement(res.data.totalElement);
     } catch (error) {
       console.error('Error fetching category:', error);
@@ -57,14 +56,28 @@ export const SupplierManagement: React.FC = () => {
     }
   };
 
+  const handleCreate = async (newData: any) => {
+    try {
+      const res = await createSupplier(newData);
+      console.log("Supplier created successfully", res.data);
+      setUpdateSuppliers(res.data);
+      fetchSuppliers(); // Refresh the category list
+    } catch (error) {
+      console.error('Error creating supplier:', error);
+    }
+  };
+
   const onPageChange = (page: number, size: number) => {
     setPagination({ ...pagination, currentPage: page, pageSize: size });
   }
 
+  const handleFileChange = async () => {
+    console.log("");
+  };
+
   return (
     <div>
-      {/* Truyền mảng titles vào TableComponent */}
-      <TableComponent titles={titles} data={suppliers} onEdit={handleSaveEdit} />
+      <TableComponent titles={titles} data={suppliers} onEdit={handleSaveEdit} onCreate={handleCreate} onFileChange={handleFileChange} />
       <Pagination className='my-10 mx-auto' onChange={(page, size) => { onPageChange(page, size) }}
         current={pagination.currentPage} total={totalElement} pageSize={pagination.pageSize} />
     </div>

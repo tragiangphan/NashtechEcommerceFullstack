@@ -8,5 +8,5 @@ export type ProductResponse = {
   featureMode: string,
   categoryId: number,
   suppliers: number[],
-  images: number[]
+  images: string[],
 }

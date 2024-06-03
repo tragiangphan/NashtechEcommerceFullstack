@@ -4,7 +4,7 @@ import { TableComponent } from '../features/TableComponent';
 import { Pagination } from 'antd';
 import { updateCategory } from '../../../services/prod/CategoryServices';
 import { UserResponse } from '../../../models/user/response/UserReponse';
-import { getAllUser } from '../../../services/user/UserServices';
+import { createUser, getAllUser } from '../../../services/user/UserServices';
 
 export const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UserResponse[]>([]);
@@ -60,14 +60,28 @@ export const UserManagement: React.FC = () => {
     }
   };
 
+  const handleCreate = async (newData: any) => {
+    try {
+      const res = await createUser(newData);
+      console.log("Category created successfully", res.data);
+      setUpdateUsers(res.data);
+      fetchUsers(); // Refresh the category list
+    } catch (error) {
+      console.error('Error creating category:', error);
+    }
+  };
+
   const onPageChange = (page: number, size: number) => {
     setPagination({ ...pagination, currentPage: page, pageSize: size });
   }
 
+  const handleFileChange = async () => {
+    console.log("");
+  };
+
   return (
     <div>
-      {/* Truyền mảng titles vào TableComponent */}
-      <TableComponent titles={titles} data={users} onEdit={handleSaveEdit} />
+      <TableComponent titles={titles} data={users} onEdit={handleSaveEdit} onCreate={handleCreate} onFileChange={handleFileChange} />
       <Pagination className='my-10 mx-auto' onChange={(page, size) => { onPageChange(page, size) }}
         current={pagination.currentPage} total={totalElement} pageSize={pagination.pageSize} />
     </div>

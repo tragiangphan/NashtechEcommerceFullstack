@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierGetRequestParamsDTO;
@@ -87,8 +86,7 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
         Page<Supplier> suppliers = supplierRepository.findAll(pageable);
         List<SupplierResponseDTO> supplierResponseDTOs = new ArrayList<>();
         suppliers.forEach(supplier -> {
-            Set<Long> productIds = new HashSet<>();
-            supplier.getProducts().forEach(prod -> productIds.add(prod.getId()));
+            Set<Long> productIds = supplier.getProducts().stream().map(Persistable::getId).collect(Collectors.toSet());
             supplierResponseDTOs.add(new SupplierResponseDTO(
                     supplier.getId(), supplier.getSupplierName(),
                     supplier.getPhoneNo(), supplier.getEmail(),

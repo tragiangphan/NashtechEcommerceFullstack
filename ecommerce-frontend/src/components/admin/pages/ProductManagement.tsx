@@ -1,15 +1,16 @@
-// ProductManagement.tsx
 import React, { useEffect, useState } from 'react';
-import { getAllProduct, updateProduct } from '../../../services/prod/ProductServices';
+import { createProduct, getAllProduct, updateProduct } from '../../../services/prod/ProductServices';
 import { PaginationModel } from '../../../models/commons/PaginationModel';
 import { ProductResponse } from '../../../models/prod/response/ProductResponse';
 import { TableComponent } from '../features/TableComponent';
 import { Pagination } from 'antd';
+import { createImage } from '../../../services/prod/ImageServices';
 
 export const ProductManagement: React.FC = () => {
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [totalElement, setTotalElement] = useState(0);
   const [updateProducts, setUpdateProducts] = useState();
+  const [newProducts, setNewProducts] = useState();
   const [pagination, setPagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
@@ -18,7 +19,7 @@ export const ProductManagement: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [pagination, updateProducts]);
+  }, [pagination, updateProducts, newProducts]);
 
   const fetchProducts = async () => {
     try {
@@ -30,7 +31,6 @@ export const ProductManagement: React.FC = () => {
     }
   };
 
-  // Định nghĩa mảng các đối tượng TableColumn
   const titles = [
     { title: 'id', type: 'number' },
     { title: 'productName', type: 'text' },
@@ -41,19 +41,16 @@ export const ProductManagement: React.FC = () => {
     { title: 'featureMode', type: 'text' },
     { title: 'categoryId', type: 'number' },
     { title: 'suppliers', type: 'number' },
-    { title: 'images', type: 'number' }
+    { title: 'images', type: 'file' }
   ];
 
   const handleSaveEdit = async (rowIndex: number, editedData: any) => {
     try {
-      console.log(editedData);
       const res = await updateProduct(rowIndex + 1, editedData);
-      console.log(res.data);
       setUpdateProducts(res.data);
-      console.log("Product updated successfully");
       const updatedProducts = products.map(product => {
         if (product.id === rowIndex) {
-          return { ...product, ...editedData};
+          return { ...product, ...editedData };
         }
         return product;
       });
@@ -63,16 +60,60 @@ export const ProductManagement: React.FC = () => {
     }
   };
 
+  const handleCreate = async (newData: any) => {
+    const newDataParsed = {
+      productName: newData.productName,
+      productDesc: newData.productDesc,
+      unit: newData.unit,
+      price: Number(newData.price),
+      quantity: Number(newData.quantity),
+      featureMode: newData.featureMode,
+      categoryId: Number(newData.categoryId),
+      suppliers: newData.suppliers.split(',').map(Number),
+      images: newData.images,
+    };
+    try {
+      const res = await createProduct(newDataParsed);
+      setNewProducts(res.data);
+      fetchProducts(); // Refresh the product list
+    } catch (error) {
+      console.error('Error creating product:', error);
+    }
+  };
+
+  const handleCreateFile = async (file: File, callback: (fileUrl: string) => void) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await createImage(formData);
+      const fileUrl = response.data.fileName;
+      callback(fileUrl);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
   const onPageChange = (page: number, size: number) => {
     setPagination({ ...pagination, currentPage: page, pageSize: size });
-  }
+  };
 
   return (
     <div>
-      {/* Truyền mảng titles vào TableComponent */}
-      <TableComponent titles={titles} data={products} onEdit={handleSaveEdit} />
-      <Pagination className='my-10 mx-auto' onChange={(page, size) => { onPageChange(page, size) }}
-        current={pagination.currentPage} total={totalElement} pageSize={pagination.pageSize} />
+      <TableComponent
+        titles={titles}
+        data={products}
+        onEdit={handleSaveEdit}
+        onCreate={handleCreate}
+        onFileChange={handleCreateFile}
+      />
+      <Pagination
+        className='my-10 mx-auto'
+        onChange={(page, size) => onPageChange(page, size)}
+        current={pagination.currentPage}
+        total={totalElement}
+        pageSize={pagination.pageSize}
+      />
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { PaginationModel } from '../../../models/commons/PaginationModel';
 import { TableComponent } from '../features/TableComponent';
 import { Pagination } from 'antd';
-import { getAllCategory, updateCategory } from '../../../services/prod/CategoryServices';
+import { createCategory, getAllCategory, updateCategory } from '../../../services/prod/CategoryServices';
 import { CategoryResponse } from '../../../models/prod/response/CategoryResponse';
 
 export const CategoryManagement: React.FC = () => {
@@ -33,8 +33,7 @@ export const CategoryManagement: React.FC = () => {
     { title: 'id', type: 'number' },
     { title: 'categoryName', type: 'text' },
     { title: 'categoryDesc', type: 'text' },
-    { title: 'activeMode', type: 'text' },
-    { title: 'products', type: 'number' }
+    { title: 'activeMode', type: 'text' }
   ];
 
   const handleSaveEdit = async (rowIndex: number, editedData: any) => {
@@ -46,7 +45,7 @@ export const CategoryManagement: React.FC = () => {
       console.log("Category updated successfully");
       const updatedCategory = categories.map(category => {
         if (category.id === rowIndex) {
-          return { ...category, ...editedData};
+          return { ...category, ...editedData };
         }
         return category;
       });
@@ -56,14 +55,36 @@ export const CategoryManagement: React.FC = () => {
     }
   };
 
+  const handleCreate = async (newData: any) => {
+    try {
+      console.log(newData);
+      const newDataParsed = {
+        id: Number(newData.id),
+        categoryName: newData.categoryName,
+        categoryDesc: newData.categoryDesc,
+        activeMode: newData.activeMode
+      }
+      console.log(newDataParsed);
+      const res = await createCategory(newDataParsed);
+      console.log("Category created successfully", res.data);
+      setUpdateCategories(res.data);
+      fetchCategories(); // Refresh the category list
+    } catch (error) {
+      console.error('Error creating category:', error);
+    }
+  };
+
   const onPageChange = (page: number, size: number) => {
     setPagination({ ...pagination, currentPage: page, pageSize: size });
   }
 
+  const handleFileChange = async () => {
+    console.log("");
+  };
+
   return (
     <div>
-      {/* Truyền mảng titles vào TableComponent */}
-      <TableComponent titles={titles} data={categories} onEdit={handleSaveEdit} />
+      <TableComponent titles={titles} data={categories} onEdit={handleSaveEdit} onCreate={handleCreate} onFileChange={handleFileChange} />
       <Pagination className='my-10 mx-auto' onChange={(page, size) => { onPageChange(page, size) }}
         current={pagination.currentPage} total={totalElement} pageSize={pagination.pageSize} />
     </div>

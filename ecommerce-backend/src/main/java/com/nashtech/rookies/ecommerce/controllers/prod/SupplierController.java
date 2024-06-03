@@ -38,7 +38,7 @@ public class SupplierController {
       @RequestParam(name = "direction", required = false) Sort.Direction dir,
       @RequestParam(name = "pageNum", required = false) Integer pageNum,
       @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-    return supplierService.handleGetSupplier(new SupplierGetRequestParamsDTO(id, productId, dir, pageSize, pageSize));
+    return supplierService.handleGetSupplier(new SupplierGetRequestParamsDTO(id, productId, dir, pageNum, pageSize));
   }
 
   @PutMapping()
