@@ -16,6 +16,7 @@ public class Infor extends IdEntity<Long> {
     private String address;
     private String street;
     private String ward;
+    private String district;
     private String city;
     private String country;
     private String postalCode;

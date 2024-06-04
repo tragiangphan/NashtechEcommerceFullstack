@@ -10,7 +10,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,9 +20,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "ratings")
 public class Rating extends AuditEntity<Long> {
-  @Size(min = 1, max = 5)
-  private Long rateRange;
-  private String rateDesc;
+  private Long rateScore;
+  private String comment;
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "product_id", nullable = false)

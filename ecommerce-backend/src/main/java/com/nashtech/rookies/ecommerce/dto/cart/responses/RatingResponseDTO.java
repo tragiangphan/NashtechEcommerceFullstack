@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public record RatingResponseDTO(Long id,
                                 LocalDateTime createOn, LocalDateTime lastUpdatedOn,
-                                Long rateRange, String rateDesc,
+                                Long rateScore, String comment,
                                 Long productId, Long userId) {
 
 }

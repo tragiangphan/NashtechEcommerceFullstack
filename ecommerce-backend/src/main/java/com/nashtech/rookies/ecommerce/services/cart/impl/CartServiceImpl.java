@@ -3,8 +3,10 @@ package com.nashtech.rookies.ecommerce.services.cart.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.nashtech.rookies.ecommerce.dto.cart.requests.CartGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.models.cart.CartItem;
 import org.springframework.data.domain.Persistable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +53,22 @@ public class CartServiceImpl extends CommonServiceImpl<Cart, Long> implements Ca
     }
 
     @Override
+    public ResponseEntity<?> handleGetCart(CartGetRequestParamsDTO requestParamsDTO) {
+        CartResponseDTO cartResponseDTO;
+        List<CartResponseDTO> cartResponseDTOs;
+
+        if (requestParamsDTO.id() != null) {
+            cartResponseDTO = getCartByCartId(requestParamsDTO.id());
+            return ResponseEntity.ok(cartResponseDTO);
+        } else if (requestParamsDTO.userId() != null) {
+            cartResponseDTO = getCartByUserId(requestParamsDTO.userId());
+            return ResponseEntity.ok(cartResponseDTO);
+        } else {
+            cartResponseDTOs = getCart();
+            return ResponseEntity.ok(cartResponseDTOs);
+        }
+    }
+
     public List<CartResponseDTO> getCart() {
         var carts = cartRepository.findAll();
         List<CartResponseDTO> cartResponseDTOs = new ArrayList<>();
@@ -62,14 +80,22 @@ public class CartServiceImpl extends CommonServiceImpl<Cart, Long> implements Ca
         return cartResponseDTOs;
     }
 
-    @Override
-    public List<CartResponseDTO> getCart(Long id) {
+    public CartResponseDTO getCartByCartId(Long id) {
         if (cartRepository.existsById(id)) {
             Cart cart = cartRepository.findById(id).get();
-            return List.of(new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
+            return new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
                     cart.getCartItems() != null ?
-                            cart.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>()));
+                            cart.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>());
         } else throw new NotFoundException("Not found a Cart with an id: " + id);
+    }
+
+    public CartResponseDTO getCartByUserId(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId);
+        if (cart != null) {
+            return new CartResponseDTO(cart.getId(), cart.getQuantity(), cart.getUser().getId(),
+                    cart.getCartItems() != null ?
+                            cart.getCartItems().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>());
+        } else throw new NotFoundException("Not found a Cart with an id: " + userId);
     }
 
     @Override

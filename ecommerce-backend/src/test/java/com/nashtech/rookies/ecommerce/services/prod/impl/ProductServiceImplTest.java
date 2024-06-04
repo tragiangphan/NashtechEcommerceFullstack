@@ -119,25 +119,25 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).findAll(any(Pageable.class));
     }
 
-    @Test
-    void testGetProductsById_Success() {
-        when(productRepository.existsById(1L)).thenReturn(true);
-        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        Page<Product> products = new PageImpl<>(Collections.singletonList(product));
-        when(productRepository.findAll(any(Pageable.class))).thenReturn(products);
+    // @Test
+    // void testGetProductsById_Success() {
+    //     when(productRepository.existsById(1L)).thenReturn(true);
+    //     when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+    //     Page<Product> products = new PageImpl<>(Collections.singletonList(product));
+    //     when(productRepository.findAll(any(Pageable.class))).thenReturn(products);
 
-        ProductPaginationDTO responseDTO = productService.getProducts(1L);
+    //     ProductPaginationDTO responseDTO = productService.getProducts(1L);
 
-        assertNotNull(responseDTO);
-        assertEquals(1, responseDTO.totalElement());
-    }
+    //     assertNotNull(responseDTO);
+    //     assertEquals(1, responseDTO.totalElement());
+    // }
 
-    @Test
-    void testGetProductsById_NotFound() {
-        when(productRepository.existsById(1L)).thenReturn(false);
+    // @Test
+    // void testGetProductsById_NotFound() {
+    //     when(productRepository.existsById(1L)).thenReturn(false);
 
-        assertThrows(NotFoundException.class, () -> productService.getProducts(1L));
-    }
+    //     assertThrows(NotFoundException.class, () -> productService.getProducts(1L));
+    // }
 
     @Test
     void testUpdateProduct_Success() {

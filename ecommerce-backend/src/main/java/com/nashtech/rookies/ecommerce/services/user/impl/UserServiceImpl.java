@@ -3,16 +3,18 @@ package com.nashtech.rookies.ecommerce.services.user.impl;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.user.requests.UserGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserPaginationDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
 import com.nashtech.rookies.ecommerce.models.user.Infor;
 import com.nashtech.rookies.ecommerce.security.TokenProvider;
+
+import org.apache.catalina.connector.Response;
 import org.springframework.data.domain.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nashtech.rookies.ecommerce.dto.user.requests.UserRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.UserResponseDTO;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-import com.nashtech.rookies.ecommerce.mappers.user.UserMapper;
 import com.nashtech.rookies.ecommerce.models.user.Role;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.repositories.user.RoleRepository;
@@ -30,26 +31,21 @@ import com.nashtech.rookies.ecommerce.repositories.user.UserRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 public class UserServiceImpl extends CommonServiceImpl<User, Long> implements UserService, UserDetailsService {
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
 
-
     private String userNotFoundMessage = "Not found User with an id: ";
     private String roleNotFoundMessage = "Not found Role with an id: ";
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
+    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
+            PasswordEncoder passwordEncoder, TokenProvider tokenProvider) {
         super(userRepository);
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
@@ -76,7 +72,11 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 user.setOrders(new HashSet<>());
                 user.setRatings(new HashSet<>());
                 user = userRepository.saveAndFlush(user);
-                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()), user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()));
+                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(),
+                        user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(),
+                        user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(),
+                        user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()),
+                        user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()));
             } else {
                 throw new NotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
             }
@@ -84,33 +84,78 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
     }
 
     @Override
+    public ResponseEntity<?> handleGetUser(UserGetRequestParamsDTO requestParamsDTO) {
+        UserPaginationDTO userResponseDTOs;
+        UserResponseDTO userResponseDTO;
+        if (requestParamsDTO.id() != null) {
+            userResponseDTOs = getUsers(requestParamsDTO.id(), requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
+            return ResponseEntity.ok(userResponseDTOs);
+        } else if (requestParamsDTO.username() != null) {
+            userResponseDTO = getUserByUsername(requestParamsDTO.username(), requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
+            return ResponseEntity.ok(userResponseDTO);
+        } else {
+            userResponseDTOs = getUsers(requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
+            return ResponseEntity.ok(userResponseDTOs);
+        }
+    }
+
     public UserPaginationDTO getUsers(Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
         Page<User> users = userRepository.findAll(pageable);
         List<UserResponseDTO> userResponseDTOs = new ArrayList<>();
         users.forEach(user -> {
-            Set<Long> orders = user.getOrders() != null ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-            Set<Long> ratings = user.getRatings() != null ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-            userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
+            Set<Long> orders = user.getOrders() != null
+                    ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet())
+                    : new HashSet<>();
+            Set<Long> ratings = user.getRatings() != null
+                    ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet())
+                    : new HashSet<>();
+            userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),
+                    user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(),
+                    user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
         });
-        return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(), users.getNumber() + 1, userResponseDTOs);
+        return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
+                users.getNumber() + 1, userResponseDTOs);
     }
 
-    @Override
-    public UserPaginationDTO getUsers(Long id) {
-        Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        Pageable pageable = PageRequest.of(0, 10, sort);
+    public UserResponseDTO getUserByUsername(String username, Sort.Direction dir, int pageNum, int pageSize) {
+        User user = userRepository.findOneByUsername(username).get();
+        Set<Long> orders = user.getOrders() != null
+                ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet())
+                : new HashSet<>();
+        Set<Long> ratings = user.getRatings() != null
+                ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet())
+                : new HashSet<>();
+        return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(),
+                user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(),
+                user.getInfor().getId(), user.getCart().getId(), orders, ratings);
+    }
+
+    public UserPaginationDTO getUsers(Long id, Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
         Page<User> users = userRepository.findAll(pageable);
         List<UserResponseDTO> userResponseDTOs = new ArrayList<>();
         if (userRepository.existsById(id)) {
             User user = userRepository.findById(id).get();
             assert user.getRole().getId() != null;
             if (roleRepository.existsById(user.getRole().getId())) {
-                Set<Long> orders = user.getOrders() != null ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-                Set<Long> ratings = user.getRatings() != null ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()) : new HashSet<>();
-                userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
-                return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(), users.getNumber() + 1, userResponseDTOs);
+                Set<Long> orders = user.getOrders() != null
+                        ? user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet())
+                        : new HashSet<>();
+                Set<Long> ratings = user.getRatings() != null
+                        ? user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet())
+                        : new HashSet<>();
+                userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),
+                        user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(),
+                        user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(),
+                        orders, ratings));
+                return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
+                        users.getNumber() + 1, userResponseDTOs);
             } else {
                 throw new NotFoundException(roleNotFoundMessage + user.getRole().getId());
             }
@@ -134,18 +179,15 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 user = userRepository.saveAndFlush(user);
                 Set<Long> orders = new HashSet<>(user.getOrders().stream().map(Persistable::getId).toList());
                 Set<Long> ratings = new HashSet<>(user.getRatings().stream().map(Persistable::getId).toList());
-                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings);
+                return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(),
+                        user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(),
+                        user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings);
             } else {
                 throw new NotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
             }
         } else {
             throw new NotFoundException(userNotFoundMessage + id);
         }
-    }
-
-    @Override
-    public boolean existsUserByEmail(String email) {
-        return userRepository.existsUserByEmail(email);
     }
 
     @Override
@@ -178,15 +220,6 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 newUser.setRole(userRole);
             }
             return userRepository.saveAndFlush(newUser);
-        }
-    }
-
-    @Override
-    public User signIn(SignInRequestDTO signInRequestDTO) throws NotFoundException {
-        if (userRepository.findOneByEmail(signInRequestDTO.email()).isEmpty()) {
-            throw new NotFoundException("Not exists an user with email: " + signInRequestDTO.email());
-        } else {
-            return userRepository.findOneByEmail(signInRequestDTO.email()).get();
         }
     }
 

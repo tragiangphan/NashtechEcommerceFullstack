@@ -1,7 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.cart;
 
-import java.util.List;
-
+import com.nashtech.rookies.ecommerce.dto.cart.requests.CartItemGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationCartItemDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ import com.nashtech.rookies.ecommerce.dto.cart.responses.CartItemResponseDTO;
 import com.nashtech.rookies.ecommerce.services.cart.CartItemService;
 
 @RestController
-@RequestMapping(RestVersionConfig.API_VERSION + "/cartItem")
+@RequestMapping(RestVersionConfig.API_VERSION + "/cartItems")
 public class CartItemController {
     private final CartItemService cartItemService;
 
@@ -39,23 +38,11 @@ public class CartItemController {
                                      @RequestParam(name = "direction") Sort.Direction dir,
                                      @RequestParam(name = "pageNum") Integer pageNum,
                                      @RequestParam(name = "pageSize") Integer pageSize) {
-        PaginationCartItemDTO cartItemResponseDTOs;
-        CartItemResponseDTO cartItemResponseDTO;
-
-        if (id != null) {
-            cartItemResponseDTO = cartItemService.getCartItem(id);
-            return ResponseEntity.ok(cartItemResponseDTO);
-        } else if (userId != null) {
-            cartItemResponseDTOs = cartItemService.getCartItemByUserId(userId, dir, pageNum, pageSize);
-            return ResponseEntity.ok(cartItemResponseDTOs);
-        } else {
-            cartItemResponseDTOs = cartItemService.getCartItem(dir, pageNum, pageSize);
-            return ResponseEntity.ok(cartItemResponseDTOs);
-        }
+        return cartItemService.handleGetCartItem(new CartItemGetRequestParamsDTO(id, userId, dir, pageNum, pageSize));
     }
 
     @PutMapping()
-    public ResponseEntity<CartItemResponseDTO> updateCart(@RequestParam(name = "id", required = true) Long id,
+    public ResponseEntity<CartItemResponseDTO> updateCart(@RequestParam(name = "id") Long id,
                                                           @RequestBody CartItemRequestDTO cartItemRequestDTO) {
         return ResponseEntity.ok(cartItemService.updateCartItem(id, cartItemRequestDTO));
     }

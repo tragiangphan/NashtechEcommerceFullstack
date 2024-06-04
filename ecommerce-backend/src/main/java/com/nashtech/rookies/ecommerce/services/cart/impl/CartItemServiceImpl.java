@@ -3,13 +3,14 @@ package com.nashtech.rookies.ecommerce.services.cart.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.cart.requests.CartItemGetRequestParamsDTO;
 import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationCartItemDTO;
 import com.nashtech.rookies.ecommerce.models.cart.Cart;
-import com.nashtech.rookies.ecommerce.models.prod.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +63,24 @@ public class CartItemServiceImpl extends CommonServiceImpl<CartItem, Long> imple
     }
 
     @Override
+    public ResponseEntity<?> handleGetCartItem(CartItemGetRequestParamsDTO requestParamsDTO) {
+        PaginationCartItemDTO cartItemResponseDTOs;
+        CartItemResponseDTO cartItemResponseDTO;
+        if (requestParamsDTO.id() != null) {
+            cartItemResponseDTO = getCartItem(requestParamsDTO.id());
+            return ResponseEntity.ok(cartItemResponseDTO);
+        } else if (requestParamsDTO.userId() != null) {
+            cartItemResponseDTOs = getCartItemByUserId(
+                    requestParamsDTO.userId(), requestParamsDTO.direction(),
+                    requestParamsDTO.pageNum(), requestParamsDTO.pageSize());
+            return ResponseEntity.ok(cartItemResponseDTOs);
+        } else {
+            cartItemResponseDTOs = getCartItem(requestParamsDTO.direction(),
+                    requestParamsDTO.pageNum(), requestParamsDTO.pageSize());
+            return ResponseEntity.ok(cartItemResponseDTOs);
+        }
+    }
+
     public PaginationCartItemDTO getCartItem(Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
@@ -72,7 +91,6 @@ public class CartItemServiceImpl extends CommonServiceImpl<CartItem, Long> imple
                 cartItems.getNumber(), cartItemResponseDTOs);
     }
 
-    @Override
     public PaginationCartItemDTO getCartItemByUserId(Long userId, Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
@@ -83,7 +101,6 @@ public class CartItemServiceImpl extends CommonServiceImpl<CartItem, Long> imple
                 cartItems.getNumber(), cartItemResponseDTOs);
     }
 
-    @Override
     public CartItemResponseDTO getCartItem(Long id) {
         if (cartItemRepository.existsById(id)) {
             CartItem cartItem = cartItemRepository.findById(id).get();

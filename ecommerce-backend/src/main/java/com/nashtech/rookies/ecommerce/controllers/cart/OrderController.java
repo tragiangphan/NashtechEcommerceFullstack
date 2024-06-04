@@ -2,6 +2,7 @@ package com.nashtech.rookies.ecommerce.controllers.cart;
 
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.cart.requests.OrderGetRequestParamsDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,15 +32,9 @@ public class OrderController {
   }
 
   @GetMapping()
-  public ResponseEntity<List<OrderResponseDTO>> getOrder(@RequestParam(name = "id", required = false) Long id) {
-    List<OrderResponseDTO> orderResponseDTOs;
-
-    if (id != null) {
-      orderResponseDTOs = orderService.getOrder(id);
-    } else {
-      orderResponseDTOs = orderService.getOrder();
-    }
-    return ResponseEntity.ok(orderResponseDTOs);
+  public ResponseEntity<?> getOrder(@RequestParam(name = "id", required = false) Long id,
+                                    @RequestParam(name = "userId", required = false) Long userId) {
+    return orderService.handleGetOrder(new OrderGetRequestParamsDTO(id, userId));
   }
 
   @PutMapping()

@@ -1,7 +1,8 @@
 package com.nashtech.rookies.ecommerce.controllers.prod;
 
-import java.util.List;
+import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierGetRequestParamsDTO;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,15 +32,14 @@ public class SupplierController {
   }
 
   @GetMapping()
-  public ResponseEntity<List<SupplierResponseDTO>> getSupplier(@RequestParam(name = "id", required = false) Long id) {
-    List<SupplierResponseDTO> supplierResponseDTO;
-    
-    if (id != null) {
-      supplierResponseDTO = supplierService.getSuppliers(id);
-    } else {
-      supplierResponseDTO = supplierService.getSuppliers();
-    }
-    return ResponseEntity.ok(supplierResponseDTO);
+  public ResponseEntity<?> getSupplier(
+      @RequestParam(name = "id", required = false) Long id,
+      @RequestParam(name = "productId", required = false) Long productId,
+      @RequestParam(name = "supplierName", required = false) String supplierName,
+      @RequestParam(name = "direction", required = false) Sort.Direction dir,
+      @RequestParam(name = "pageNum", required = false) Integer pageNum,
+      @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+    return supplierService.handleGetSupplier(new SupplierGetRequestParamsDTO(id, supplierName, productId, dir, pageNum, pageSize));
   }
 
   @PutMapping()

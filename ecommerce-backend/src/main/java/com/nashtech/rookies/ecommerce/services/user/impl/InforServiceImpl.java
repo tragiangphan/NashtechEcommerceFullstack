@@ -3,6 +3,8 @@ package com.nashtech.rookies.ecommerce.services.user.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nashtech.rookies.ecommerce.dto.user.requests.InforGetRequestParamsDTO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,7 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
       infor.setAddress(inforRequestDTO.address());
       infor.setStreet(inforRequestDTO.street());
       infor.setWard(inforRequestDTO.ward());
+      infor.setDistrict(inforRequestDTO.district());
       infor.setCity(inforRequestDTO.city());
       infor.setCountry(inforRequestDTO.country());
       infor.setPostalCode(inforRequestDTO.postalCode());
@@ -49,6 +52,18 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
   }
 
   @Override
+  public ResponseEntity<?> handleGetInfor(InforGetRequestParamsDTO requestParamsDTO) {
+    List<InforResponseDTO> inforResponseDTOs;
+    InforResponseDTO inforResponseDTO;
+    if (requestParamsDTO.id() != null) {
+      inforResponseDTO = getInforById(requestParamsDTO.id());
+      return ResponseEntity.ok(inforResponseDTO);
+    } else {
+      inforResponseDTOs = getInfors();
+      return ResponseEntity.ok(inforResponseDTOs);
+    }
+  }
+
   public List<InforResponseDTO> getInfors() {
     var infors = inforRepository.findAll();
     List<InforResponseDTO> inforResponseDTO = new ArrayList<>();
@@ -56,12 +71,9 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
     return inforResponseDTO;
   }
 
-  @Override
-  public List<InforResponseDTO> getInfors(Long id) {
+  public InforResponseDTO getInforById(Long id) {
     if (inforRepository.existsById(id)) {
-      List<InforResponseDTO> inforResponseDTO = new ArrayList<>();
-      inforResponseDTO.add(inforMapper.toResponseDTO(inforRepository.findById(id).get()));
-      return inforResponseDTO;
+      return inforMapper.toResponseDTO(inforRepository.findById(id).get());
     } else {
       throw new NotFoundException("Not found Infor with an id: " + id);
     }
@@ -76,6 +88,7 @@ public class InforServiceImpl extends CommonServiceImpl<Infor, Long> implements 
         infor.setAddress(inforRequestDTO.address());
         infor.setStreet(inforRequestDTO.street());
         infor.setWard(inforRequestDTO.ward());
+        infor.setDistrict(inforRequestDTO.district());
         infor.setCity(inforRequestDTO.city());
         infor.setCountry(inforRequestDTO.country());
         infor.setPostalCode(inforRequestDTO.postalCode());

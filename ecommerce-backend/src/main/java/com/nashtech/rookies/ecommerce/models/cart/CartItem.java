@@ -1,6 +1,5 @@
 package com.nashtech.rookies.ecommerce.models.cart;
 
-import com.nashtech.rookies.ecommerce.models.key.AuditEntity;
 import com.nashtech.rookies.ecommerce.models.key.IdEntity;
 import com.nashtech.rookies.ecommerce.models.prod.Product;
 
