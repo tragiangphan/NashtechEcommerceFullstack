@@ -5,6 +5,8 @@ import { ProductManagement } from './ProductManagement';
 import { CategoryManagement } from './CategoryManagement';
 import { SupplierManagement } from './SupplierManagement';
 import { UserManagement } from './UserManagement';
+import { ImageManagement } from './ImageManagement';
+import { TestManagement } from './TestManagement';
 
 export const DashboardComponent: React.FC = () => {
   const tabItems = [
@@ -47,6 +49,16 @@ export const DashboardComponent: React.FC = () => {
         </div>
       ),
       children: <UserManagement />,
+    },
+    {
+      key: '5',
+      label: (
+        <div className='text-lg font-semibold'>
+          <HeatMapOutlined className='me-2' />
+          Test Management
+        </div>
+      ),
+      children: <TestManagement />,
     },
   ];
 

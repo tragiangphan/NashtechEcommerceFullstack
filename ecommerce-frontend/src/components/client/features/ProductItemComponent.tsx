@@ -30,8 +30,10 @@ export const ProductItemComponent: React.FC<{ prods: Product[] }> = ({ prods }) 
               <a href="#" data-tooltip-target="tooltip-default">
                 <Tooltip className='text-md'
                   title={`${product.productName} ${product.productName} ${product.productName}
+                          ${product.productName} ${product.productName} ${product.productName}
                           ${product.productName} ${product.productName} ${product.productName}`}>
                   <h5 className="text-xl line-clamp-2 font-semibold tracking-tight text-gray-900 dark:text-white" >
+                    {product.productName} {product.productName} {product.productName}
                     {product.productName} {product.productName} {product.productName}
                     {product.productName} {product.productName} {product.productName}
                   </h5>

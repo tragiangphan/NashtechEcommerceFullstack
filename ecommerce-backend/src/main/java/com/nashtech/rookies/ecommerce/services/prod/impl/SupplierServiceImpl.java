@@ -73,6 +73,9 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
         if (requestParamsDTO.id() != null) {
             supplierResponseDTO = getSupplierById(requestParamsDTO.id());
             return ResponseEntity.ok(supplierResponseDTO);
+        } else if (requestParamsDTO.supplierName() != null) {
+            supplierResponseDTO = getSupplierBySupplierName(requestParamsDTO.supplierName());
+            return ResponseEntity.ok(supplierResponseDTO);
         } else {
             supplierResponseDTOs = getSuppliers(requestParamsDTO.dir(),
                     requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
@@ -104,14 +107,25 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
             Supplier supplier = supplierRepository.findById(id).get();
             Set<Long> productIds = new HashSet<>();
             supplier.getProducts().forEach(prod -> productIds.add(prod.getId()));
-            return new SupplierResponseDTO(
-                    supplier.getId(), supplier.getSupplierName(),
+            return new SupplierResponseDTO(supplier.getId(), supplier.getSupplierName(),
                     supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(),
-                    supplier.getWard(),
-                    supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(), supplier.getActiveMode(),
-                    productIds);
+                    supplier.getWard(), supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(),
+                    supplier.getActiveMode(), productIds);
         } else {
             throw new NotFoundException("Not found Supplier with an id: " + id);
+        }
+    }
+
+    public SupplierResponseDTO getSupplierBySupplierName(String supplierName) {
+        Supplier supplier = supplierRepository.findBySupplierName(supplierName);
+        if (supplier != null) {
+            Set<Long> productIds = supplier.getProducts().stream().map(Persistable::getId).collect(Collectors.toSet());
+            return new SupplierResponseDTO(supplier.getId(), supplier.getSupplierName(),
+                    supplier.getPhoneNo(), supplier.getEmail(), supplier.getAddress(), supplier.getStreet(),
+                    supplier.getWard(), supplier.getCity(), supplier.getCountry(), supplier.getPostalCode(),
+                    supplier.getActiveMode(), productIds);
+        } else {
+            throw new NotFoundException("Not found Supplier with a name: " + supplierName);
         }
     }
 

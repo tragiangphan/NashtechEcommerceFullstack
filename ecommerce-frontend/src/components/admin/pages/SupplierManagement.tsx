@@ -24,6 +24,7 @@ export const SupplierManagement: React.FC = () => {
       const res = await getAllSupplier(pagination);
       setSuppliers(res.data.supplierResponseDTOs);
       setTotalElement(res.data.totalElement);
+      console.log(res.data.supplierResponseDTOs);
     } catch (error) {
       console.error('Error fetching category:', error);
     }
@@ -31,10 +32,19 @@ export const SupplierManagement: React.FC = () => {
 
   const titles = [
     { title: 'id', type: 'number' },
-    { title: 'categoryName', type: 'text' },
-    { title: 'categoryDesc', type: 'text' },
+    { title: 'supplierName', type: 'text' },
     { title: 'activeMode', type: 'text' },
-    { title: 'products', type: 'number' }
+    { title: 'supplierName', type: 'text'},
+    { title: 'phoneNo', type: 'text'},
+    { title: 'email', type: 'text'},
+    { title: 'address', type: 'text'},
+    { title: 'street', type: 'text'},
+    { title: 'ward', type: 'text'},
+    { title: 'city', type: 'text'},
+    { title: 'country', type: 'text'},
+    { title: 'postalCode', type: 'text'},
+    { title: 'activeMode', type: 'text'},
+    { title: 'products', type: 'number'}
   ];
 
   const handleSaveEdit = async (rowIndex: number, editedData: any) => {

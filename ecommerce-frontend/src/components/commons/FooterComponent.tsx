@@ -1,11 +1,10 @@
 
 export const FooterComponent: React.FC<{}> = () => {
   return (
-    <footer className="static bg-white dark:bg-gray-900">
-      <div className="w-full max-w-screen-xl mx-auto md:py-4">
-        <hr className="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-4" />
-        <span className="block text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2024 <a href="https://flowbite.com/" className="hover:underline">Flowbite™</a>. All Rights Reserved.</span>
-      </div>
+    <footer className="bg-white rounded-lg shadow sm:flex sm:items-center sm:justify-between p-4 sm:p-6 xl:p-8 dark:bg-gray-800 antialiased">
+      <p className="mb-4 text-sm text-center mx-auto text-gray-500 dark:text-gray-400 sm:mb-0">
+        &copy; 2024 <a href="https://flowbite.com/" className="hover:underline font-semibold" target="_blank">NRStore.com</a>. All rights reserved.
+      </p>
     </footer>
   )
 };

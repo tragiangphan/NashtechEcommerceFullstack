@@ -70,6 +70,9 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
         if (requestParamsDTO.id() != null) {
             categoryResponseDTO = getCategoryById(requestParamsDTO.id());
             return ResponseEntity.ok(categoryResponseDTO);
+        } else if (requestParamsDTO.categoryName() != null) {
+            categoryResponseDTO = getCategoryByCategoryName(requestParamsDTO.categoryName());
+            return ResponseEntity.ok(categoryResponseDTO);
         } else {
             categoryResponseDTOs = getCategories(requestParamsDTO.dir(),
                     requestParamsDTO.pageNum() - 1, requestParamsDTO.pageSize());
@@ -116,6 +119,17 @@ public class CategoryServiceImpl extends CommonServiceImpl<Category, Long> imple
                     category.getActiveMode(), productIds);
         } else {
             throw new NotFoundException("Not found Category with an id: " + id);
+        }
+    }
+
+    public CategoryResponseDTO getCategoryByCategoryName(String categoryName) {
+        Category category = categoryRepository.findByCategoryName(categoryName);
+        if (category != null) {
+            return new CategoryResponseDTO(category.getId(), category.getCategoryName(), category.getCategoryDesc(),
+                    category.getActiveMode(),
+                    category.getProducts().stream().map(Persistable::getId).collect(Collectors.toSet()));
+        } else {
+            throw new NotFoundException("Not found Category with a name: " + categoryName);
         }
     }
 

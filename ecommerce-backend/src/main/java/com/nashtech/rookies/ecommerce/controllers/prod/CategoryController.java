@@ -1,7 +1,5 @@
 package com.nashtech.rookies.ecommerce.controllers.prod;
 
-import java.util.List;
-
 import com.nashtech.rookies.ecommerce.dto.prod.requests.CategoryGetRequestParamsDTO;
 
 import org.springframework.data.domain.Sort;
@@ -38,10 +36,11 @@ public class CategoryController {
     @GetMapping()
     public ResponseEntity<?> getCategoryMethod(
             @RequestParam(name = "id", required = false) Long id,
+            @RequestParam(name = "categoryName", required = false) String categoryName,
             @RequestParam(name = "direction", required = false) Sort.Direction dir,
             @RequestParam(name = "pageNum", required = false) Integer pageNum,
             @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-        return categoryService.handleGetCategory(new CategoryGetRequestParamsDTO(id, dir, pageNum, pageSize));
+        return categoryService.handleGetCategory(new CategoryGetRequestParamsDTO(id, categoryName, dir, pageNum, pageSize));
     }
 
     @PutMapping()

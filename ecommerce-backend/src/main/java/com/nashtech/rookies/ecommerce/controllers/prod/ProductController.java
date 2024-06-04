@@ -36,21 +36,21 @@ public class ProductController {
 
     @GetMapping()
     public ResponseEntity<?> getProduct(@RequestParam(name = "id", required = false) Long id,
-                                                           @RequestParam(name = "productName", required = false) String productName,
-                                                           @RequestParam(name = "categoryName", required = false) String categoryName,
-                                                           @RequestParam(name = "featureMode", required = false) FeatureModeEnum featureMode,
-                                                           @RequestParam(name = "maxPrice", required = false) Long maxPrice,
-                                                           @RequestParam(name = "minPrice", required = false) Long minPrice,
-                                                           @RequestParam(name = "direction", required = false) Sort.Direction dir,
-                                                           @RequestParam(name = "pageNum", required = false) Integer pageNum,
-                                                           @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+            @RequestParam(name = "productName", required = false) String productName,
+            @RequestParam(name = "categoryName", required = false) String categoryName,
+            @RequestParam(name = "featureMode", required = false) FeatureModeEnum featureMode,
+            @RequestParam(name = "maxPrice", required = false) Long maxPrice,
+            @RequestParam(name = "minPrice", required = false) Long minPrice,
+            @RequestParam(name = "direction", required = false) Sort.Direction dir,
+            @RequestParam(name = "pageNum", required = false) Integer pageNum,
+            @RequestParam(name = "pageSize", required = false) Integer pageSize) {
         return productService.handleGetProduct(new ProductGetRequestParamsDTO(id, productName,
                 categoryName, featureMode, maxPrice, minPrice, dir, pageNum, pageSize));
     }
 
     @PutMapping()
     public ResponseEntity<ProductResponseDTO> updateProduct(@RequestParam(name = "id") Long id,
-                                                            @RequestBody ProductRequestDTO productRequestDTO) {
+            @RequestBody ProductRequestDTO productRequestDTO) {
         return ResponseEntity.ok(productService.updateProduct(id, productRequestDTO));
     }
 }

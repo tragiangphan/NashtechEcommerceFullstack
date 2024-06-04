@@ -9,9 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ImageService extends CommonService<Image, Long> {
-  ImageResponseDTO createImage(String imagePathFile, MultipartFile multipartFile,ImageRequestDTO imgRequestDTO);
+  ImageResponseDTO createImage(String imagePathFile, MultipartFile multipartFile, Long productId, String imageDesc);
 
   ResponseEntity<?> handleGetImage(ImageGetRequestParamsDTO requestParamsDTO);
 
-  ImageResponseDTO updateImage(Long id, String imagePathFile, MultipartFile multipartFile,ImageRequestDTO imgRequestDTO);
+  ImageResponseDTO updateImage(Long id, String imagePathFile, MultipartFile multipartFile, Long productId, String imageDesc);
 }

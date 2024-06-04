@@ -10,7 +10,7 @@ interface TableProps {
   data: { [key: string]: any }[];
   onEdit: (rowIndex: number, editedData: { [key: string]: any }) => void;
   onCreate: (newData: { [key: string]: any }) => void;
-  onFileChange: (file: File, callback: (fileUrl: string) => void) => void; // New prop for file upload
+  onFileChange: (file: File, newData: { [key: string]: any }, callback: (fileUrl: string) => void) => void; // New prop for file upload
 }
 
 export const TableComponent: React.FC<TableProps> = ({ titles, data, onEdit, onCreate, onFileChange }) => {
@@ -30,7 +30,7 @@ export const TableComponent: React.FC<TableProps> = ({ titles, data, onEdit, onC
   };
 
   const handleFileEdit = (colIndex: number, file: File) => {
-    onFileChange(file, (fileUrl) => {
+    onFileChange(file, editedData, (fileUrl) => {
       const columnTitle = titles[colIndex].title;
       setEditedData((prevData) => ({ ...prevData, [columnTitle]: fileUrl }));
     });
@@ -58,7 +58,7 @@ export const TableComponent: React.FC<TableProps> = ({ titles, data, onEdit, onC
   };
 
   const handleFileCreate = (colIndex: number, file: File) => {
-    onFileChange(file, (fileUrl) => {
+    onFileChange(file, newRecordData, (fileUrl) => {
       const columnTitle = titles[colIndex].title;
       setNewRecordData((prevData) => ({ ...prevData, [columnTitle]: fileUrl }));
     });
@@ -100,23 +100,23 @@ export const TableComponent: React.FC<TableProps> = ({ titles, data, onEdit, onC
               {titles.map((column, colIndex) => {
                 let cellData = row[column.title];
                 if (Array.isArray(cellData)) {
-                  cellData = cellData.join(", ");
+                  cellData = cellData.join(', ');
                 }
                 return (
-                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
+                  <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {editableRow === rowIndex ? (
                       column.type === 'file' ? (
                         <input
                           type="file"
-                          onChange={(e) => e.target.files && handleFileEdit(colIndex, e.target.files[0])}
-                          className="border-gray-300 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm"
+                          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                            handleFileEdit(colIndex, e.target.files![0])
+                          }
                         />
                       ) : (
                         <input
                           type={column.type}
                           value={editedData[column.title] || ''}
                           onChange={(e) => handleEdit(colIndex, e.target.value)}
-                          className="border-gray-300 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm"
                         />
                       )
                     ) : (
@@ -127,24 +127,20 @@ export const TableComponent: React.FC<TableProps> = ({ titles, data, onEdit, onC
               })}
               <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                 {editableRow === rowIndex ? (
-                  <div>
-                    <button
-                      onClick={() => saveEdit(rowIndex)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-2">
+                  <>
+                    <button onClick={() => saveEdit(rowIndex)} className="text-indigo-600 hover:text-indigo-900">
                       Save
                     </button>
-                    <button
-                      onClick={cancelEdit}
-                      className="text-gray-600 hover:text-gray-900">
+                    <button onClick={cancelEdit} className="text-red-600 hover:text-red-900 ml-4">
                       Cancel
                     </button>
-                  </div>
+                  </>
                 ) : (
-                  <button
-                    onClick={() => startEdit(rowIndex)}
-                    className="text-indigo-600 hover:text-indigo-900">
-                    Edit
-                  </button>
+                  <>
+                    <button onClick={() => startEdit(rowIndex)} className="text-indigo-600 hover:text-indigo-900">
+                      Edit
+                    </button>
+                  </>
                 )}
               </td>
             </tr>
@@ -152,46 +148,40 @@ export const TableComponent: React.FC<TableProps> = ({ titles, data, onEdit, onC
           {isCreating && (
             <tr>
               {titles.map((column, colIndex) => (
-                <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
+                <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {column.type === 'file' ? (
                     <input
                       type="file"
-                      onChange={(e) => e.target.files && handleFileCreate(colIndex, e.target.files[0])}
-                      className="border-gray-300 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        handleFileCreate(colIndex, e.target.files![0])
+                      }
                     />
                   ) : (
                     <input
                       type={column.type}
                       value={newRecordData[column.title] || ''}
                       onChange={(e) => handleCreate(colIndex, e.target.value)}
-                      className="border-gray-300 focus:ring-blue-500 focus:border-blue-500 block w-full rounded-md sm:text-sm"
                     />
                   )}
                 </td>
               ))}
               <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                <div>
-                  <button
-                    onClick={saveCreate}
-                    className="text-indigo-600 hover:text-indigo-900 mr-2">
-                    Save
-                  </button>
-                  <button
-                    onClick={cancelCreate}
-                    className="text-gray-600 hover:text-gray-900">
-                    Cancel
-                  </button>
-                </div>
+                <button onClick={saveCreate} className="text-indigo-600 hover:text-indigo-900">
+                  Save
+                </button>
+                <button onClick={cancelCreate} className="text-red-600 hover:text-red-900 ml-4">
+                  Cancel
+                </button>
               </td>
             </tr>
           )}
         </tbody>
       </table>
-      <button
-        onClick={startCreate}
-        className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
-        Create Record
-      </button>
+      {!isCreating && (
+        <button onClick={startCreate} className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded">
+          Add New
+        </button>
+      )}
     </div>
   );
 };

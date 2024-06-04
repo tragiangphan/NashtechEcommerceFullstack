@@ -5,5 +5,6 @@ interface ProductRequest {
   quantity: number,
   featureMode: string,
   categoryId: number,
-  suppliers: number[]
+  suppliers: number,
+  images: File[]
 }

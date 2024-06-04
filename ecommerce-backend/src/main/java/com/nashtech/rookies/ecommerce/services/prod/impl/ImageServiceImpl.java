@@ -6,6 +6,10 @@ import java.util.List;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageGetRequestParamsDTO;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.prod.responses.ImagePaginationDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageResponseDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageUploadResponse;
 import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
@@ -26,8 +31,6 @@ import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.services.CommonServiceImpl;
 import com.nashtech.rookies.ecommerce.services.prod.ImageService;
 import com.nashtech.rookies.ecommerce.utils.ImageUploadUtil;
-
-import jakarta.validation.constraints.NotBlank;
 
 @Service
 @Transactional(readOnly = true)
@@ -44,20 +47,28 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
     }
 
     @Transactional
-    public ImageResponseDTO createImage(String imagePathFile, MultipartFile multipartFile, ImageRequestDTO imgRequestDTO) {
+    public ImageResponseDTO createImage(String imagePathFile, MultipartFile multipartFile, Long productId,
+            String imageDesc) {
         String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
         long size = multipartFile.getSize();
 
         String filecode;
+
         try {
             filecode = ImageUploadUtil.saveFile(imagePathFile, fileName, multipartFile);
+
             ImageUploadResponse response = new ImageUploadResponse(
                     fileName, size, filecode + "-" + fileName);
+
             Image image = new Image(
                     imagePathFile + response.download(),
-                    imgRequestDTO.imageDesc(),
-                    productRepository.findById(imgRequestDTO.productId()).get());
+                    imageDesc,
+                    productRepository.findById(productId).get());
+            System.out.println("step6");
+
             image = imageRepository.saveAndFlush(image);
+            System.out.println("step7");
+
             return imageMapper.toResponseDTO(image);
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);
@@ -66,33 +77,44 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
 
     @Override
     public ResponseEntity<?> handleGetImage(ImageGetRequestParamsDTO requestParamsDTO) {
-        List<ImageResponseDTO> imageResponseDTOs;
+        ImagePaginationDTO imagePaginationDTOs;
         ImageResponseDTO imageResponseDTO;
 
         if (requestParamsDTO.id() != null) {
             imageResponseDTO = getImageById(requestParamsDTO.id());
             return ResponseEntity.ok(imageResponseDTO);
         } else if (requestParamsDTO.productId() != null) {
-            imageResponseDTOs = getImageByProductId(requestParamsDTO.productId());
-            return ResponseEntity.ok(imageResponseDTOs);
+            imagePaginationDTOs = getImageByProductId(requestParamsDTO.productId(), requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1,
+                    requestParamsDTO.pageSize());
+            return ResponseEntity.ok(imagePaginationDTOs);
         } else {
-            imageResponseDTOs = getImages();
-            return ResponseEntity.ok(imageResponseDTOs);
+            imagePaginationDTOs = getImages(
+                    requestParamsDTO.dir(),
+                    requestParamsDTO.pageNum() - 1,
+                    requestParamsDTO.pageSize());
+            return ResponseEntity.ok(imagePaginationDTOs);
         }
     }
 
-    public List<ImageResponseDTO> getImages() {
-        var images = imageRepository.findAll();
+    public ImagePaginationDTO getImages(Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Image> images = imageRepository.findAll(pageable);
         List<ImageResponseDTO> imageResponseDTOs = new ArrayList<>();
         images.forEach(image -> imageResponseDTOs.add(imageMapper.toResponseDTO(image)));
-        return imageResponseDTOs;
+        return new ImagePaginationDTO(images.getTotalPages(), images.getTotalElements(), images.getSize(),
+                images.getNumber(), imageResponseDTOs);
     }
 
-    public List<ImageResponseDTO> getImageByProductId(Long productId) {
-        var images = imageRepository.findAll();
+    public ImagePaginationDTO getImageByProductId(Long productId, Sort.Direction dir, int pageNum, int pageSize) {
+        Sort sort = Sort.by(dir, "id");
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+        Page<Image> images = imageRepository.findAllByProductId(productId, pageable);
         List<ImageResponseDTO> imageResponseDTOs = new ArrayList<>();
         images.forEach(image -> imageResponseDTOs.add(imageMapper.toResponseDTO(image)));
-        return imageResponseDTOs;
+        return new ImagePaginationDTO(images.getTotalPages(), images.getTotalElements(), images.getSize(),
+                images.getNumber(), imageResponseDTOs);
     }
 
     public ImageResponseDTO getImageById(Long id) {
@@ -105,8 +127,8 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
     }
 
     @Transactional
-    public ImageResponseDTO updateImage(Long id, String imagePathFile, MultipartFile multipartFile,
-            ImageRequestDTO imgRequestDTO) {
+    public ImageResponseDTO updateImage(Long id, String imagePathFile, MultipartFile multipartFile, Long productId,
+            String imageDesc) {
         if (imageRepository.existsById(id)) {
             Image image = imageRepository.findById(id).get();
             String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
@@ -119,14 +141,14 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
                 ImageUploadResponse response = new ImageUploadResponse(
                         fileName, size, filecode + "-" + fileName);
                 image.setImageLink(imagePathFile + response.download());
-                image.setImageDesc(imgRequestDTO.imageDesc());
-                if (productRepository.existsById(imgRequestDTO.productId())) {
-                    Product product = productRepository.findById(imgRequestDTO.productId()).get();
+                image.setImageDesc(imageDesc);
+                if (productRepository.existsById(productId)) {
+                    Product product = productRepository.findById(productId).get();
                     image.setProduct(product);
                     imageRepository.saveAndFlush(image);
                     return imageMapper.toResponseDTO(image);
                 } else {
-                    throw new NotFoundException("Not found Product with an id: " + id);
+                    throw new NotFoundException("Not found Product with an id: " + productId);
                 }
             } catch (IOException e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", e);

@@ -93,9 +93,9 @@ export const StoreComponent: React.FC<{}> = () => {
     <div className="products container mx-auto">
       <SearchComponent searchKeyword={handleSearch} />
       <TagComponent
-      tags={categories}
-      tagsChange={handleCategoryChange}
-    />
+        tags={categories}
+        tagsChange={handleCategoryChange}
+      />
       <ProductComponent prods={products} totalPage={totalElement}
         currentPage={pagination.currentPage} pageSize={pagination.pageSize} onPageChange={handlePageChange} />
     </div>

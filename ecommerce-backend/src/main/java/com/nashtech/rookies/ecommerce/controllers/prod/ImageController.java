@@ -6,6 +6,7 @@ import java.util.List;
 import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageGetRequestParamsDTO;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,25 +43,29 @@ public class ImageController {
     @PostMapping()
     ResponseEntity<ImageResponseDTO> uploadFile(
             @RequestParam("productId") Long productId,
-            @RequestParam("file") MultipartFile multipartFile,
-            @RequestHeader HttpHeaders headers,
-            @RequestBody ImageRequestDTO imageRequestDTO) {
-        return ResponseEntity.ok(imageService.createImage(imagePath, multipartFile, imageRequestDTO));
+            @RequestParam("imageDesc") String imageDesc,
+            @RequestParam("imageFile") MultipartFile multipartFile,
+            @RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(imageService.createImage(imagePath, multipartFile, productId, imageDesc));
     }
 
     @GetMapping()
-    public ResponseEntity<?> getImage(@RequestParam(name = "id", required = false) Long id,
-            @RequestParam(name = "productId", required = false) Long productId) {
-        return imageService.handleGetImage(new ImageGetRequestParamsDTO(id, productId));
+    public ResponseEntity<?> getImage(
+            @RequestParam(name = "id", required = false) Long id,
+            @RequestParam(name = "productId", required = false) Long productId,
+            @RequestParam(name = "direction", required = false) Sort.Direction dir,
+            @RequestParam(name = "pageNum", required = false) Integer pageNum,
+            @RequestParam(name = "pageSize", required = false) Integer pageSize) {
+        return imageService.handleGetImage(new ImageGetRequestParamsDTO(id, productId, dir, pageNum, pageSize));
     }
 
     @PutMapping()
     public ResponseEntity<ImageResponseDTO> updateProdImageById(
             @RequestParam("id") Long id,
             @RequestParam("productId") Long productId,
-            @RequestParam("file") MultipartFile multipartFile,
-            @RequestHeader HttpHeaders headers,
-            @RequestBody ImageRequestDTO imageRequestDTO) {
-        return ResponseEntity.ok(imageService.updateImage(id, imagePath, multipartFile, imageRequestDTO));
+            @RequestParam("imageDesc") String imageDesc,
+            @RequestParam("imageFile") MultipartFile multipartFile,
+            @RequestHeader HttpHeaders headers) {
+        return ResponseEntity.ok(imageService.updateImage(id, imagePath, multipartFile, productId, imageDesc));
     }
 }
