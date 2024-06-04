@@ -1,9 +1,8 @@
-// AdvancedTableComponent.tsx
-
 import React, { useState } from 'react';
 import { createProduct } from '../../../services/prod/ProductServices';
 import { getCategoryByCategoryName } from '../../../services/prod/CategoryServices';
 import { getSupplierBySupplierName } from '../../../services/prod/SupplierServices';
+import { createImage } from '../../../services/prod/ImageServices';
 
 type Column<T> = {
   header: string;
@@ -29,40 +28,52 @@ export const AdvancedTableComponent = <T,>({
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
 
   const onSaveModal = async (data: any) => {
-    // Save logic here
     console.log(data);
-    const cateRes = await getCategoryByCategoryName(data.categoryName);
-    console.log(cateRes.data);
-    const suppRes = await getSupplierBySupplierName(data.supplierName);
-    console.log(suppRes.data);
-    const prodRes = await createProduct({
-      productName: data.productName,
-      productDesc: data.productDesc,
-      unit: data.unit,
-      quantity: data.quantity,
-      featureMode: data.mode,
-      categoryId: cateRes.data.id,
-      suppliers: suppRes.data.id,
-      images: []
-    });
-    const imgRes = aw
-    console.log(prodRes.data);
-    // const prodData = prodRes.data;
-  }
+    try {
+      const categoryRes = await getCategoryByCategoryName(data.category);
+      console.log(categoryRes.data);
+      const supplierRes = await getSupplierBySupplierName(data.supplier);
+      console.log(supplierRes.data);
+      const tempSupp = [supplierRes.data.id];
+      const uploadProduct: ProductRequest = {
+        productName: data.productName,
+        productDesc: data.productDesc,
+        unit: data.unit,
+        price: data.price,
+        quantity: Number(data.quantity),
+        featureMode: data.featureMode,
+        categoryId: categoryRes.data.id,
+        suppliers: tempSupp
+      }
+      console.log(uploadProduct);
+      const createProdRes = await createProduct(uploadProduct);
+      console.log(createProdRes.data);
+      console.log(data.images);
+      data.images.map(async (image: File) => {
+        const formData = new FormData();
+        formData.append('imageFile', image);
+        formData.append('imageDesc', 'Image for ' + createProdRes.data.productName);
+        formData.append('productId', createProdRes.data.id);
 
-  const openCreateModal = () => {
-    setIsCreateModalOpen(true);
-  }
+        try {
+          const response = await createImage(formData);
+          const fileUrl = response.data.fileName;
+          console.log(fileUrl);
+        } catch (error) {
+          console.error('Error uploading file:', error);
+        }
+      })
+    } catch (error) {
+      console.error('Error saving product:', error);
+    }
+  };
 
-  const closeCreateModal = () => {
-    setIsCreateModalOpen(false);
-  }
-
+  const openCreateModal = () => setIsCreateModalOpen(true);
+  const closeCreateModal = () => setIsCreateModalOpen(false);
   const openEditModal = (row: T) => {
     setSelectedRow(row);
     setIsEditModalOpen(true);
   };
-
   const closeEditModal = () => {
     setSelectedRow(null);
     setIsEditModalOpen(false);
@@ -74,23 +85,11 @@ export const AdvancedTableComponent = <T,>({
         <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
           <div className="w-full md:w-1/2">
             <form className="flex items-center">
-              <label htmlFor="simple-search" className="sr-only">
-                Search
-              </label>
+              <label htmlFor="simple-search" className="sr-only">Search</label>
               <div className="relative w-full">
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <svg
-                    aria-hidden="true"
-                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clipRule="evenodd"
-                    />
+                  <svg aria-hidden="true" className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                   </svg>
                 </div>
                 <input
@@ -98,7 +97,7 @@ export const AdvancedTableComponent = <T,>({
                   id="simple-search"
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                   placeholder="Search"
-                  required={true}
+                  required
                 />
               </div>
             </form>
@@ -109,17 +108,8 @@ export const AdvancedTableComponent = <T,>({
               onClick={openCreateModal}
               className="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
             >
-              <svg
-                className="h-3.5 w-3.5 mr-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  clipRule="evenodd"
-                  fillRule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                />
+              <svg className="h-3.5 w-3.5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path clipRule="evenodd" fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" />
               </svg>
               Add product
             </button>
@@ -130,22 +120,16 @@ export const AdvancedTableComponent = <T,>({
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 {columns.map((column, index) => (
-                  <th key={index} scope="col" className="px-4 py-3">
-                    {column.header}
-                  </th>
+                  <th key={index} scope="col" className="px-4 py-3">{column.header}</th>
                 ))}
-                <th scope="col" className="px-4 py-3">
-                  <span className="sr-only">Actions</span>
-                </th>
+                <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th>
               </tr>
             </thead>
             <tbody>
               {data.map((row, rowIndex) => (
                 <tr key={rowIndex} className="border-b dark:border-gray-700">
                   {columns.map((column, colIndex) => (
-                    <td key={colIndex} className="px-4 py-3">
-                      {column.accessor(row)}
-                    </td>
+                    <td key={colIndex} className="px-4 py-3">{column.accessor(row)}</td>
                   ))}
                   <td className="px-4 py-3 flex items-center justify-end">
                     <button
@@ -154,22 +138,8 @@ export const AdvancedTableComponent = <T,>({
                       type="button"
                       onClick={() => openEditModal(row)}
                     >
-                      <svg
-                        className="w-6 h-6"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
-                        />
+                      <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
                       </svg>
                     </button>
                   </td>
@@ -193,7 +163,7 @@ export const AdvancedTableComponent = <T,>({
               aria-labelledby="modal-headline"
             >
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <EditModal row={selectedRow} closeModal={closeEditModal} onSave={() => onSaveModal} />
+                <EditModal row={selectedRow} closeModal={closeEditModal} onSave={onSaveModal} />
               </div>
             </div>
           </div>
@@ -213,7 +183,7 @@ export const AdvancedTableComponent = <T,>({
               aria-labelledby="modal-headline"
             >
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <CreateModal closeModal={closeCreateModal} onSave={() => onSaveModal} />
+                <CreateModal closeModal={closeCreateModal} onSave={onSaveModal} />
               </div>
             </div>
           </div>

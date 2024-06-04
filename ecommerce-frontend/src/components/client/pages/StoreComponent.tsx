@@ -30,7 +30,8 @@ export const StoreComponent: React.FC<{}> = () => {
 
   const getCategories = () => {
     getAllCategory(pagination).then((res) => {
-      const cates: string[] = res.data.map((cate: Category) => cate.categoryName);
+      console.log(res.data);
+      const cates: string[] = res.data.categoryResponseDTOs.map((cate: Category) => cate.categoryName);
       setCategories(['All Categories', ...cates]);
     }).catch((error) => {
       console.error(error);

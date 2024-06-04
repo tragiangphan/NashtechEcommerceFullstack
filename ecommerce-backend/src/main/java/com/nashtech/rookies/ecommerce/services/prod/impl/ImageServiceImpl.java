@@ -53,7 +53,6 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
         long size = multipartFile.getSize();
 
         String filecode;
-
         try {
             filecode = ImageUploadUtil.saveFile(imagePathFile, fileName, multipartFile);
 
@@ -61,7 +60,7 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
                     fileName, size, filecode + "-" + fileName);
 
             Image image = new Image(
-                    imagePathFile + response.download(),
+                    "/src/main/resources/images/" + response.download(),
                     imageDesc,
                     productRepository.findById(productId).get());
             System.out.println("step6");

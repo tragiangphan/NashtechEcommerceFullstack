@@ -1,4 +1,4 @@
-app.image.folder: 'C:\Users\tragi\OneDrive - famifox\Technique\Project\NashtechEcommerceFullstack\ecommerce-backend\src\main\resources\images'
+app.image.folder: 'C:\Users\tragi\OneDrive - famifox\Technique\Project\NashtechEcommerceFullstack\ecommerce-backend\src\main\resources\static\'
 JWT_SECRET: deri de mouse
 
 spring:

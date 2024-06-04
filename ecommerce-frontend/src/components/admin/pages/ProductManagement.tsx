@@ -24,7 +24,7 @@ export const ProductManagement: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [pagination]);
+  }, [pagination, totalElement]);
 
   const fetchProducts = async () => {
     try {
@@ -57,10 +57,10 @@ export const ProductManagement: React.FC = () => {
     { header: 'ID', accessor: (row: ProductResponse) => row.id, width: '5%' },
     { header: 'Product Name', accessor: (row: ProductResponse) => row.productName, width: '30%' },
     { header: 'Description', accessor: (row: ProductResponse) => row.productDesc, width: '30%' },
-    { header: 'Unit', accessor: (row: ProductResponse) => row.price, width: '5%' },
+    { header: 'Unit', accessor: (row: ProductResponse) => row.unit, width: '5%' },
     { header: 'Price', accessor: (row: ProductResponse) => row.price, width: '5%' },
-    { header: 'Quantity', accessor: (row: ProductResponse) => row.price, width: '5%' },
-    { header: 'Feature Mode', accessor: (row: ProductResponse) => row.price, width: '10%' },
+    { header: 'Quantity', accessor: (row: ProductResponse) => row.quantity, width: '5%' },
+    { header: 'Feature Mode', accessor: (row: ProductResponse) => row.featureMode, width: '10%' },
     { header: 'Category', accessor: (row: ProductResponse) => row.categoryId, width: '10%' },
     { header: 'Supplier', accessor: (row: ProductResponse) => row.suppliers, width: '10%' },
     { header: 'Images', accessor: (row: ProductResponse) => row.images, width: '30%' },
