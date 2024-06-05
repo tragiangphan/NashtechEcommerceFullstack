@@ -7,7 +7,7 @@ export const HeaderComponent: React.FC<{}> = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [showButton, setShowButton] = useState(false);
   const [user, setUser] = useState<User>();
-  const [cookies, setCookies, removeCookies] = useCookies(['username', 'accessToken'])
+  const [cookies, setCookies, removeCookies] = useCookies(['username', 'accessToken', 'roleId'])
   const location = useLocation();
   const navigator = useNavigate();
 
@@ -35,9 +35,9 @@ export const HeaderComponent: React.FC<{}> = () => {
   const handleLogOut = () => {
     removeCookies('username');
     removeCookies('accessToken');
+    removeCookies('roleId');
     setShowButton(true);
     navigator(`/`);
-    localStorage.removeItem('username');
     localStorage.removeItem('userData');
     localStorage.removeItem('productDetail');
   }

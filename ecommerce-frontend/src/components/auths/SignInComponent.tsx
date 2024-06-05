@@ -7,11 +7,13 @@ import { getUserByUsername } from "../../services/user/UserServices";
 import { Infor } from "../../models/user/entity/Infor";
 import { User } from "../../models/user/entity/User";
 import { PaginationModel } from "../../models/commons/PaginationModel";
+import { message } from "antd";
 
 export const SignInComponent: React.FC<{}> = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const [cookies, setCookies] = useCookies(['username', 'accessToken'])
+  const [cookies, setCookies] = useCookies(['username', 'roleId', 'accessToken']);
+  const [messageApi, contextHolder] = message.useMessage();
   const [pagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
@@ -22,17 +24,6 @@ export const SignInComponent: React.FC<{}> = () => {
 
   useEffect(() => {
     fetchUserData();
-    const userData = localStorage.getItem('userData');
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      if (parsedUser.roleId === 1) {
-        console.log(parsedUser.roleId);
-        navigator('/admin');
-      } else {
-        console.log(parsedUser.roleId);
-        navigator('/home');
-      }
-    }
   }, [cookies.username, navigator]);
 
   const fetchUserData = async () => {
@@ -42,7 +33,11 @@ export const SignInComponent: React.FC<{}> = () => {
         console.log(JSON.stringify(user));
         if (user) {
           localStorage.setItem('userData', JSON.stringify(user));
-          localStorage.setItem('username', cookies.username);
+          if (cookies.roleId == 1) {
+            navigator('/admin');
+          } else {
+            navigator('/home');
+          }
         } else {
           console.error('User not found');
         }
@@ -126,41 +121,37 @@ export const SignInComponent: React.FC<{}> = () => {
 
   const handleSignIn = async (event: FormEvent) => {
     event.preventDefault();
-    if (emailRef.current && passwordRef.current) {
-      const signInData = {
-        email: emailRef.current.value,
-        password: passwordRef.current.value,
-      };
+    messageApi
+      .open({
+        type: 'loading',
+        content: 'Checking sign in...',
+        // duration: 2.5,
+      })
+      .then(async () => {
+        const signInData = {
+          email: emailRef.current?.value ?? '',
+          password: passwordRef.current?.value ?? '',
+        };
 
-      try {
         const res = await signIn(signInData);
-        setCookies('username', res.data?.username);
-        setCookies('accessToken', res.data?.accessToken);
-
-        const user = await fetchUser(res.data?.username);
-        if (user) {
-          localStorage.setItem('userData', JSON.stringify(user));
-          localStorage.setItem('username', res.data?.username);
-
-          if (user.roleId === 1) {
-            navigator('/admin');
-          } else {
-            navigator('/home');
-          }
+        console.log(res.data);
+        if (res.status == 200 || res.status == 201) {
+          setCookies('username', res.data?.username);
+          setCookies('roleId', res.data?.roleId);
+          setCookies('accessToken', res.data?.accessToken);
+          message.success('Sign in successful', 2);
         } else {
-          console.error('User not found');
+          console.log(res);
+          message.error(res.statusText)
         }
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
-      console.error("Email or password ref is not assigned");
-    }
+      })
+
   };
 
   return (
     <div className="flex justify-center items-center h-dvh">
       <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+        {contextHolder}
         <form onSubmit={handleSignIn} className="space-y-6" action="#">
           <h5 className="text-xl font-medium text-gray-900 dark:text-white">Sign in to our platform</h5>
           <div>
@@ -171,16 +162,7 @@ export const SignInComponent: React.FC<{}> = () => {
             <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your password</label>
             <input ref={passwordRef} type="password" name="password" id="password" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required />
           </div>
-          {/* <div className="flex items-start">
-            <div className="flex items-start">
-              <div className="flex items-center h-5">
-                <input id="remember" type="checkbox" value="" className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" required />
-              </div>
-              <label htmlFor="remember" className="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
-            </div>
-            <a href="#" className="ms-auto text-sm text-blue-700 hover:underline dark:text-blue-500">Lost Password?</a>
-          </div> */}
-          <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Register your account</button>
+          <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Log in your account</button>
           <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
             Not registered? <a href="#" className="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
           </div>

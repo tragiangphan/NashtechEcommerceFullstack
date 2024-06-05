@@ -223,11 +223,13 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
         }
     }
 
+    
+
     @Override
     public Map<String, String> generateToken(Authentication authenticationManager) {
         // Generated token
-        var accessToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 2);
-        var refreshToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 24);
+        var accessToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 10);
+        var refreshToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 10);
         return Map.of("access_token", accessToken, "refresh_token", refreshToken);
     }
 

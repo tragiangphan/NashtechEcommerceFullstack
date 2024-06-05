@@ -4,12 +4,14 @@ import com.nashtech.rookies.ecommerce.configs.RestVersionConfig;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignInRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.requests.SignUpRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.user.responses.AuthResponseTokenDTO;
+import com.nashtech.rookies.ecommerce.handlers.utils.ErrorResponse;
 import com.nashtech.rookies.ecommerce.models.user.User;
 import com.nashtech.rookies.ecommerce.services.user.UserService;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,10 +40,9 @@ public class AuthController {
         return ResponseEntity.ok(newUser);
     }
 
-    @PostMapping(path = "/signIn", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
-            MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<AuthResponseTokenDTO> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO,
-            HttpServletResponse httpResponse) {
+    @PostMapping("/signIn")
+    public ResponseEntity<?> authSignIn(@RequestBody @Valid SignInRequestDTO signInRequestDTO,
+            HttpServletResponse httpResponse) throws AuthenticationException {
         try {
             // Authenticate this user
             String username = signInRequestDTO.email().split("@")[0] + "_"
@@ -50,12 +51,16 @@ public class AuthController {
                     username,
                     signInRequestDTO.password());
             Authentication authUser = authenticationManager.authenticate(usernamePassword);
+            User user = userService.loadUserByUsername(username);
 
-            return ResponseEntity.ok(new AuthResponseTokenDTO(username,
+            return ResponseEntity.ok(new AuthResponseTokenDTO(username, user.getRole().getId(),
                     userService.generateToken(authUser).get("access_token"),
                     userService.generateToken(authUser).get("refresh_token")));
         } catch (AuthenticationException e) {
-            throw new BadCredentialsException("Bad credentials", e);
+            // Handle AuthenticationException with appropriate status code and message
+            httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value()); // Set status code to 401 (Unauthorized)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse("Invalid credentials", e.getMessage()));
         }
     }
 

@@ -1,6 +1,6 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import './App.css'
-import { HomeComponent } from './components/client/pages/HomeComponent'
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import './App.css';
+import { HomeComponent } from './components/client/pages/HomeComponent';
 import { HeaderComponent } from './components/commons/HeaderComponent';
 import { FooterComponent } from './components/commons/FooterComponent';
 import { StoreComponent } from './components/client/pages/StoreComponent';
@@ -11,6 +11,8 @@ import { UserDetailComponent } from './components/client/features/UserDetailComp
 import { DashboardComponent } from './components/admin/pages/DashboardComponent';
 import { SignUpComponent } from './components/auths/SignUpComponent';
 import 'flowbite/dist/flowbite.min.css';
+import { PermissionCheck } from './components/commons/PermissionCheck';
+import { ErrorComponent } from './components/commons/ErrorComponent';
 
 function App() {
   return (
@@ -24,20 +26,27 @@ function App() {
             <Route path="/sign_up" element={<SignUpComponent />} />
 
             {/* client */}
-            <Route path="/home" element={<HomeComponent />} />
-            <Route path="/store" element={<StoreComponent />} />
-            <Route path="/store/:productName" element={<DetailComponent />} />
-            <Route path="/about" element={<AboutComponent />} />
-            <Route path="/:username" element={<UserDetailComponent />} />
+            <Route element={<PermissionCheck requiredRole={2} />}>
+              <Route path="/home" element={<HomeComponent />} />
+              <Route path="/store" element={<StoreComponent />} />
+              <Route path="/store/:productName" element={<DetailComponent />} />
+              <Route path="/about" element={<AboutComponent />} />
+              <Route path="/:username" element={<UserDetailComponent />} />
+            </Route>
 
             {/* admin */}
-            <Route path="/admin" element={<DashboardComponent />} />
+            <Route element={<PermissionCheck requiredRole={1} />}>
+              <Route path="/admin" element={<DashboardComponent />} />
+            </Route>
+
+            {/* forbidden */}
+            <Route path="/403" element={<ErrorComponent code={403} message={"Sorry, you are not authorized to access this page."} />} />
           </Routes>
         </div>
         <FooterComponent />
       </BrowserRouter>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

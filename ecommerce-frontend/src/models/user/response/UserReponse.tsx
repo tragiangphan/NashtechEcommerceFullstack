@@ -7,9 +7,9 @@ export type UserResponse = {
   password: string,
   phoneNo: string,
   activeMode: string,
-  roleId: 2,
-  inforId: 1,
-  cartId: 1,
+  roleId: number,
+  inforId: number,
+  cartId: number,
   orders: number[],
   ratings: number[]
 }

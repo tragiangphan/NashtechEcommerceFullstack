@@ -18,7 +18,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.nashtech.rookies.ecommerce.dto.prod.requests.ImageRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImagePaginationDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageResponseDTO;
 import com.nashtech.rookies.ecommerce.dto.prod.responses.ImageUploadResponse;
@@ -60,7 +59,7 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
                     fileName, size, filecode + "-" + fileName);
 
             Image image = new Image(
-                    "/src/main/resources/images/" + response.download(),
+                    "/images/" + response.download(),
                     imageDesc,
                     productRepository.findById(productId).get());
             System.out.println("step6");

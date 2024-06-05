@@ -1,6 +1,7 @@
 package com.nashtech.rookies.ecommerce.services.prod.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -8,7 +9,6 @@ import java.util.*;
 import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
 import com.nashtech.rookies.ecommerce.models.constants.FeatureModeEnum;
 import com.nashtech.rookies.ecommerce.models.prod.Category;
-import com.nashtech.rookies.ecommerce.models.prod.Image;
 import com.nashtech.rookies.ecommerce.models.prod.Product;
 import com.nashtech.rookies.ecommerce.models.prod.Supplier;
 
@@ -29,7 +29,7 @@ import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
 import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;
 
 @ExtendWith(MockitoExtension.class)
-//@SpringBootTest
+// @SpringBootTest
 class ProductServiceImplTest {
 
     @Mock
@@ -86,6 +86,14 @@ class ProductServiceImplTest {
 
         assertNotNull(responseDTO);
         assertEquals(product.getId(), responseDTO.id());
+        assertEquals(product.getProductName(), responseDTO.productName());
+        assertEquals(product.getProductDesc(), responseDTO.productDesc());
+        assertEquals(product.getPrice(), responseDTO.price());
+        assertEquals(product.getQuantity(), responseDTO.quantity());
+        assertEquals(product.getUnit(), responseDTO.unit());
+        assertEquals(product.getPrice(), responseDTO.price());
+        assertEquals(product.getPrice(), responseDTO.price());
+        assertEquals(product.getFeatureMode(), responseDTO.featureMode());
         verify(productRepository, times(1)).saveAndFlush(any(Product.class));
     }
 
@@ -119,24 +127,24 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).findAll(any(Pageable.class));
     }
 
-    // @Test
-    // void testGetProductsById_Success() {
-    //     when(productRepository.existsById(1L)).thenReturn(true);
-    //     when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-    //     Page<Product> products = new PageImpl<>(Collections.singletonList(product));
-    //     when(productRepository.findAll(any(Pageable.class))).thenReturn(products);
+    @Test
+    void testGetProductsById_Success() {
+        when(productRepository.existsById(1L)).thenReturn(true);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        Page<Product> products = new PageImpl<>(Collections.singletonList(product));
+        when(productRepository.findAll(any(Pageable.class))).thenReturn(products);
 
-    //     ProductPaginationDTO responseDTO = productService.getProducts(1L);
+        ProductResponseDTO responseDTO = productService.getProductById(1L);
 
-    //     assertNotNull(responseDTO);
-    //     assertEquals(1, responseDTO.totalElement());
-    // }
+        assertNotNull(responseDTO);
+        assertEquals(1, responseDTO.id());
+    }
 
     // @Test
     // void testGetProductsById_NotFound() {
-    //     when(productRepository.existsById(1L)).thenReturn(false);
+    // when(productRepository.existsById(1L)).thenReturn(false);
 
-    //     assertThrows(NotFoundException.class, () -> productService.getProducts(1L));
+    // assertThrows(NotFoundException.class, () -> productService.getProducts(1L));
     // }
 
     @Test
@@ -150,14 +158,15 @@ class ProductServiceImplTest {
         supplier.setId(1L);
         suppliers.add(supplier);
 
-        ProductRequestDTO updateRequestDTO = new ProductRequestDTO("Updated Product Name", "Updated Product Description",
+        ProductRequestDTO updateRequestDTO = new ProductRequestDTO("Updated Product Name",
+                "Updated Product Description",
                 "Updated Unit", 200L,
                 20L, FeatureModeEnum.FEATURED, 1L, Set.of());
 
         when(productRepository.existsById(1L)).thenReturn(true);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
-        when(categoryRepository.existsById(productRequestDTO.categoryId())).thenReturn(true);
-        when(categoryRepository.findById(productRequestDTO.categoryId())).thenReturn(Optional.of(category));
+        when(categoryRepository.existsById(updateRequestDTO.categoryId())).thenReturn(true);
+        when(categoryRepository.findById(updateRequestDTO.categoryId())).thenReturn(Optional.of(category));
         when(supplierRepository.existsById(1L)).thenReturn(true);
         when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
         when(productRepository.saveAndFlush(any(Product.class))).thenReturn(product);
@@ -167,7 +176,6 @@ class ProductServiceImplTest {
 
         // Assert
         assertNotNull(responseDTO);
-        assertEquals(product.getId(), responseDTO.id());
         assertEquals("Updated Product Name", responseDTO.productName());
         assertEquals("Updated Product Description", responseDTO.productDesc());
         assertEquals("Updated Unit", responseDTO.unit());

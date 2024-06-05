@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { PaginationModel } from '../../../models/commons/PaginationModel';
-import { TableComponent } from '../features/TableComponent';
 import { Pagination } from 'antd';
-import { updateCategory } from '../../../services/prod/CategoryServices';
+import { AdvancedTableComponent } from '../features/AdvancedTableComponent';
+import { Mode } from '../../../models/utils/ModeEnum';
 import { UserResponse } from '../../../models/user/response/UserReponse';
-import { createUser, getAllUser } from '../../../services/user/UserServices';
+import { getAllUser } from '../../../services/user/UserServices';
+import { UserModal } from '../features/UserModal';
+import { Status } from '../../../models/utils/StatusEnum';
 
 export const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<UserResponse[]>([]);
+  const [status, setStatus] = useState<boolean>(false);
   const [totalElement, setTotalElement] = useState(0);
-  const [updateUsers, setUpdateUsers] = useState();
   const [pagination, setPagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
@@ -18,72 +20,61 @@ export const UserManagement: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [pagination, updateUsers]);
+  }, [pagination, totalElement, status]);
 
   const fetchUsers = async () => {
     try {
-      const res = await getAllUser(pagination);
-      setUsers(res.data.users);
-      setTotalElement(res.data.totalElement);
+      const resProd = await getAllUser(pagination);
+      console.log(resProd.data);
+
+      setUsers(resProd.data.users);
+      setTotalElement(resProd.data.totalElement);
     } catch (error) {
-      console.error('Error fetching category:', error);
+      console.error('Error fetching products:', error);
     }
   };
 
-  const titles = [
-    { title: 'id', type: 'number' },
-    { title: 'firstName', type: 'text' },
-    { title: 'lastName', type: 'text' },
-    { title: 'email', type: 'text' },
-    { title: 'phoneNo', type: 'text' },
-    { title: 'username', type: 'text' },
-    { title: 'activeMode', type: 'text' },
-    { title: 'inforId', type: 'number' },
+  const columns = [
+    { header: 'ID', accessor: (row: UserResponse) => row.id, width: '5%' },
+    { header: 'First Name', accessor: (row: UserResponse) => row.firstName, width: '15%' },
+    { header: 'Last Name', accessor: (row: UserResponse) => row.lastName, width: '15%' },
+    { header: 'Email', accessor: (row: UserResponse) => row.email, width: '40%' },
+    { header: 'Username', accessor: (row: UserResponse) => row.username, width: '40%' },
+    { header: 'Active Mode', accessor: (row: UserResponse) => row.activeMode, width: '5%' },
+    { header: 'Phone No.', accessor: (row: UserResponse) => row.phoneNo, width: '10%' },
+    { header: 'Role', accessor: (row: UserResponse) => row.roleId, width: '5%' },
+    // { header: 'Address', accessor: (row: SupplierResponse) => row.address, width: '40%' },
+    // { header: 'Ward', accessor: (row: SupplierResponse) => row.ward, width: '40%' },
+    // { header: 'City', accessor: (row: SupplierResponse) => row.city, width: '40%' },
+    // { header: 'Country', accessor: (row: SupplierResponse) => row.country, width: '40%' },
+    // { header: 'Postal Code', accessor: (row: SupplierResponse) => row.postalCode, width: '40%' },
   ];
-
-  const handleSaveEdit = async (rowIndex: number, editedData: any) => {
-    try {
-      console.log(editedData);
-      const res = await updateCategory(rowIndex + 1, editedData);
-      console.log(res.data);
-      setUpdateUsers(res.data);
-      console.log("Category updated successfully");
-      const updatedUser = users.map(user => {
-        if (user.id === rowIndex) {
-          return { ...user, ...editedData};
-        }
-        return user;
-      });
-      setUsers(updatedUser);
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
-  };
-
-  const handleCreate = async (newData: any) => {
-    try {
-      const res = await createUser(newData);
-      console.log("Category created successfully", res.data);
-      setUpdateUsers(res.data);
-      fetchUsers(); // Refresh the category list
-    } catch (error) {
-      console.error('Error creating category:', error);
-    }
-  };
 
   const onPageChange = (page: number, size: number) => {
     setPagination({ ...pagination, currentPage: page, pageSize: size });
-  }
-
-  const handleFileChange = async () => {
-    console.log("");
   };
+
+  const handleStatusCode = (statusCode: Status) => {
+    if (statusCode == Status.SUCCESS) {
+      setStatus((s) => !s);
+    }
+  }
 
   return (
     <div>
-      <TableComponent titles={titles} data={users} onEdit={handleSaveEdit} onCreate={handleCreate} onFileChange={handleFileChange} />
-      <Pagination className='my-10 mx-auto' onChange={(page, size) => { onPageChange(page, size) }}
-        current={pagination.currentPage} total={totalElement} pageSize={pagination.pageSize} />
+      <AdvancedTableComponent
+        data={users}
+        columns={columns}
+        dataType={'User'}
+        editModal={({ row, closeModal, onSave }) => <UserModal row={row} closeModal={closeModal} onSave={onSave} mode={Mode[Mode.EDIT]} />}
+        createModal={({ closeModal, onSave }) => <UserModal row={[]} closeModal={closeModal} onSave={onSave} mode={Mode[Mode.CREATE]} />} statusCode={handleStatusCode} />
+      <Pagination
+        className="my-10 mx-auto"
+        onChange={(page, size) => onPageChange(page, size)}
+        current={pagination.currentPage}
+        total={totalElement}
+        pageSize={pagination.pageSize}
+      />
     </div>
   );
 };
