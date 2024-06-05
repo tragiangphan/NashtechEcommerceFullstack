@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { createProduct } from '../../../services/prod/ProductServices';
-import { getCategoryByCategoryName } from '../../../services/prod/CategoryServices';
-import { getSupplierBySupplierName } from '../../../services/prod/SupplierServices';
+import { createProduct, updateProduct } from '../../../services/prod/ProductServices';
+import { createCategory, getCategoryByCategoryName, updateCategory } from '../../../services/prod/CategoryServices';
+import { createSupplier, getSupplierBySupplierName, updateSupplier } from '../../../services/prod/SupplierServices';
 import { createImage } from '../../../services/prod/ImageServices';
+import { message } from 'antd';
+import { CategoryRequest } from '../../../models/prod/request/CategoryRequest';
+import { SupplierRequest } from '../../../models/prod/request/SupplierRequest';
+import { UserRequest } from '../../../models/user/request/UserRequest';
+import { createUser, updateUser } from '../../../services/user/UserServices';
+import { Status } from '../../../models/utils/StatusEnum';
 
 type Column<T> = {
   header: string;
@@ -12,61 +18,317 @@ type Column<T> = {
 
 type AdvancedTableComponentProps<T> = {
   data: T[];
+  dataType: string,
+  statusCode: (status: Status) => void,
   columns: Column<T>[];
-  createModal: React.FC<{ closeModal: () => void, onSave: () => void }>;
-  editModal: React.FC<{ row: T; closeModal: () => void, onSave: () => void }>;
+  createModal: React.FC<{ closeModal: () => void, onSave: (data: any) => Promise<void> }>;
+  editModal: React.FC<{ row: T; closeModal: () => void, onSave: (data: any) => Promise<void> }>;
 };
 
 export const AdvancedTableComponent = <T,>({
   data,
   columns,
+  dataType,
+  statusCode,
   createModal: CreateModal,
   editModal: EditModal,
 }: AdvancedTableComponentProps<T>) => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<T | null>(null);
 
-  const onSaveModal = async (data: any) => {
+  const onSaveModal = async (data: any): Promise<void> => {
     console.log(data);
-    try {
-      const categoryRes = await getCategoryByCategoryName(data.category);
-      console.log(categoryRes.data);
-      const supplierRes = await getSupplierBySupplierName(data.supplier);
-      console.log(supplierRes.data);
-      const tempSupp = [supplierRes.data.id];
-      const uploadProduct: ProductRequest = {
-        productName: data.productName,
-        productDesc: data.productDesc,
-        unit: data.unit,
-        price: data.price,
-        quantity: Number(data.quantity),
-        featureMode: data.featureMode,
-        categoryId: categoryRes.data.id,
-        suppliers: tempSupp
-      }
-      console.log(uploadProduct);
-      const createProdRes = await createProduct(uploadProduct);
-      console.log(createProdRes.data);
-      console.log(data.images);
-      data.images.map(async (image: File) => {
-        const formData = new FormData();
-        formData.append('imageFile', image);
-        formData.append('imageDesc', 'Image for ' + createProdRes.data.productName);
-        formData.append('productId', createProdRes.data.id);
-
-        try {
-          const response = await createImage(formData);
-          const fileUrl = response.data.fileName;
-          console.log(fileUrl);
-        } catch (error) {
-          console.error('Error uploading file:', error);
+    if (dataType == 'Product') {
+      try {
+        const categoryRes = await getCategoryByCategoryName(encodeURIComponent(data.category));
+        console.log(categoryRes.data);
+        const supplierRes = await getSupplierBySupplierName(data.supplier);
+        console.log(supplierRes.data);
+        const tempSupp = [supplierRes.data.id];
+        const uploadProduct: ProductRequest = {
+          productName: data.productName,
+          productDesc: data.productDesc,
+          unit: data.unit,
+          price: data.price,
+          quantity: Number(data.quantity),
+          featureMode: data.featureMode,
+          categoryId: categoryRes.data.id,
+          suppliers: tempSupp
         }
-      })
-    } catch (error) {
-      console.error('Error saving product:', error);
+        console.log(uploadProduct);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Creating new product...',
+            // duration: 2.5,
+          })
+          .then(async () => {
+            const createProdRes = await createProduct(uploadProduct);
+            if (createProdRes.status == 201 || createProdRes.status == 200) {
+              console.log(createProdRes.data);
+              console.log(data.images);
+              const imageRes = data.images.map(async (image: File) => {
+                const formData = new FormData();
+                formData.append('imageFile', image);
+                formData.append('imageDesc', 'Image for ' + createProdRes.data.productName);
+                formData.append('productId', createProdRes.data.id);
+
+                try {
+                  const response = await createImage(formData);
+                  const fileUrl = response.data.fileName;
+                  console.log(fileUrl);
+                  statusCode(Status.SUCCESS)
+                  return response.data;
+                } catch (error) {
+                  console.error('Error uploading file:', error);
+                }
+              })
+              if (imageRes) {
+                message.success('Create new product successful')
+              }
+            } else {
+              message.error('Create new product failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving product:', error);
+      }
+    } else if (dataType == 'Category') {
+      try {
+        const uploadCategory: CategoryRequest = {
+          categoryName: data.categoryName,
+          categoryDesc: data.categoryDesc,
+          activeMode: data.activeMode
+        }
+        console.log(uploadCategory);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Creating new category...',
+          })
+          .then(async () => {
+            const createCateRes = await createCategory(uploadCategory);
+            if (createCateRes.status == 201 || createCateRes.status == 200) {
+              console.log(createCateRes.data);
+              message.success('Create new category successful')
+            } else {
+              message.error('Create new category failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving category:', error);
+      }
+    } else if (dataType == 'Supplier') {
+      try {
+        const uploadSupplier: SupplierRequest = {
+          supplierName: data.supplierName,
+          activeMode: data.activeMode,
+          phoneNo: data.phoneNo,
+          email: data.email,
+          address: data.address,
+          street: data.street,
+          ward: data.ward,
+          city: data.city,
+          country: data.country,
+          postalCode: data.postalCode,
+        }
+        console.log(uploadSupplier);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Creating new Supplier...',
+          })
+          .then(async () => {
+            const createCateRes = await createSupplier(uploadSupplier);
+            if (createCateRes.status == 201 || createCateRes.status == 200) {
+              console.log(createCateRes.data);
+              message.success('Create new Supplier successful')
+            } else {
+              message.error('Create new Supplier failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving Supplier:', error);
+      }
+    } else {
+      try {
+        const uploadUser: UserRequest = {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+          phoneNo: data.phoneNo,
+          activeMode: data.activeMode,
+          roleId: 1
+        }
+        console.log(uploadUser);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Creating new User...',
+          })
+          .then(async () => {
+            const createUserRes = await createUser(uploadUser);
+            if (createUserRes.status == 201 || createUserRes.status == 200) {
+              console.log(createUserRes.data);
+              message.success('Create new User successful')
+            } else {
+              message.error('Create new User failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving User:', error);
+      }
     }
   };
+
+  const onUpdateModal = async (data: any): Promise<void> => {
+    console.log(data);
+    if (dataType == 'Product') {
+      try {
+        const categoryRes = await getCategoryByCategoryName(encodeURIComponent(data.category));
+        console.log(categoryRes.data);
+        const supplierRes = await getSupplierBySupplierName(data.supplier);
+        console.log(supplierRes.data);
+        const tempSupp = [supplierRes.data.id];
+        const updatedProduct: ProductRequest = {
+          productName: data.productName,
+          productDesc: data.productDesc,
+          unit: data.unit,
+          price: data.price,
+          quantity: Number(data.quantity),
+          featureMode: data.featureMode,
+          categoryId: categoryRes.data.id,
+          suppliers: tempSupp
+        }
+        console.log(updatedProduct);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Updating product...',
+            // duration: 2.5,
+          })
+          .then(async () => {
+            const updateProdRes = await updateProduct(data.id, updatedProduct);
+            if (updateProdRes.status == 201 || updateProdRes.status == 200) {
+              console.log(updateProdRes.data);
+              console.log(data.images);
+              const imageRes = data.images.map(async (image: File) => {
+                const formData = new FormData();
+                formData.append('imageFile', image);
+                formData.append('imageDesc', 'Image for ' + updateProdRes.data.productName);
+                formData.append('productId', updateProdRes.data.id);
+
+                try {
+                  const response = await createImage(formData);
+                  const fileUrl = response.data.fileName;
+                  console.log(fileUrl);
+                  statusCode(Status.SUCCESS);
+                  return response.data;
+                } catch (error) {
+                  console.error('Error updating file:', error);
+                }
+              })
+              if (imageRes) {
+                message.success('Update product successful')
+              }
+            } else {
+              message.error('Update product failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving product:', error);
+      }
+    } else if (dataType == 'Category') {
+      try {
+        const updatedCategory: CategoryRequest = {
+          categoryName: data.categoryName,
+          categoryDesc: data.categoryDesc,
+          activeMode: data.activeMode
+        }
+        console.log(updatedCategory);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Updating category...',
+          })
+          .then(async () => {
+            const updateCateRes = await updateCategory(data.id, updatedCategory);
+            if (updateCateRes.status == 201 || updateCateRes.status == 200) {
+              console.log(updateCateRes.data);
+              message.success('Updating category successful')
+            } else {
+              message.error('Updating category failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving category:', error);
+      }
+    } else if (dataType == 'Supplier') {
+      try {
+        const updatedSupplier: SupplierRequest = {
+          supplierName: data.supplierName,
+          activeMode: data.activeMode,
+          phoneNo: data.phoneNo,
+          email: data.email,
+          address: data.address,
+          street: data.street,
+          ward: data.ward,
+          city: data.city,
+          country: data.country,
+          postalCode: data.postalCode,
+        }
+        console.log(updatedSupplier);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Creating new Supplier...',
+          })
+          .then(async () => {
+            const updateSuppRes = await updateSupplier(data.id, updatedSupplier);
+            if (updateSuppRes.status == 201 || updateSuppRes.status == 200) {
+              console.log(updateSuppRes.data);
+              message.success('Updating Supplier successful');
+            } else {
+              message.error('Updating Supplier failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving Supplier:', error);
+      }
+    } else {
+      try {
+        const updatedUser: UserRequest = {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+          phoneNo: data.phoneNo,
+          activeMode: data.activeMode,
+          roleId: 1
+        }
+        console.log(updatedUser);
+        messageApi
+          .open({
+            type: 'loading',
+            content: 'Updating User...',
+          })
+          .then(async () => {
+            const updateUserRes = await updateUser(data.id, updatedUser);
+            if (updateUserRes.status == 201 || updateUserRes.status == 200) {
+              console.log(updateUserRes.data);
+              message.success('Updating User successful')
+            } else {
+              message.error('Updating User failure');
+            }
+          })
+      } catch (error) {
+        console.error('Error saving User:', error);
+      }
+    }
+  }
 
   const openCreateModal = () => setIsCreateModalOpen(true);
   const closeCreateModal = () => setIsCreateModalOpen(false);
@@ -79,8 +341,10 @@ export const AdvancedTableComponent = <T,>({
     setIsEditModalOpen(false);
   };
 
+
   return (
     <div className="mx-auto max-w-screen">
+      {contextHolder}
       <div className="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
         <div className="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
           <div className="w-full md:w-1/2">
@@ -131,10 +395,10 @@ export const AdvancedTableComponent = <T,>({
                   {columns.map((column, colIndex) => (
                     <td key={colIndex} className="px-4 py-3">{column.accessor(row)}</td>
                   ))}
-                  <td className="px-4 py-3 flex items-center justify-end">
+                  <td className="px-4 py-3 flex items-center content-center justify-center">
                     <button
                       id={`edit-${rowIndex}`}
-                      className="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                      className="inline-flex p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                       type="button"
                       onClick={() => openEditModal(row)}
                     >
@@ -163,7 +427,7 @@ export const AdvancedTableComponent = <T,>({
               aria-labelledby="modal-headline"
             >
               <div className="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <EditModal row={selectedRow} closeModal={closeEditModal} onSave={onSaveModal} />
+                <EditModal row={selectedRow} closeModal={closeEditModal} onSave={onUpdateModal} />
               </div>
             </div>
           </div>

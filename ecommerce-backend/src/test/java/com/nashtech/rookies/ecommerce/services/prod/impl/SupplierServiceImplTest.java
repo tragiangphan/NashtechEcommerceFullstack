@@ -1,135 +1,153 @@
-// package com.nashtech.rookies.ecommerce.services.prod.impl;
+package com.nashtech.rookies.ecommerce.services.prod.impl;
 
-// import static org.junit.jupiter.api.Assertions.*;
-// import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.*;
 
-// import java.util.*;
+import java.util.Optional;
+import java.util.HashSet;
 
-// import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
-// import com.nashtech.rookies.ecommerce.models.prod.Product;
-// import com.nashtech.rookies.ecommerce.models.prod.Supplier;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.*;
-// import org.mockito.junit.jupiter.MockitoExtension;
+import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
+import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
+import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
+import com.nashtech.rookies.ecommerce.models.constants.ActiveModeEnum;
+import com.nashtech.rookies.ecommerce.models.prod.Product;
+import com.nashtech.rookies.ecommerce.models.prod.Supplier;
+import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
+import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;
 
-// import com.nashtech.rookies.ecommerce.dto.prod.requests.SupplierRequestDTO;
-// import com.nashtech.rookies.ecommerce.dto.prod.responses.SupplierResponseDTO;
-// import com.nashtech.rookies.ecommerce.handlers.exceptions.NotFoundException;
-// import com.nashtech.rookies.ecommerce.handlers.exceptions.ResourceConflictException;
-// import com.nashtech.rookies.ecommerce.mappers.prod.SupplierMapper;
-// import com.nashtech.rookies.ecommerce.repositories.prod.CategoryRepository;
-// import com.nashtech.rookies.ecommerce.repositories.prod.ProductRepository;
-// import com.nashtech.rookies.ecommerce.repositories.prod.SupplierRepository;
+@ExtendWith(MockitoExtension.class)
+class SupplierServiceImplTest {
 
-// @ExtendWith(MockitoExtension.class)
-// class SupplierServiceImplTest {
+  @Mock
+  private SupplierRepository supplierRepository;
 
-//     @Mock
-//     private SupplierRepository supplierRepository;
+  @Mock
+  private ProductRepository productRepository;
 
-//     @Mock
-//     private ProductRepository productRepository;
+  @InjectMocks
+  private SupplierServiceImpl supplierService;
 
-//     @InjectMocks
-//     private SupplierServiceImpl supplierService;
+  private Supplier supplier;
+  private SupplierRequestDTO supplierRequestDTO;
 
-//     private Supplier supplier;
-//     private SupplierRequestDTO supplierRequestDTO;
+  @BeforeEach
+  void setUp() {
+    supplier = new Supplier();
+    supplier.setId(1L);
+    supplier.setSupplierName("Test Supplier");
+    supplier.setPhoneNo("1234567890");
+    supplier.setEmail("test@supplier.com");
+    supplier.setAddress("123 Test St.");
+    supplier.setStreet("Test St.");
+    supplier.setWard("Test Ward");
+    supplier.setCity("Test City");
+    supplier.setCountry("Test Country");
+    supplier.setPostalCode("12345");
+    supplier.setActiveMode(ActiveModeEnum.ACTIVE);
+    supplier.setProducts(new HashSet<>());
 
-//     @BeforeEach
-//     void setUp() {
-//         supplier = new Supplier();
-//         supplier.setId(1L);
-//         supplier.setSupplierName("Supplier Name");
-//         supplier.setPhoneNo("1234567890");
-//         supplier.setEmail("supplier@example.com");
-//         supplier.setAddress("123/45");
-//         supplier.setStreet("Main St");
-//         supplier.setWard("Ward 1");
-//         supplier.setCity("City");
-//         supplier.setCountry("Country");
-//         supplier.setPostalCode("12345");
-//         supplier.setActiveMode(ActiveModeEnum.ACTIVE);
-//         supplier.setProducts(new HashSet<>());
+    supplierRequestDTO = new SupplierRequestDTO(
+        "Test Supplier",
+        "1234567890",
+        "test@supplier.com",
+        "123 Test St.",
+        "Test St.",
+        "Test Ward",
+        "Test City",
+        "Test Country",
+        "12345",
+        ActiveModeEnum.ACTIVE,
+        new HashSet<>());
+  }
 
-//         supplierRequestDTO = new SupplierRequestDTO("Supplier Name", "1234567890", "supplier@example.com", "123/45", "Main St", "Ward 1", "City", "Country", "12345", ActiveModeEnum.ACTIVE, new HashSet<>());
-//     }
+  @Test
+  void createSupplier_WhenDoesNotExistSupplierName_CreateNewSupplier() {
+    when(supplierRepository.existsBySupplierName(supplierRequestDTO.supplierName())).thenReturn(false);
+    when(supplierRepository.saveAndFlush(any(Supplier.class))).thenReturn(supplier);
 
-//     @Test
-//     void testCreateSupplier_WhenSupplierDoesNotExist_ShouldCreateNewSupplier() {
-//         when(supplierRepository.existsBySupplierName(supplierRequestDTO.supplierName())).thenReturn(false);
-//         when(supplierRepository.saveAndFlush(any(Supplier.class))).thenReturn(supplier);
+    SupplierResponseDTO result = supplierService.createSupplier(supplierRequestDTO);
 
-//         SupplierResponseDTO responseDTO = supplierService.createSupplier(supplierRequestDTO);
+    assertThat(result).isNotNull()
+        .hasFieldOrPropertyWithValue("id", 1L) 
+        .hasFieldOrPropertyWithValue("supplierName", supplier.getSupplierName())
+        .hasFieldOrPropertyWithValue("phoneNo", supplier.getPhoneNo())
+        .hasFieldOrPropertyWithValue("email", supplier.getEmail())
+        .hasFieldOrPropertyWithValue("address", supplier.getAddress())
+        .hasFieldOrPropertyWithValue("street", supplier.getStreet())
+        .hasFieldOrPropertyWithValue("ward", supplier.getWard())
+        .hasFieldOrPropertyWithValue("city", supplier.getCity())
+        .hasFieldOrPropertyWithValue("country", supplier.getCountry())
+        .hasFieldOrPropertyWithValue("postalCode", supplier.getPostalCode())
+        .hasFieldOrPropertyWithValue("activeMode", supplier.getActiveMode())
+        .hasFieldOrPropertyWithValue("products", new HashSet<>());
+    verify(supplierRepository, times(1)).saveAndFlush(any(Supplier.class));
+  }
 
-//         assertNotNull(responseDTO);
-//         assertEquals(supplier.getId(), responseDTO.id());
-//         verify(supplierRepository, times(1)).saveAndFlush(any(Supplier.class));
-//     }
+  @Test
+  void createSupplier_WhenExistedSupplierName_ThrowResourceConflictException() {
+    when(supplierRepository.existsBySupplierName(supplierRequestDTO.supplierName())).thenReturn(true);
+    when(supplierRepository.findBySupplierName(supplierRequestDTO.supplierName())).thenReturn(supplier);
 
-//     @Test
-//     void testCreateSupplier_WhenSupplierExists_ShouldThrowResourceConflictException() {
-//         when(supplierRepository.existsBySupplierName(supplierRequestDTO.supplierName())).thenReturn(true);
-//         when(supplierRepository.findBySupplierName(supplierRequestDTO.supplierName())).thenReturn(supplier);
+    Throwable thrown = catchThrowable(() -> supplierService.createSupplier(supplierRequestDTO));
 
-//         assertThrows(ResourceConflictException.class, () -> supplierService.createSupplier(supplierRequestDTO));
-//         verify(supplierRepository, never()).saveAndFlush(any(Supplier.class));
-//     }
+    assertThat(thrown).isInstanceOf(ResourceConflictException.class)
+        .hasMessageContaining("Existed Supplier Name with an id: " + supplier.getId());
+  }
 
-//     @Test
-//     void testGetSuppliers_ShouldReturnAllSuppliers() {
-//         List<Supplier> suppliers = Collections.singletonList(supplier);
-//         List<Product> products = Collections.emptyList();
-//         when(supplierRepository.findAll()).thenReturn(suppliers);
-//         when(productRepository.findAll()).thenReturn(products);
+  @Test
+  void getSupplierById_WhenExistedSupplier_ReturnSupplier() {
+    when(supplierRepository.existsById(supplier.getId())).thenReturn(true);
+    when(supplierRepository.findById(supplier.getId())).thenReturn(Optional.of(supplier));
 
-//         List<SupplierResponseDTO> responseDTOs = supplierService.getSuppliers();
+    SupplierResponseDTO result = supplierService.getSupplierById(supplier.getId());
 
-//         assertNotNull(responseDTOs);
-//         assertEquals(1, responseDTOs.size());
-//         assertEquals(supplier.getId(), responseDTOs.getFirst().id());
-//     }
+    assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(supplier.getId());
+    verify(supplierRepository, times(1)).findById(supplier.getId());
+  }
 
-//     // @Test
-//     // void testGetSupplierById_WhenSupplierExists_ShouldReturnSupplier() {
-//     //     when(supplierRepository.existsById(1L)).thenReturn(true);
-//     //     when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
+  @Test
+  void getSupplierById_WhenDoesNotExistSupplier_ThrowNotFoundException() {
+    when(supplierRepository.existsById(supplier.getId())).thenReturn(false);
 
-//     //     List<SupplierResponseDTO> responseDTOs = supplierService.getSuppliers(1L);
+    Throwable thrown = catchThrowable(() -> supplierService.getSupplierById(supplier.getId()));
 
-//     //     assertNotNull(responseDTOs);
-//     //     assertEquals(1, responseDTOs.size());
-//     //     assertEquals(supplier.getId(), responseDTOs.getFirst().id());
-//     // }
+    assertThat(thrown).isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Not found Supplier with an id: " + supplier.getId());
+  }
 
-//     @Test
-//     void testGetSupplierById_WhenSupplierDoesNotExists_ShouldThrowNotFoundException() {
-//         when(supplierRepository.existsById(1L)).thenReturn(false);
+  @Test
+  void updateSupplier_WhenDoesNotExistSupplierName_ThrowNotFoundException() {
+    lenient().when(supplierRepository.existsById(supplier.getId())).thenReturn(true);
+    lenient().when(supplierRepository.findById(supplier.getId())).thenReturn(Optional.of(supplier));
+    lenient().when(productRepository.existsById(anyLong())).thenReturn(true);
+    lenient().when(productRepository.findById(anyLong())).thenReturn(Optional.of(new Product()));
+    lenient().when(supplierRepository.saveAndFlush(any(Supplier.class))).thenReturn(supplier);
 
-//         assertThrows(NotFoundException.class, () -> supplierService.getSuppliers(1L));
-//     }
+    SupplierResponseDTO result = supplierService.updateSupplier(supplier.getId(), supplierRequestDTO);
 
-//     @Test
-//     void testUpdateSupplier_WhenSupplierExists_ShouldUpdateSupplier() {
-//         when(supplierRepository.existsById(1L)).thenReturn(true);
-//         when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
-//         when(supplierRepository.saveAndFlush(any(Supplier.class))).thenReturn(supplier);
+    assertThat(result).isNotNull();
+    assertThat(result.id()).isEqualTo(supplier.getId());
+    verify(supplierRepository, times(1)).saveAndFlush(any(Supplier.class));
+  }
 
-//         SupplierResponseDTO responseDTO = supplierService.updateSupplier(1L, supplierRequestDTO);
+  @Test
+  void updateSupplier_WhenExistedSupplierName_ReturnSupplierUpdated() {
+    when(supplierRepository.existsById(supplier.getId())).thenReturn(false);
 
-//         assertNotNull(responseDTO);
-//         assertEquals(supplier.getId(), responseDTO.id());
-//         verify(supplierRepository, times(1)).saveAndFlush(any(Supplier.class));
-//     }
+    Throwable thrown = catchThrowable(() -> supplierService.updateSupplier(supplier.getId(), supplierRequestDTO));
 
-//     @Test
-//     void testUpdateSupplier__WhenSupplierExists_ShouldThrowNotFoundException() {
-//         when(supplierRepository.existsById(1L)).thenReturn(false);
-
-//         assertThrows(NotFoundException.class, () -> supplierService.updateSupplier(1L, supplierRequestDTO));
-//         verify(supplierRepository, never()).saveAndFlush(any(Supplier.class));
-//     }
-// }
+    assertThat(thrown).isInstanceOf(NotFoundException.class)
+        .hasMessageContaining("Not found Supplier with an id: " + supplier.getId());
+  }
+}

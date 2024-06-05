@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { PaginationModel } from '../../../models/commons/PaginationModel';
-import { TableComponent } from '../features/TableComponent';
 import { Pagination } from 'antd';
-import { createCategory, getAllCategory, updateCategory } from '../../../services/prod/CategoryServices';
+import { AdvancedTableComponent } from '../features/AdvancedTableComponent';
+import { getAllCategory } from '../../../services/prod/CategoryServices';
 import { CategoryResponse } from '../../../models/prod/response/CategoryResponse';
+import { Mode } from '../../../models/utils/ModeEnum';
+import { CategoryModal } from '../features/CategoryModal';
 
 export const CategoryManagement: React.FC = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [totalElement, setTotalElement] = useState(0);
-  const [updateCategories, setUpdateCategories] = useState();
   const [pagination, setPagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
@@ -17,76 +18,46 @@ export const CategoryManagement: React.FC = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, [pagination, updateCategories]);
+  }, [pagination, totalElement]);
 
   const fetchCategories = async () => {
     try {
-      const res = await getAllCategory(pagination);
-      setCategories(res.data.categoryResponseDTOs);
-      setTotalElement(res.data.totalElement);
+      const resProd = await getAllCategory(pagination);
+      console.log(resProd.data);
+
+      setCategories(resProd.data.categoryResponseDTOs);
+      setTotalElement(resProd.data.totalElement);
     } catch (error) {
-      console.error('Error fetching category:', error);
+      console.error('Error fetching products:', error);
     }
   };
 
-  const titles = [
-    { title: 'id', type: 'number' },
-    { title: 'categoryName', type: 'text' },
-    { title: 'categoryDesc', type: 'text' },
-    { title: 'activeMode', type: 'text' }
+  const columns = [
+    { header: 'ID', accessor: (row: CategoryResponse) => row.id, width: '5%' },
+    { header: 'Category Name', accessor: (row: CategoryResponse) => row.categoryName, width: '35%' },
+    { header: 'Category Description', accessor: (row: CategoryResponse) => row.categoryDesc, width: '40%' },
+    { header: 'Active Mode', accessor: (row: CategoryResponse) => row.activeMode, width: '5%' }
   ];
-
-  const handleSaveEdit = async (rowIndex: number, editedData: any) => {
-    try {
-      console.log(editedData);
-      const res = await updateCategory(rowIndex + 1, editedData);
-      console.log(res.data);
-      setUpdateCategories(res.data);
-      console.log("Category updated successfully");
-      const updatedCategory = categories.map(category => {
-        if (category.id === rowIndex) {
-          return { ...category, ...editedData };
-        }
-        return category;
-      });
-      setCategories(updatedCategory);
-    } catch (error) {
-      console.error('Error updating category:', error);
-    }
-  };
-
-  const handleCreate = async (newData: any) => {
-    try {
-      console.log(newData);
-      const newDataParsed = {
-        id: Number(newData.id),
-        categoryName: newData.categoryName,
-        categoryDesc: newData.categoryDesc,
-        activeMode: newData.activeMode
-      }
-      console.log(newDataParsed);
-      const res = await createCategory(newDataParsed);
-      console.log("Category created successfully", res.data);
-      setUpdateCategories(res.data);
-      fetchCategories(); // Refresh the category list
-    } catch (error) {
-      console.error('Error creating category:', error);
-    }
-  };
 
   const onPageChange = (page: number, size: number) => {
     setPagination({ ...pagination, currentPage: page, pageSize: size });
-  }
-
-  const handleFileChange = async () => {
-    console.log("");
   };
 
   return (
     <div>
-      <TableComponent titles={titles} data={categories} onEdit={handleSaveEdit} onCreate={handleCreate} onFileChange={handleFileChange} />
-      <Pagination className='my-10 mx-auto' onChange={(page, size) => { onPageChange(page, size) }}
-        current={pagination.currentPage} total={totalElement} pageSize={pagination.pageSize} />
+      <AdvancedTableComponent
+        data={categories}
+        columns={columns}
+        dataType={'Category'} 
+        editModal={({ row, closeModal, onSave }) => <CategoryModal row={row} closeModal={closeModal} onSave={onSave} mode={Mode[Mode.EDIT]} />}
+        createModal={({ closeModal, onSave }) => <CategoryModal row={[]} closeModal={closeModal} onSave={onSave} mode={Mode[Mode.CREATE]} />} />
+      <Pagination
+        className="my-10 mx-auto"
+        onChange={(page, size) => onPageChange(page, size)}
+        current={pagination.currentPage}
+        total={totalElement}
+        pageSize={pagination.pageSize}
+      />
     </div>
   );
 };

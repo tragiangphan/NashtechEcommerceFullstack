@@ -8,6 +8,5 @@ export type SupplierRequest = {
   city: string,
   country: string,
   postalCode: string,
-  activeMode: string,
-  products: number
+  activeMode: string
 }
