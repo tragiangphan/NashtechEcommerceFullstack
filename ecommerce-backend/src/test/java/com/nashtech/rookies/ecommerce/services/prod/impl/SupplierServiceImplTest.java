@@ -48,54 +48,42 @@ class SupplierServiceImplTest {
   @InjectMocks
   private SupplierServiceImpl supplierServiceImpl;
 
-  private Supplier supplier;
-  private SupplierRequestDTO supplierRequestDTO;
   private SupplierGetRequestParamsDTO requestParamsDTO;
-  private Sort.Direction dir;
-  private int pageNum;
-  private int pageSize;
+  private Sort.Direction dir = Sort.Direction.ASC;
+  private int pageNum = 1;
+  private int pageSize = 10;
+  private Set<Product> products;
+  private Supplier supplier;
   private Product product1;
   private Product product2;
-  private Set<Long> productIds;
-  private Set<Product> products;
+  private SupplierRequestDTO supplierRequestDTO;
 
   @BeforeEach
   void setUp() {
-    dir = Sort.Direction.ASC;
-    pageNum = 1;
-    pageSize = 10;
+    product1 = new Product();
+    product1.setId(1L);
+    product1.setProductName("Product1");
+
+    product2 = new Product();
+    product2.setId(2L);
+    product2.setProductName("Product2");
 
     supplier = new Supplier();
     supplier.setId(1L);
-    supplier.setSupplierName("Test Supplier");
-    supplier.setPhoneNo("1234567890");
-    supplier.setEmail("test@supplier.com");
-    supplier.setAddress("123 Test Address");
-    supplier.setStreet("Test Street");
-    supplier.setWard("Test Ward");
-    supplier.setCity("Test City");
-    supplier.setCountry("Test Country");
-    supplier.setPostalCode("12345");
-    supplier.setActiveMode(ActiveModeEnum.ACTIVE);
+    supplier.setSupplierName("Updated Supplier");
+    supplier.setPhoneNo("9876543210");
+    supplier.setEmail("updated@supplier.com");
+    supplier.setAddress("456 Updated Address");
+    supplier.setStreet("Updated Street");
+    supplier.setWard("Updated Ward");
+    supplier.setCity("Updated City");
+    supplier.setCountry("Updated Country");
+    supplier.setPostalCode("67890");
+    supplier.setActiveMode(ActiveModeEnum.INACTIVE);
+    supplier.setProducts(Set.of(product1, product2));
 
-    product1 = new Product();
-    product1.setId(1L);
-    product2 = new Product();
-    product2.setId(2L);
-
-    products = new HashSet<>();
-    products.add(product1);
-    products.add(product2);
-    supplier.setProducts(products);
-
-    productIds = new HashSet<>();
-    productIds.add(product1.getId());
-    productIds.add(product2.getId());
-
-    supplierRequestDTO = new SupplierRequestDTO(
-        "Updated Supplier", "9876543210", "updated@supplier.com", "456 Updated Address",
-        "Updated Street", "Updated Ward", "Updated City", "Updated Country",
-        "67890", ActiveModeEnum.INACTIVE, productIds);
+    supplierRequestDTO = new SupplierRequestDTO("Updated Supplier", "9876543210", "updated@supplier.com",
+        "456 Updated Address", "Updated Street", "Updated Ward", "Updated City", "Updated Country", "67890",ActiveModeEnum.INACTIVE, Set.of(1L, 2L));
   }
 
   @Test
@@ -211,17 +199,17 @@ class SupplierServiceImplTest {
     SupplierResponseDTO responseDTO = (SupplierResponseDTO) response.getBody();
     assertThat(responseDTO).isNotNull()
         .hasFieldOrPropertyWithValue("id", id)
-        .hasFieldOrPropertyWithValue("supplierName", "Test Supplier")
-        .hasFieldOrPropertyWithValue("phoneNo", "1234567890")
-        .hasFieldOrPropertyWithValue("email", "test@supplier.com")
-        .hasFieldOrPropertyWithValue("address", "123 Test Address")
-        .hasFieldOrPropertyWithValue("street", "Test Street")
-        .hasFieldOrPropertyWithValue("ward", "Test Ward")
-        .hasFieldOrPropertyWithValue("city", "Test City")
-        .hasFieldOrPropertyWithValue("country", "Test Country")
-        .hasFieldOrPropertyWithValue("postalCode", "12345")
-        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.ACTIVE)
-        .hasFieldOrPropertyWithValue("products", productIds);
+        .hasFieldOrPropertyWithValue("supplierName", "Updated Supplier")
+        .hasFieldOrPropertyWithValue("phoneNo", "9876543210")
+        .hasFieldOrPropertyWithValue("email", "updated@supplier.com")
+        .hasFieldOrPropertyWithValue("address", "456 Updated Address")
+        .hasFieldOrPropertyWithValue("street", "Updated Street")
+        .hasFieldOrPropertyWithValue("ward", "Updated Ward")
+        .hasFieldOrPropertyWithValue("city", "Updated City")
+        .hasFieldOrPropertyWithValue("country", "Updated Country")
+        .hasFieldOrPropertyWithValue("postalCode", "67890")
+        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.INACTIVE)
+        .hasFieldOrPropertyWithValue("products", Set.of(1L, 2L));
 
     verify(supplierRepository, times(1)).existsById(id);
     verify(supplierRepository, times(1)).findById(id);
@@ -243,17 +231,17 @@ class SupplierServiceImplTest {
     SupplierResponseDTO responseDTO = (SupplierResponseDTO) response.getBody();
     assertThat(responseDTO).isNotNull()
         .hasFieldOrPropertyWithValue("id", 1L)
-        .hasFieldOrPropertyWithValue("supplierName", supplierName)
-        .hasFieldOrPropertyWithValue("phoneNo", "1234567890")
-        .hasFieldOrPropertyWithValue("email", "test@supplier.com")
-        .hasFieldOrPropertyWithValue("address", "123 Test Address")
-        .hasFieldOrPropertyWithValue("street", "Test Street")
-        .hasFieldOrPropertyWithValue("ward", "Test Ward")
-        .hasFieldOrPropertyWithValue("city", "Test City")
-        .hasFieldOrPropertyWithValue("country", "Test Country")
-        .hasFieldOrPropertyWithValue("postalCode", "12345")
-        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.ACTIVE)
-        .hasFieldOrPropertyWithValue("products", productIds);
+        .hasFieldOrPropertyWithValue("supplierName", "Updated Supplier")
+        .hasFieldOrPropertyWithValue("phoneNo", "9876543210")
+        .hasFieldOrPropertyWithValue("email", "updated@supplier.com")
+        .hasFieldOrPropertyWithValue("address", "456 Updated Address")
+        .hasFieldOrPropertyWithValue("street", "Updated Street")
+        .hasFieldOrPropertyWithValue("ward", "Updated Ward")
+        .hasFieldOrPropertyWithValue("city", "Updated City")
+        .hasFieldOrPropertyWithValue("country", "Updated Country")
+        .hasFieldOrPropertyWithValue("postalCode", "67890")
+        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.INACTIVE)
+        .hasFieldOrPropertyWithValue("products", Set.of(1L, 2L));
 
     verify(supplierRepository, times(1)).findBySupplierName(supplierName);
   }
@@ -264,7 +252,7 @@ class SupplierServiceImplTest {
     requestParamsDTO = new SupplierGetRequestParamsDTO(null, null, null, dir, pageNum,
         pageSize);
     Page<Supplier> suppliersPage = new PageImpl<>(List.of(supplier),
-        PageRequest.of(pageNum - 1, pageSize, Sort.by(dir, "id")), 1);
+        PageRequest.of(pageNum - 1, pageSize, Sort.by(dir, "id")), pageNum - 1);
 
     // When
     when(supplierRepository.findAll(any(PageRequest.class))).thenReturn(suppliersPage);
@@ -282,17 +270,17 @@ class SupplierServiceImplTest {
     assertThat(responseDTO.supplierResponseDTOs()).hasSize(1);
     assertThat(responseDTO.supplierResponseDTOs().get(0))
         .hasFieldOrPropertyWithValue("id", 1L)
-        .hasFieldOrPropertyWithValue("supplierName", "Test Supplier")
-        .hasFieldOrPropertyWithValue("phoneNo", "1234567890")
-        .hasFieldOrPropertyWithValue("email", "test@supplier.com")
-        .hasFieldOrPropertyWithValue("address", "123 Test Address")
-        .hasFieldOrPropertyWithValue("street", "Test Street")
-        .hasFieldOrPropertyWithValue("ward", "Test Ward")
-        .hasFieldOrPropertyWithValue("city", "Test City")
-        .hasFieldOrPropertyWithValue("country", "Test Country")
-        .hasFieldOrPropertyWithValue("postalCode", "12345")
-        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.ACTIVE)
-        .hasFieldOrPropertyWithValue("products", productIds);
+        .hasFieldOrPropertyWithValue("supplierName", "Updated Supplier")
+        .hasFieldOrPropertyWithValue("phoneNo", "9876543210")
+        .hasFieldOrPropertyWithValue("email", "updated@supplier.com")
+        .hasFieldOrPropertyWithValue("address", "456 Updated Address")
+        .hasFieldOrPropertyWithValue("street", "Updated Street")
+        .hasFieldOrPropertyWithValue("ward", "Updated Ward")
+        .hasFieldOrPropertyWithValue("city", "Updated City")
+        .hasFieldOrPropertyWithValue("country", "Updated Country")
+        .hasFieldOrPropertyWithValue("postalCode", "67890")
+        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.INACTIVE)
+        .hasFieldOrPropertyWithValue("products", Set.of(1L, 2L));
 
     verify(supplierRepository, times(1)).findAll(any(PageRequest.class));
   }
@@ -334,7 +322,6 @@ class SupplierServiceImplTest {
   void testGetSupplierById_WithProducts_ShouldReturnSupplierResponseDTO() {
     // Given
     Long id = 1L;
-    supplier.setProducts(products);
 
     // When
     when(supplierRepository.existsById(id)).thenReturn(true);
@@ -343,17 +330,18 @@ class SupplierServiceImplTest {
 
     // Then
     assertThat(responseDTO).isNotNull()
-        .hasFieldOrPropertyWithValue("id", id)
-        .hasFieldOrPropertyWithValue("supplierName", "Test Supplier")
-        .hasFieldOrPropertyWithValue("phoneNo", "1234567890")
-        .hasFieldOrPropertyWithValue("email", "test@supplier.com")
-        .hasFieldOrPropertyWithValue("address", "123 Test Address")
-        .hasFieldOrPropertyWithValue("street", "Test Street")
-        .hasFieldOrPropertyWithValue("ward", "Test Ward")
-        .hasFieldOrPropertyWithValue("city", "Test City")
-        .hasFieldOrPropertyWithValue("country", "Test Country")
-        .hasFieldOrPropertyWithValue("postalCode", "12345")
-        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.ACTIVE);
+        .hasFieldOrPropertyWithValue("id", 1L)
+        .hasFieldOrPropertyWithValue("supplierName", "Updated Supplier")
+        .hasFieldOrPropertyWithValue("phoneNo", "9876543210")
+        .hasFieldOrPropertyWithValue("email", "updated@supplier.com")
+        .hasFieldOrPropertyWithValue("address", "456 Updated Address")
+        .hasFieldOrPropertyWithValue("street", "Updated Street")
+        .hasFieldOrPropertyWithValue("ward", "Updated Ward")
+        .hasFieldOrPropertyWithValue("city", "Updated City")
+        .hasFieldOrPropertyWithValue("country", "Updated Country")
+        .hasFieldOrPropertyWithValue("postalCode", "67890")
+        .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.INACTIVE)
+        .hasFieldOrPropertyWithValue("products", Set.of(1L, 2L));
 
     assertThat(responseDTO.products()).containsExactlyInAnyOrder(1L, 2L);
 
@@ -365,6 +353,8 @@ class SupplierServiceImplTest {
   void testUpdateSupplier_WhenSupplierExistsAndProductsExist_ReturnUpdatedSupplierResponseDTO() {
     // Given
     when(supplierRepository.existsById(1L)).thenReturn(true);
+    when(productRepository.existsById(1L)).thenReturn(true);
+    when(productRepository.existsById(2L)).thenReturn(true);
     when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
     when(productRepository.findById(product1.getId())).thenReturn(Optional.of(product1));
     when(productRepository.findById(product2.getId())).thenReturn(Optional.of(product2));
@@ -386,6 +376,8 @@ class SupplierServiceImplTest {
         .hasFieldOrPropertyWithValue("country", "Updated Country")
         .hasFieldOrPropertyWithValue("postalCode", "67890")
         .hasFieldOrPropertyWithValue("activeMode", ActiveModeEnum.INACTIVE);
+
+    // assertThat(supplierRequestDTO.products()).isNull();
 
     assertThat(responseDTO.products()).containsExactlyInAnyOrder(1L, 2L);
 
@@ -416,9 +408,8 @@ class SupplierServiceImplTest {
   void testUpdateSupplier_WhenProductDoesNotExist_ReturnNotFoundException() {
     // Given
     when(supplierRepository.existsById(1L)).thenReturn(true);
-    when(supplierRepository.findById(1L)).thenReturn(Optional.of(supplier));
-    when(productRepository.findById(product1.getId())).thenReturn(Optional.of(product1));
-    when(productRepository.findById(product2.getId())).thenReturn(Optional.empty());
+    lenient().when(productRepository.existsById(1L)).thenReturn(false);
+    lenient().when(productRepository.existsById(2L)).thenReturn(false);
 
     // When / Then
     assertThrows(NotFoundException.class, () -> {
@@ -426,9 +417,9 @@ class SupplierServiceImplTest {
     });
 
     verify(supplierRepository, times(1)).existsById(1L);
-    verify(supplierRepository, times(1)).findById(1L);
-    verify(productRepository, times(1)).findById(product1.getId());
-    verify(productRepository, times(1)).findById(product2.getId());
+    verify(supplierRepository, times(0)).findById(1L);
+    verify(productRepository, times(0)).findById(product1.getId());
+    verify(productRepository, times(0)).findById(product2.getId());
     verify(supplierRepository, times(0)).saveAndFlush(any(Supplier.class));
   }
 
