@@ -52,7 +52,6 @@ class SupplierServiceImplTest {
   private Sort.Direction dir = Sort.Direction.ASC;
   private int pageNum = 1;
   private int pageSize = 10;
-  private Set<Product> products;
   private Supplier supplier;
   private Product product1;
   private Product product2;
@@ -185,7 +184,7 @@ class SupplierServiceImplTest {
   void testHandleGetSupplier_WhenIdProvided_ShouldReturnSupplierResponseDTO() {
     // Given
     Long id = 1L;
-    requestParamsDTO = new SupplierGetRequestParamsDTO(id, null, null, null, null, null);
+    requestParamsDTO = new SupplierGetRequestParamsDTO(id, null, null, null, null);
     supplier.setId(id);
 
     // When
@@ -219,7 +218,7 @@ class SupplierServiceImplTest {
   void testHandleGetSupplier_WhenSupplierNameProvided_ShouldReturnSupplierResponseDTO() {
     // Given
     String supplierName = "Test Supplier";
-    requestParamsDTO = new SupplierGetRequestParamsDTO(null, supplierName, null, null, null, null);
+    requestParamsDTO = new SupplierGetRequestParamsDTO(null, supplierName, null, null, null);
 
     // When
     when(supplierRepository.findBySupplierName(supplierName)).thenReturn(supplier);
@@ -247,9 +246,9 @@ class SupplierServiceImplTest {
   }
 
   @Test
-  void testHandleGetSupplier_WhenNoParamsProvided_ShouldReturnSupplierPaginationDTO() {
+  void testHandleGetSupplier_WhenPaginationParamProvided_ShouldReturnSupplierPaginationDTO() {
     // Given
-    requestParamsDTO = new SupplierGetRequestParamsDTO(null, null, null, dir, pageNum,
+    requestParamsDTO = new SupplierGetRequestParamsDTO(null, null, dir, pageNum,
         pageSize);
     Page<Supplier> suppliersPage = new PageImpl<>(List.of(supplier),
         PageRequest.of(pageNum - 1, pageSize, Sort.by(dir, "id")), pageNum - 1);

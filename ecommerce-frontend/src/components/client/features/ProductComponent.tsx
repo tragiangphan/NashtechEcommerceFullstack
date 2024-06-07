@@ -33,7 +33,7 @@ export const ProductComponent: React.FC<{ prods: ProductResponse[], totalPage: n
       unit: prod.unit,
       price: prod.price,
       quantity: prod.quantity,
-      averageRating: await getAverageProduct(prod.id) ?? 0,
+      averageRating: await getAverageProduct(prod.id),
       images: await getImages(prod)
     })));
     setProductStore(featureProducts);

@@ -70,6 +70,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                         product.getProductDesc(), product.getUnit(),
                         product.getPrice(), product.getQuantity(),
                         product.getFeatureMode(), product.getCategory().getId(),
+                        product.getCreatedOn(), product.getLastUpdatedOn(),
                         supplierIds, new HashSet<>());
             } else {
                 throw new NotFoundException("Not found Category with an id: " + productRequestDTO.categoryId());
@@ -127,6 +128,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getProductDesc(), product.getUnit(),
                     product.getPrice(), product.getQuantity(),
                     product.getFeatureMode(), product.getCategory().getId(),
+                    product.getCreatedOn(), product.getLastUpdatedOn(),
                     suppliers, images));
         });
         return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
@@ -144,7 +146,8 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getId(), product.getProductName(),
                     product.getProductDesc(), product.getUnit(),
                     product.getPrice(), product.getQuantity(),
-                    product.getFeatureMode(), product.getCategory().getId(),
+                    product.getFeatureMode(), product.getCategory().getId(), 
+                    product.getCreatedOn(), product.getLastUpdatedOn(),
                     suppliers, images);
         } else {
             throw new NotFoundException(productNotFoundMessage + id);
@@ -168,6 +171,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getProductDesc(), product.getUnit(),
                     product.getPrice(), product.getQuantity(),
                     product.getFeatureMode(), product.getCategory().getId(),
+                    product.getCreatedOn(), product.getLastUpdatedOn(),
                     suppliers, images));
         });
         return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
@@ -191,6 +195,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getProductDesc(), product.getUnit(),
                     product.getPrice(), product.getQuantity(),
                     product.getFeatureMode(), product.getCategory().getId(),
+                    product.getCreatedOn(), product.getLastUpdatedOn(),
                     suppliers, images));
         });
         return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
@@ -214,6 +219,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getProductDesc(), product.getUnit(),
                     product.getPrice(), product.getQuantity(),
                     product.getFeatureMode(), product.getCategory().getId(),
+                    product.getCreatedOn(), product.getLastUpdatedOn(),
                     suppliers, images));
         });
         return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
@@ -236,6 +242,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getProductDesc(), product.getUnit(),
                     product.getPrice(), product.getQuantity(),
                     product.getFeatureMode(), product.getCategory().getId(),
+                    product.getCreatedOn(), product.getLastUpdatedOn(),
                     suppliers, images));
         });
         return new ProductPaginationDTO(products.getTotalPages(), products.getTotalElements(), products.getSize(),
@@ -275,6 +282,7 @@ public class ProductServiceImpl extends CommonServiceImpl<Product, Long> impleme
                     product.getProductDesc(), product.getUnit(),
                     product.getPrice(), product.getQuantity(),
                     product.getFeatureMode(), product.getCategory().getId(),
+                    product.getCreatedOn(), product.getLastUpdatedOn(),
                     supplierIds, images);
         } else {
             throw new NotFoundException(productNotFoundMessage + id);

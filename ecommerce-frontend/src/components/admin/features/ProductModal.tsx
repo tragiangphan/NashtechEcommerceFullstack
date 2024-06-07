@@ -1,5 +1,10 @@
-import React, { FormEvent, useRef, useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { FeatureModeEnum } from '../../../models/utils/FeatureModeEnum';
+import { deleteImage, getImageById } from '../../../services/prod/ImageServices';
+import { Images } from '../../../models/prod/entity/Images';
+import { ImageResponse } from '../../../models/prod/response/ImageResponse';
+import { message } from 'antd';
+import axios from 'axios';
 
 interface ProductModalProps {
   row: any;
@@ -12,6 +17,7 @@ interface ProductModalProps {
 
 export const ProductModal: React.FC<ProductModalProps> = ({ row, mode, categories, suppliers, closeModal, onSave }) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [deletedFiles, setDeletedFiles] = useState<number[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   const productNameRef = useRef<HTMLInputElement>(null);
@@ -24,22 +30,61 @@ export const ProductModal: React.FC<ProductModalProps> = ({ row, mode, categorie
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
   const units = ['Piece', 'Dozen', 'Gross', 'Set', 'Pair'];
-  console.log(row);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (row.images) {
+        const files: File[] = [];
+        const fileId: number[] = [];
+        const fileUrls: string[] = [];
+        const promises = row.images.map(async (image: number) => {
+          try {
+            const res = await getImageById(image);
+            console.log("start fetch");
+            fileUrls.push("http://localhost:8080" + res.data.imageLink);
+            const response = await fetch("http://localhost:8080" + res.data.imageLink);
+            console.log(response);
+            const blob = await response.blob();
+            const file = new File([blob], `new-image${image}.jpg`, { type: blob.type });
+            console.log(file);
+            files.push(file);
+            fileId.push(image);
+          } catch (error) {
+            console.error('Error fetching image:', error);
+            message.error('Error fetching image: ' + error);
+          }
+        });
+
+        await Promise.all(promises);
+        setDeletedFiles(fileId);
+        setSelectedFiles(files);
+        setPreviewUrls(fileUrls);
+        console.log(files);
+      }
+    };
+
+    fetchImages();
+  }, [row]);
 
 
   const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
+    const files = [...Array.from(event.target.files || []), ...selectedFiles];
     setSelectedFiles(files);
 
     const fileUrls = files.map(file => URL.createObjectURL(file));
     setPreviewUrls(fileUrls);
+    previewUrls.map((url, index) => {
+      console.log(url);
+      console.log(index);
+    })
   };
 
   const handleRemoveImage = (index: number) => {
+    console.log(index);
     const newSelectedFiles = selectedFiles.filter((_, i) => i !== index);
     const newPreviewUrls = previewUrls.filter((_, i) => i !== index);
 
-    setSelectedFiles(newSelectedFiles);
+    setSelectedFiles([...newSelectedFiles]);
     setPreviewUrls(newPreviewUrls);
     updateInputFiles(newSelectedFiles);
   };
@@ -54,6 +99,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({ row, mode, categorie
 
   const handleSubmitConfirm = (event: FormEvent) => {
     event.preventDefault();
+    console.log(deletedFiles);
+    deletedFiles.forEach(async (id: number) => {
+      await deleteImage(id);
+    })
     const updatedData = {
       id: row.id,
       productName: productNameRef.current?.value,

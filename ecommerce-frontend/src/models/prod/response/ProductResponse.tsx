@@ -9,4 +9,6 @@ export type ProductResponse = {
   categoryId: number,
   suppliers: number[],
   images: number[],
+  lastUpdatedOn: string,
+  createdOn: string,
 }

@@ -11,5 +11,7 @@ export type UserResponse = {
   inforId: number,
   cartId: number,
   orders: number[],
-  ratings: number[]
+  ratings: number[],
+  lastUpdatedOn: string,
+  createdOn: string,
 }

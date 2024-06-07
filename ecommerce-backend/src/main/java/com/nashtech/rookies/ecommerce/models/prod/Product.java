@@ -51,7 +51,7 @@ public class Product extends AuditEntity<Long> {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private Set<Image> images;
 
     @OneToMany(mappedBy = "product")

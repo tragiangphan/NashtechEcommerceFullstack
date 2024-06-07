@@ -17,7 +17,7 @@ export const StoreComponent: React.FC<{}> = () => {
   const [pagination, setPagination] = useState<PaginationModel>({
     direction: 'ASC',
     currentPage: 1,
-    pageSize: 8
+    pageSize: 10
   });
 
   useEffect(() => {

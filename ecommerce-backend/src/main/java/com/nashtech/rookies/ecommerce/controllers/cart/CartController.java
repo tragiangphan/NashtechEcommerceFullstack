@@ -8,8 +8,6 @@ import com.nashtech.rookies.ecommerce.dto.cart.requests.CartRequestDTO;
 import com.nashtech.rookies.ecommerce.dto.cart.responses.CartResponseDTO;
 import com.nashtech.rookies.ecommerce.services.cart.CartService;
 
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,7 +1,5 @@
 package com.nashtech.rookies.ecommerce.controllers.cart;
 
-import java.util.List;
-
 import com.nashtech.rookies.ecommerce.dto.cart.requests.OrderGetRequestParamsDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

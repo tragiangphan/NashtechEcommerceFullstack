@@ -49,6 +49,7 @@ public class TokenProvider {
     private Instant genTokenExpirationDate (int hours) {
         // return LocalDateTime.now().plusSeconds(hours).toInstant(ZoneOffset.UTC);
         // return LocalDateTime.now().plusHours(hours).toInstant(ZoneOffset.UTC);
-        return Instant.now().plusSeconds(hours);
+        // return Instant.now().plusSeconds(hours);
+        return Instant.now().plusSeconds(hours * 3600L);
     }
 }

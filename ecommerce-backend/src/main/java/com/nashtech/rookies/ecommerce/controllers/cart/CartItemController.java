@@ -1,7 +1,6 @@
 package com.nashtech.rookies.ecommerce.controllers.cart;
 
 import com.nashtech.rookies.ecommerce.dto.cart.requests.CartItemGetRequestParamsDTO;
-import com.nashtech.rookies.ecommerce.dto.cart.responses.PaginationCartItemDTO;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

@@ -45,6 +45,8 @@ export const ProductManagement: React.FC = () => {
       setCategories(resCate.data.categoryResponseDTOs.map((res: CategoryResponse) => res.categoryName));
       setSuppliers(resSupp.data.supplierResponseDTOs.map((res: SupplierResponse) => res.supplierName));
       setProducts(resProd.data.products);
+      console.log(resProd.data.products);
+      
       setTotalElement(resProd.data.totalElement);
 
       console.log(resCate.data.categoryResponseDTOs);
@@ -63,8 +65,9 @@ export const ProductManagement: React.FC = () => {
     { header: 'Quantity', accessor: (row: ProductResponse) => row.quantity, width: '5%' },
     { header: 'Feature Mode', accessor: (row: ProductResponse) => row.featureMode, width: '5%' },
     { header: 'Category', accessor: (row: ProductResponse) => row.categoryId, width: '5%' },
-    { header: 'Supplier', accessor: (row: ProductResponse) => row.suppliers, width: '10%' },
+    { header: 'Supplier', accessor: (row: ProductResponse) => row.suppliers, width: '5%' },
     { header: 'Images', accessor: (row: ProductResponse) => row.images.join(', '), width: '5%' },
+    { header: 'Last Modified Date', accessor: (row: ProductResponse) => new Date(row.lastUpdatedOn).toUTCString(), width: '5%' }
   ];
 
   const onPageChange = (page: number, size: number) => {

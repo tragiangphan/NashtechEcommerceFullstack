@@ -35,7 +35,8 @@ export const SignInComponent: React.FC<{}> = () => {
           localStorage.setItem('userData', JSON.stringify(user));
           if (cookies.roleId == 1) {
             navigator('/admin');
-          } else {
+          } 
+          if(cookies.roleId == 2) {
             navigator('/home');
           }
         } else {
@@ -139,6 +140,7 @@ export const SignInComponent: React.FC<{}> = () => {
           setCookies('username', res.data?.username);
           setCookies('roleId', res.data?.roleId);
           setCookies('accessToken', res.data?.accessToken);
+          localStorage.setItem('accessToken', res.data?.accessToken);
           message.success('Sign in successful', 2);
         } else {
           console.log(res);
