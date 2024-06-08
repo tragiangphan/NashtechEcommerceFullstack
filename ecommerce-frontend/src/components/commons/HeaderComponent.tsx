@@ -22,7 +22,7 @@ export const HeaderComponent: React.FC<{}> = () => {
         navigator('/')
       }
     }
-    if (currentPath === '/') {
+    if (currentPath === '/' || currentPath === '/sign_in' || currentPath === '/sign_up') {
       setShowButton(true);
     } else {
       setShowButton(false);

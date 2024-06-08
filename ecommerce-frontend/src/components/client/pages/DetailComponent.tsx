@@ -157,7 +157,7 @@ export const DetailComponent: React.FC<{}> = () => {
             {/* <!-- Items --> */}
             {product.images.map(img => (
               <div key={img.id}>
-                <img src={img.url} className="w-full h-auto object-cover p-10" alt={img.desc} />
+                <img src={'http://localhost:8080'+ img.url} className="w-full h-auto object-cover p-10" alt={img.desc} />
               </div>
             ))}
           </Carousel>

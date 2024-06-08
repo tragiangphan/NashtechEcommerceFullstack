@@ -9,7 +9,7 @@ export const IMAGE_REST_API_URL = `${REST_API_URL}/images`
 // Users
 export const USER_REST_API_URL = `${REST_API_URL}/users`
 export const INFOR_REST_API_URL = `${REST_API_URL}/infors`
-export const SIGN_UP_REST_API_URL = `${REST_API_URL}/signUp`
+export const SIGN_UP_REST_API_URL = `${REST_API_URL}/auth/signUp`
 export const SIGN_IN_REST_API_URL = `${REST_API_URL}/auth/signIn`
 
 // Carts

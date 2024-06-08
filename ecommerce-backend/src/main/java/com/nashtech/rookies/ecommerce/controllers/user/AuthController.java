@@ -32,11 +32,10 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping(path = "/signUp", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
-            MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(path = "/signUp")
     public ResponseEntity<User> authSignUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO) {
         User newUser = userService.signUp(signUpRequestDTO);
-        return ResponseEntity.ok(newUser);
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
 
     @PostMapping("/signIn")
