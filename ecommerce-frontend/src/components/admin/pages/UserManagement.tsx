@@ -43,6 +43,7 @@ export const UserManagement: React.FC = () => {
     { header: 'Active Mode', accessor: (row: UserResponse) => row.activeMode, width: '5%' },
     { header: 'Phone No.', accessor: (row: UserResponse) => row.phoneNo, width: '10%' },
     { header: 'Role', accessor: (row: UserResponse) => row.roleId, width: '5%' },
+    { header: 'Last Modified Date', accessor: (row: UserResponse) => new Date(row.lastUpdatedOn).toLocaleString(), width: '5%' },
     // { header: 'Address', accessor: (row: SupplierResponse) => row.address, width: '40%' },
     // { header: 'Ward', accessor: (row: SupplierResponse) => row.ward, width: '40%' },
     // { header: 'City', accessor: (row: SupplierResponse) => row.city, width: '40%' },

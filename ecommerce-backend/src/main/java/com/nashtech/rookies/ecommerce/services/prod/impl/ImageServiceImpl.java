@@ -38,6 +38,8 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
     private final ImageMapper imageMapper;
     private final ProductRepository productRepository;
 
+    private String PATH_FILE = "C:/Users/tragi/OneDrive - famifox/Technique/Project/NashtechEcommerceFullstack/ecommerce-backend/src/main/resources/static/";
+
     ImageServiceImpl(ImageRepository imageRepository, ProductRepository productRepository, ImageMapper imageMapper) {
         super(imageRepository);
         this.imageRepository = imageRepository;
@@ -153,6 +155,20 @@ public class ImageServiceImpl extends CommonServiceImpl<Image, Long> implements 
             }
         } else {
             throw new NotFoundException("Not found Image with an id: " + id);
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<HttpStatus> deleteImage(Long id) {
+        try {
+            Image image = imageRepository.findById(id).get();
+            System.out.println(PATH_FILE + image.getImageLink().split("/")[2]);
+            ImageUploadUtil.deleteFile(PATH_FILE + image.getImageLink().split("/")[2]);
+            imageRepository.deleteById(id);
+            return ResponseEntity.ok(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

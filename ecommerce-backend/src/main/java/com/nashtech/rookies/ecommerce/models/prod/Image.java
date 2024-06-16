@@ -25,7 +25,7 @@ public class Image extends IdEntity<Long> {
   private String imageLink;
   private String imageDesc;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id", nullable = false)
   private Product product;
 }

@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, MouseEventHandler, useEffect, useRef, useState } from "react";
 import { signIn } from "../../services/user/AuthService";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from 'react-cookie'
@@ -35,7 +35,8 @@ export const SignInComponent: React.FC<{}> = () => {
           localStorage.setItem('userData', JSON.stringify(user));
           if (cookies.roleId == 1) {
             navigator('/admin');
-          } else {
+          } 
+          if(cookies.roleId == 2) {
             navigator('/home');
           }
         } else {
@@ -139,6 +140,7 @@ export const SignInComponent: React.FC<{}> = () => {
           setCookies('username', res.data?.username);
           setCookies('roleId', res.data?.roleId);
           setCookies('accessToken', res.data?.accessToken);
+          localStorage.setItem('accessToken', res.data?.accessToken);
           message.success('Sign in successful', 2);
         } else {
           console.log(res);
@@ -147,6 +149,10 @@ export const SignInComponent: React.FC<{}> = () => {
       })
 
   };
+
+  const navigateToSignUp = () => {
+    navigator('/sign_up')
+  }
 
   return (
     <div className="flex justify-center items-center h-dvh">
@@ -164,7 +170,7 @@ export const SignInComponent: React.FC<{}> = () => {
           </div>
           <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Log in your account</button>
           <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-            Not registered? <a href="#" className="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
+            Not registered? <button onClick={navigateToSignUp} className="text-blue-700 hover:underline dark:text-blue-500">Create account</button>
           </div>
         </form>
       </div>

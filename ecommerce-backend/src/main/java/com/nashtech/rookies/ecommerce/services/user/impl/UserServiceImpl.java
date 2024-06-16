@@ -75,6 +75,7 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(),
                         user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(),
                         user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(),
+                        user.getCreatedOn(), user.getLastUpdatedOn(),
                         user.getOrders().stream().map(Persistable::getId).collect(Collectors.toSet()),
                         user.getRatings().stream().map(Persistable::getId).collect(Collectors.toSet()));
             } else {
@@ -116,7 +117,8 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                     : new HashSet<>();
             userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),
                     user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(),
-                    user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings));
+                    user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(),
+                    user.getCreatedOn(), user.getLastUpdatedOn(), orders, ratings));
         });
         return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
                 users.getNumber() + 1, userResponseDTOs);
@@ -132,7 +134,8 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 : new HashSet<>();
         return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(),
                 user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(), user.getRole().getId(),
-                user.getInfor().getId(), user.getCart().getId(), orders, ratings);
+                user.getInfor().getId(), user.getCart().getId(),
+                user.getCreatedOn(), user.getLastUpdatedOn(), orders, ratings);
     }
 
     public UserPaginationDTO getUsers(Long id, Sort.Direction dir, int pageNum, int pageSize) {
@@ -153,6 +156,7 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 userResponseDTOs.add(new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(),
                         user.getEmail(), user.getUsername(), user.getPassword(), user.getPhoneNo(),
                         user.getActiveMode(), user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(),
+                        user.getCreatedOn(), user.getLastUpdatedOn(),
                         orders, ratings));
                 return new UserPaginationDTO(users.getTotalPages(), users.getTotalElements(), users.getSize(),
                         users.getNumber() + 1, userResponseDTOs);
@@ -181,7 +185,8 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
                 Set<Long> ratings = new HashSet<>(user.getRatings().stream().map(Persistable::getId).toList());
                 return new UserResponseDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(),
                         user.getUsername(), user.getPassword(), user.getPhoneNo(), user.getActiveMode(),
-                        user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(), orders, ratings);
+                        user.getRole().getId(), user.getInfor().getId(), user.getCart().getId(),
+                        user.getCreatedOn(), user.getLastUpdatedOn(), orders, ratings);
             } else {
                 throw new NotFoundException(roleNotFoundMessage + userRequestDTO.roleId());
             }
@@ -223,13 +228,11 @@ public class UserServiceImpl extends CommonServiceImpl<User, Long> implements Us
         }
     }
 
-    
-
     @Override
     public Map<String, String> generateToken(Authentication authenticationManager) {
         // Generated token
-        var accessToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 10);
-        var refreshToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 10);
+        var accessToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 2);
+        var refreshToken = tokenProvider.generateToken((User) authenticationManager.getPrincipal(), 24);
         return Map.of("access_token", accessToken, "refresh_token", refreshToken);
     }
 

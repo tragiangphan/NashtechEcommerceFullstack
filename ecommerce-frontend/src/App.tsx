@@ -40,6 +40,7 @@ function App() {
             </Route>
 
             {/* forbidden */}
+            <Route path="*" element={<ErrorComponent code={404} message={"Sorry, the page you requested does not exist."} />} />
             <Route path="/403" element={<ErrorComponent code={403} message={"Sorry, you are not authorized to access this page."} />} />
           </Routes>
         </div>

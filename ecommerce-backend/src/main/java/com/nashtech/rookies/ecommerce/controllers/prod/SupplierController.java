@@ -34,12 +34,11 @@ public class SupplierController {
   @GetMapping()
   public ResponseEntity<?> getSupplier(
       @RequestParam(name = "id", required = false) Long id,
-      @RequestParam(name = "productId", required = false) Long productId,
       @RequestParam(name = "supplierName", required = false) String supplierName,
       @RequestParam(name = "direction", required = false) Sort.Direction dir,
       @RequestParam(name = "pageNum", required = false) Integer pageNum,
       @RequestParam(name = "pageSize", required = false) Integer pageSize) {
-    return supplierService.handleGetSupplier(new SupplierGetRequestParamsDTO(id, supplierName, productId, dir, pageNum, pageSize));
+    return supplierService.handleGetSupplier(new SupplierGetRequestParamsDTO(id, supplierName, dir, pageNum, pageSize));
   }
 
   @PutMapping()

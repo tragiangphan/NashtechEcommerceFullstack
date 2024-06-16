@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -33,11 +32,10 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
-    @PostMapping(path = "/signUp", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = {
-            MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(path = "/signUp")
     public ResponseEntity<User> authSignUp(@RequestBody @Valid SignUpRequestDTO signUpRequestDTO) {
         User newUser = userService.signUp(signUpRequestDTO);
-        return ResponseEntity.ok(newUser);
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
 
     @PostMapping("/signIn")

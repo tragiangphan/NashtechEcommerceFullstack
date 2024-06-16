@@ -83,6 +83,7 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
         }
     }
 
+    @Override
     public SupplierPaginationDTO getSuppliers(Sort.Direction dir, int pageNum, int pageSize) {
         Sort sort = Sort.by(dir, "id");
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
@@ -102,6 +103,7 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
                 suppliers.getNumber(), supplierResponseDTOs);
     }
 
+    @Override
     public SupplierResponseDTO getSupplierById(Long id) {
         if (supplierRepository.existsById(id)) {
             Supplier supplier = supplierRepository.findById(id).get();
@@ -116,6 +118,7 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
         }
     }
 
+    @Override
     public SupplierResponseDTO getSupplierBySupplierName(String supplierName) {
         Supplier supplier = supplierRepository.findBySupplierName(supplierName);
         if (supplier != null) {
@@ -131,12 +134,14 @@ public class SupplierServiceImpl extends CommonServiceImpl<Supplier, Long> imple
 
     @Override
     @Transactional
-    public SupplierResponseDTO updateSupplier(Long id, SupplierRequestDTO supplierRequestDTO) {
+    public SupplierResponseDTO updateSupplier(Long id, SupplierRequestDTO supplierRequestDTO) throws NotFoundException {
         if (supplierRepository.existsById(id)) {
             Set<Product> products = new HashSet<>();
             supplierRequestDTO.products().forEach(prod -> {
                 if (productRepository.existsById(prod)) {
                     products.add(productRepository.findById(prod).get());
+                } else {
+                    throw new NotFoundException("Not found Product with an id: " + prod);
                 }
             });
             Supplier supplier = supplierRepository.findById(id).get();

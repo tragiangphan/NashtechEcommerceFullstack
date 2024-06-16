@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ImageUploadUtil {
+  
   public static String saveFile(String path, String fileName, MultipartFile multipartFile) throws IOException {
     Path uploadPath = Paths.get(path);
 
@@ -32,5 +33,18 @@ public class ImageUploadUtil {
     }
 
     return fileCode;
+  }
+
+  public static void deleteFile(String pathFileName) throws IOException {
+    Path deletePath = Paths.get(pathFileName);
+
+    // Ensure the upload directory exists
+    if (Files.exists(deletePath)) {
+      try {
+        Files.delete(deletePath);
+      } catch (IOException e) {
+        throw new IOException("Could not delete directory: " + pathFileName, e);
+      }
+    }
   }
 }

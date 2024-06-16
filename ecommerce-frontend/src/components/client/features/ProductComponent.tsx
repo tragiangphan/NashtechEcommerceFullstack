@@ -19,7 +19,7 @@ interface ProductShow {
 }
 
 export const ProductComponent: React.FC<{ prods: ProductResponse[], totalPage: number, currentPage: number, pageSize: number, onPageChange: (page: number, size: number) => void }> = ({ prods, totalPage, currentPage, pageSize, onPageChange }) => {
-  const [productStore, setProductStore] = useState<Product[]>([]);
+  const [productStore, setProductStore] = useState<ProductShow[]>([]);
 
   useEffect(() => {
     fetchAllProducts(prods);
@@ -33,7 +33,7 @@ export const ProductComponent: React.FC<{ prods: ProductResponse[], totalPage: n
       unit: prod.unit,
       price: prod.price,
       quantity: prod.quantity,
-      averageRating: await getAverageProduct(prod.id) ?? 0,
+      averageRating: await getAverageProduct(prod.id),
       images: await getImages(prod)
     })));
     setProductStore(featureProducts);
@@ -45,7 +45,7 @@ export const ProductComponent: React.FC<{ prods: ProductResponse[], totalPage: n
       const res = await getAverageRatingByProductId(productId, { direction: 'ASC', currentPage: currentPage, pageSize: pageSize });
       const averageRating = res.data ? res.data : 0; // Default to 0 if data is missing
   
-      return { averageRating };
+      return averageRating;
     } catch (err) {
       console.error('Error fetching average rating:', err);
       return null; // Maintain error handling
